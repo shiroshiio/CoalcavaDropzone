@@ -663,11 +663,10 @@ namespace CoalcavaDropzone
                 }
 
                 DialogResult confirmResult = MessageBox.Show(
-                    $"⚠️ ALERTA DE SEGURIDAD ⚠️\n\n" +
-                    $"El cliente \"{clientName}\" NO existe en la carpeta raíz.\n\n" +
+                    $"El cliente \"{clientName}\" No existe en la carpeta raíz.\n\n" +
                     $"Ruta solicitada:\n{clientFolderPath}\n\n" +
-                    "¿Deseas CREAR esta nueva carpeta de cliente y continuar con el guardado?",
-                    "Advertencia: Cliente no encontrado",
+                    "¿Deseas crear esta nueva carpeta de cliente y continuar con el guardado?",
+                    "Cliente no encontrado",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning,
                     MessageBoxDefaultButton.Button2
