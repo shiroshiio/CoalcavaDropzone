@@ -11,7 +11,7 @@ namespace CoalcavaDropzone
 {
     public partial class Form1 : Form
     {
-        // win32 api for flashing window frame
+        // win32 api for flashing window frame on safety warning
         [DllImport("user32.dll")]
         private static extern bool FlashWindow(IntPtr hwnd, bool bInvert);
 
@@ -20,10 +20,15 @@ namespace CoalcavaDropzone
         private string selectedFilePath = string.Empty;
         private const string PlaceholderText = "Seleccionar o buscar cliente...";
 
+        // theme color palette
+        private readonly Color NormalDropzoneColor = Color.FromArgb(248, 248, 246);
+        private readonly Color HoverDropzoneColor = Color.FromArgb(254, 243, 235);
+
         public Form1()
         {
             InitializeComponent();
             SetupDropzoneUI();
+            ConfigureLabelTextSafety();
             this.Load += Form1_Load;
         }
 
@@ -39,7 +44,7 @@ namespace CoalcavaDropzone
             }
             catch
             {
-                // fallback to default if settings wrapper unconfigured
+                // fallback to default if settings wrapper is unconfigured
             }
 
             clientRootPath = clientRootPath.Replace('/', '\\');
@@ -54,32 +59,54 @@ namespace CoalcavaDropzone
 
         private void SetupDropzoneUI()
         {
-            // enable drag and drop on dropzone panel and controls
+            // enable drag and drop on dropzone panel, resting controls, AND active preview picturebox
             pnlDropzone.AllowDrop = true;
             pbDownloadIcon.AllowDrop = true;
-            lblDropPrompt.AllowDrop = true;
+            picPreview.AllowDrop = true; // allows dropping files directly over the active thumbnail
 
+            // route drag & drop events
             pnlDropzone.DragEnter += Dropzone_DragEnter;
+            pnlDropzone.DragLeave += Dropzone_DragLeave;
             pnlDropzone.DragDrop += Dropzone_DragDrop;
-            pbDownloadIcon.DragEnter += Dropzone_DragEnter;
-            pbDownloadIcon.DragDrop += Dropzone_DragDrop;
-            lblDropPrompt.DragEnter += Dropzone_DragEnter;
-            lblDropPrompt.DragDrop += Dropzone_DragDrop;
 
-            // route clicks to file browser
+            pbDownloadIcon.DragEnter += Dropzone_DragEnter;
+            pbDownloadIcon.DragLeave += Dropzone_DragLeave;
+            pbDownloadIcon.DragDrop += Dropzone_DragDrop;
+
+            picPreview.DragEnter += Dropzone_DragEnter;
+            picPreview.DragLeave += Dropzone_DragLeave;
+            picPreview.DragDrop += Dropzone_DragDrop;
+
+            // route clicks to file browser (clicking picpreview re-opens file browser)
             pnlDropzone.Click += Dropzone_Click;
             pbDownloadIcon.Click += Dropzone_Click;
-            lblDropPrompt.Click += Dropzone_Click;
+            picPreview.Click += Dropzone_Click; // click-through behavior to browse new file
 
             // enable form keypreview for ctrl+v clipboard paste
             this.KeyPreview = true;
             this.KeyDown += Form1_KeyDown;
 
+            // transparent background on resting elements
             pbDownloadIcon.BackColor = Color.Transparent;
-            lblDropPrompt.BackColor = Color.Transparent;
             picPreview.BackColor = Color.Transparent;
 
             ResetDropzone();
+        }
+
+        private void ConfigureLabelTextSafety()
+        {
+            // safety formatting to prevent labels from bleeding outside container bounds
+            if (lblPreviewName != null)
+            {
+                lblPreviewName.AutoSize = false;
+                lblPreviewName.AutoEllipsis = true; // fades overly long text into '...'
+            }
+
+            if (lblFileName != null)
+            {
+                lblFileName.AutoSize = false;
+                lblFileName.AutoEllipsis = true;
+            }
         }
 
         private void Dropzone_DragEnter(object sender, DragEventArgs e)
@@ -87,13 +114,18 @@ namespace CoalcavaDropzone
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 e.Effect = DragDropEffects.Copy;
-                pnlDropzone.BackColor = Color.FromArgb(254, 243, 235);
+                pnlDropzone.BackColor = HoverDropzoneColor;
             }
+        }
+
+        private void Dropzone_DragLeave(object sender, EventArgs e)
+        {
+            pnlDropzone.BackColor = NormalDropzoneColor;
         }
 
         private void Dropzone_DragDrop(object sender, DragEventArgs e)
         {
-            pnlDropzone.BackColor = Color.FromArgb(248, 248, 246);
+            pnlDropzone.BackColor = NormalDropzoneColor;
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
             if (files != null && files.Length > 0)
@@ -177,7 +209,6 @@ namespace CoalcavaDropzone
             lblFileName.Text = Path.GetFileName(filePath);
 
             pbDownloadIcon.Visible = false;
-            lblDropPrompt.Visible = false;
 
             picPreview.Visible = true;
             btnClear.Visible = true;
@@ -203,11 +234,12 @@ namespace CoalcavaDropzone
             btnOpenDoc.Visible = false;
 
             pbDownloadIcon.Visible = true;
-            lblDropPrompt.Visible = true;
+            pnlDropzone.BackColor = NormalDropzoneColor;
 
             UpdateFilenamePreview(null, null);
         }
 
+        // generates shell thumbnail for pdf, docx, xlsx, png, jpg or extracts system icon fallback
         private void GeneratePreview(string filePath)
         {
             try
@@ -224,6 +256,8 @@ namespace CoalcavaDropzone
                 if (thumbnail != null)
                 {
                     picPreview.Image = thumbnail;
+                    picPreview.SizeMode = PictureBoxSizeMode.Zoom;
+                    picPreview.Visible = true;
                 }
                 else
                 {
@@ -232,6 +266,8 @@ namespace CoalcavaDropzone
                         if (fileIcon != null)
                         {
                             picPreview.Image = fileIcon.ToBitmap();
+                            picPreview.SizeMode = PictureBoxSizeMode.CenterImage;
+                            picPreview.Visible = true;
                         }
                     }
                 }
@@ -334,7 +370,7 @@ namespace CoalcavaDropzone
 
             txtClientSearch.TextChanged += UpdateFilenamePreview;
             cmbDocType.SelectedIndexChanged += UpdateFilenamePreview;
-            cmbDocType.TextChanged += UpdateFilenamePreview; // catches custom user typing
+            cmbDocType.TextChanged += UpdateFilenamePreview; // catches typed input
             dtpDocDate.ValueChanged += UpdateFilenamePreview;
 
             if (chkIncludeDay != null)
@@ -573,7 +609,7 @@ namespace CoalcavaDropzone
 
             string department = cmbDepartment.SelectedItem?.ToString() ?? "";
 
-            // safely handle combobox text input
+            // safely handle typed or selected combobox input
             string rawDocType = string.IsNullOrWhiteSpace(cmbDocType.Text) ? "Doc" : cmbDocType.Text;
             string docType = GetShortDocTypeCode(rawDocType);
 
