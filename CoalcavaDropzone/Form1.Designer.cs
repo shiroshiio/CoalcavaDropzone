@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.btnSort = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.btnOpenDoc = new System.Windows.Forms.Button();
@@ -128,9 +129,9 @@
             // lblFileName
             // 
             this.lblFileName.AutoSize = true;
-            this.lblFileName.Location = new System.Drawing.Point(35, 249);
+            this.lblFileName.Location = new System.Drawing.Point(33, 248);
             this.lblFileName.Name = "lblFileName";
-            this.lblFileName.Size = new System.Drawing.Size(221, 17);
+            this.lblFileName.Size = new System.Drawing.Size(227, 17);
             this.lblFileName.TabIndex = 2;
             this.lblFileName.Text = "Arrastra un archivo o haz clic aquí.";
             this.lblFileName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -258,6 +259,7 @@
             this.tabControlMain.Controls.Add(this.tabPageDropzone);
             this.tabControlMain.Controls.Add(this.tabPageOptions);
             this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Left;
+            this.tabControlMain.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tabControlMain.ItemSize = new System.Drawing.Size(150, 20);
             this.tabControlMain.Location = new System.Drawing.Point(0, 0);
             this.tabControlMain.Name = "tabControlMain";
@@ -327,7 +329,7 @@
             // 
             // btnBrowseRoot
             // 
-            this.btnBrowseRoot.Location = new System.Drawing.Point(301, 93);
+            this.btnBrowseRoot.Location = new System.Drawing.Point(422, 93);
             this.btnBrowseRoot.Name = "btnBrowseRoot";
             this.btnBrowseRoot.Size = new System.Drawing.Size(120, 25);
             this.btnBrowseRoot.TabIndex = 3;
@@ -340,7 +342,7 @@
             this.txtRootPath.Location = new System.Drawing.Point(15, 93);
             this.txtRootPath.Name = "txtRootPath";
             this.txtRootPath.ReadOnly = true;
-            this.txtRootPath.Size = new System.Drawing.Size(280, 25);
+            this.txtRootPath.Size = new System.Drawing.Size(401, 25);
             this.txtRootPath.TabIndex = 2;
             // 
             // label6
@@ -392,6 +394,7 @@
             this.Controls.Add(this.tabControlMain);
             this.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "COALCAVA Dropzone";
