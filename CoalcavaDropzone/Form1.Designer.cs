@@ -362,7 +362,7 @@
             this.lstClientSuggestions.ItemHeight = 20;
             this.lstClientSuggestions.Location = new System.Drawing.Point(339, 49);
             this.lstClientSuggestions.Name = "lstClientSuggestions";
-            this.lstClientSuggestions.Size = new System.Drawing.Size(249, 224);
+            this.lstClientSuggestions.Size = new System.Drawing.Size(249, 144);
             this.lstClientSuggestions.TabIndex = 13;
             this.lstClientSuggestions.Visible = false;
             // 
