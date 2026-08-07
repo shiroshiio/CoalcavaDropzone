@@ -80,7 +80,7 @@ namespace CoalcavaDropzone
             // route clicks to file browser (clicking picpreview re-opens file browser)
             pnlDropzone.Click += Dropzone_Click;
             pbDownloadIcon.Click += Dropzone_Click;
-            picPreview.Click += Dropzone_Click; // click-through behavior to browse new file
+            picPreview.Click += Dropzone_Click; // click'-'through behavior to browse new file
 
             // enable form keypreview for ctrl+v clipboard paste
             this.KeyPreview = true;
