@@ -129,7 +129,7 @@
             // lblFileName
             // 
             this.lblFileName.AutoSize = true;
-            this.lblFileName.Location = new System.Drawing.Point(33, 248);
+            this.lblFileName.Location = new System.Drawing.Point(22, 248);
             this.lblFileName.Name = "lblFileName";
             this.lblFileName.Size = new System.Drawing.Size(227, 17);
             this.lblFileName.TabIndex = 2;
@@ -368,9 +368,9 @@
             // 
             // picPreview
             // 
-            this.picPreview.Location = new System.Drawing.Point(66, 30);
+            this.picPreview.Location = new System.Drawing.Point(0, 0);
             this.picPreview.Name = "picPreview";
-            this.picPreview.Size = new System.Drawing.Size(146, 195);
+            this.picPreview.Size = new System.Drawing.Size(279, 245);
             this.picPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.picPreview.TabIndex = 2;
             this.picPreview.TabStop = false;
