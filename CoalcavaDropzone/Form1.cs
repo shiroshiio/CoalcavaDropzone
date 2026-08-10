@@ -95,17 +95,28 @@ namespace CoalcavaDropzone
 
         private void ConfigureLabelTextSafety()
         {
-            // safety formatting to prevent labels from bleeding outside container bounds
             if (lblPreviewName != null)
             {
+                // 1. Disable AutoEllipsis so text wraps instead of ending in "..."
+                lblPreviewName.AutoEllipsis = false;
                 lblPreviewName.AutoSize = false;
-                lblPreviewName.AutoEllipsis = true; // fades overly long text into '...'
+
+                // 2. Set explicit width and enough height for 3-4 wrapped lines
+                // (Adjust 320 to match the width of your right-side dark panel)
+                lblPreviewName.Width = 385;
+                lblPreviewName.Height = 65;
+
+                // 3. Crisp white text against the dark gray panel
+                lblPreviewName.ForeColor = Color.White;
+
+                // 4. Ensure it sits on top of panel layers
+                lblPreviewName.BringToFront();
             }
 
             if (lblFileName != null)
             {
                 lblFileName.AutoSize = false;
-                lblFileName.AutoEllipsis = true;
+                lblFileName.AutoEllipsis = true; // Keep ellipsis on file name so it stays clean
             }
         }
 
@@ -314,7 +325,7 @@ namespace CoalcavaDropzone
 
             txtClientSearch.AutoCompleteMode = AutoCompleteMode.None;
 
-            // set placeholder behavior with gray text
+            // set placeholder behavior with text to indicate instructions
             txtClientSearch.Text = PlaceholderText;
             txtClientSearch.ForeColor = Color.Gray;
 
@@ -563,9 +574,9 @@ namespace CoalcavaDropzone
 
             switch (docType.Trim())
             {
-                case "Historial Clínico": return "HC";
+                case "Historial Clínico": return "HisClin";
                 case "Resultado de Estudios": return "Estudios";
-                case "Indicación Médica": return "IM";
+                case "Indicación Médica": return "IndMed";
                 case "Cotización": return "Cotizacion";
                 case "Póliza": return "Poliza";
                 case "Reclamación": return "Reclamacion";
@@ -665,7 +676,7 @@ namespace CoalcavaDropzone
                 DialogResult confirmResult = MessageBox.Show(
                     $"El cliente \"{clientName}\" No existe en la carpeta raíz.\n\n" +
                     $"Ruta solicitada:\n{clientFolderPath}\n\n" +
-                    "¿Deseas crear esta nueva carpeta de cliente y continuar con el guardado?",
+                    "¿Desea crear esta nueva carpeta de cliente y continuar con el guardado?",
                     "Cliente no encontrado",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning,
@@ -722,7 +733,7 @@ namespace CoalcavaDropzone
                 File.Move(selectedFilePath, destinationPath);
 
                 SystemSounds.Asterisk.Play();
-                MessageBox.Show($"¡Archivo organizado con éxito!\n\nUbicación:\n{destinationPath}",
+                MessageBox.Show($"Archivo organizado con éxito. :)\n\nUbicación:\n{destinationPath}",
                                 "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 LoadClientFolders();
@@ -740,7 +751,7 @@ namespace CoalcavaDropzone
         {
             using (FolderBrowserDialog folderDialog = new FolderBrowserDialog())
             {
-                folderDialog.Description = "Selecciona la carpeta raíz de Clientes";
+                folderDialog.Description = "Seleccione la carpeta raíz de Clientes";
                 folderDialog.SelectedPath = Directory.Exists(clientRootPath) ? clientRootPath : @"C:\";
 
                 if (folderDialog.ShowDialog() == DialogResult.OK)
@@ -757,7 +768,7 @@ namespace CoalcavaDropzone
             if (!Directory.Exists(newPath))
             {
                 var result = MessageBox.Show(
-                    "La carpeta especificada no existe en este equipo. ¿Deseas crearla ahora?",
+                    "La carpeta especificada no existe en este equipo. ¿Desea crearla ahora?",
                     "Confirmar Ruta", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                 if (result == DialogResult.Yes)
@@ -794,7 +805,7 @@ namespace CoalcavaDropzone
 
             LoadClientFolders();
 
-            MessageBox.Show("¡Configuración guardada correctamente!", "Opciones", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Configuración guardada correctamente.", "Opciones", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             if (tabControlMain != null && tabPageDropzone != null)
             {
