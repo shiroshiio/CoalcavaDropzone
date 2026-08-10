@@ -233,9 +233,9 @@
             // 
             this.lblPreviewName.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblPreviewName.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.lblPreviewName.Location = new System.Drawing.Point(336, 369);
+            this.lblPreviewName.Location = new System.Drawing.Point(336, 396);
             this.lblPreviewName.Name = "lblPreviewName";
-            this.lblPreviewName.Size = new System.Drawing.Size(357, 97);
+            this.lblPreviewName.Size = new System.Drawing.Size(385, 65);
             this.lblPreviewName.TabIndex = 8;
             this.lblPreviewName.Text = "---------------------------------------------------------------------------------" +
     "-----------------------";
