@@ -5,5 +5,11 @@
     <Setting Name="ClientRootPath" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\Users\Public\OneDrive - COALCAVA\Clientes\</Value>
     </Setting>
+    <Setting Name="IsMuted" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="OpenOnStartup" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -34,5 +34,29 @@ namespace CoalcavaDropzone.Properties {
                 this["ClientRootPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsMuted {
+            get {
+                return ((bool)(this["IsMuted"]));
+            }
+            set {
+                this["IsMuted"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool OpenOnStartup {
+            get {
+                return ((bool)(this["OpenOnStartup"]));
+            }
+            set {
+                this["OpenOnStartup"] = value;
+            }
+        }
     }
 }

@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Media;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Microsoft.Win32; // required for windows startup registry
 using PdfiumViewer;
 
 namespace CoalcavaDropzone
 {
     public partial class Form1 : Form
     {
-        // win32 api for flashing window frame on safety warning
         [DllImport("user32.dll")]
         private static extern bool FlashWindow(IntPtr hwnd, bool bInvert);
 
@@ -21,13 +22,16 @@ namespace CoalcavaDropzone
         private string selectedFilePath = string.Empty;
         private const string PlaceholderText = "Seleccionar o buscar cliente...";
 
-        // theme color palette
         private readonly Color NormalDropzoneColor = Color.FromArgb(248, 248, 246);
         private readonly Color HoverDropzoneColor = Color.FromArgb(254, 243, 235);
 
         public Form1()
         {
             InitializeComponent();
+
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+
             SetupDropzoneUI();
             ConfigureLabelTextSafety();
             this.Load += Form1_Load;
@@ -35,7 +39,6 @@ namespace CoalcavaDropzone
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            // load saved path from user settings if available
             try
             {
                 if (!string.IsNullOrWhiteSpace(Properties.Settings.Default.ClientRootPath))
@@ -45,7 +48,7 @@ namespace CoalcavaDropzone
             }
             catch
             {
-                // fallback to default if settings wrapper is unconfigured
+                // fallback if settings wrapper unconfigured
             }
 
             clientRootPath = clientRootPath.Replace('/', '\\');
@@ -60,12 +63,10 @@ namespace CoalcavaDropzone
 
         private void SetupDropzoneUI()
         {
-            // enable drag and drop on dropzone panel, resting controls, AND active preview picturebox
             pnlDropzone.AllowDrop = true;
             pbDownloadIcon.AllowDrop = true;
-            picPreview.AllowDrop = true; // allows dropping files directly over the active thumbnail
+            picPreview.AllowDrop = true;
 
-            // route drag & drop events
             pnlDropzone.DragEnter += Dropzone_DragEnter;
             pnlDropzone.DragLeave += Dropzone_DragLeave;
             pnlDropzone.DragDrop += Dropzone_DragDrop;
@@ -78,16 +79,13 @@ namespace CoalcavaDropzone
             picPreview.DragLeave += Dropzone_DragLeave;
             picPreview.DragDrop += Dropzone_DragDrop;
 
-            // route clicks to file browser (clicking picpreview re-opens file browser)
             pnlDropzone.Click += Dropzone_Click;
             pbDownloadIcon.Click += Dropzone_Click;
-            picPreview.Click += Dropzone_Click; // click'-'through behavior to browse new file
+            picPreview.Click += Dropzone_Click;
 
-            // enable form keypreview for ctrl+v clipboard paste
             this.KeyPreview = true;
             this.KeyDown += Form1_KeyDown;
 
-            // transparent background on resting elements
             pbDownloadIcon.BackColor = Color.Transparent;
             picPreview.BackColor = Color.Transparent;
 
@@ -98,26 +96,55 @@ namespace CoalcavaDropzone
         {
             if (lblPreviewName != null)
             {
-                // 1. Disable AutoEllipsis so text wraps instead of ending in "..."
                 lblPreviewName.AutoEllipsis = false;
                 lblPreviewName.AutoSize = false;
-
-                // 2. Set explicit width and enough height for 3-4 wrapped lines
-                // (Adjust 320 to match the width of your right-side dark panel)
                 lblPreviewName.Width = 385;
                 lblPreviewName.Height = 65;
-
-                // 3. Crisp white text against the dark gray panel
                 lblPreviewName.ForeColor = Color.White;
-
-                // 4. Ensure it sits on top of panel layers
                 lblPreviewName.BringToFront();
             }
 
             if (lblFileName != null)
             {
                 lblFileName.AutoSize = false;
-                lblFileName.AutoEllipsis = true; // Keep ellipsis on file name so it stays clean
+                lblFileName.AutoEllipsis = true;
+            }
+        }
+
+        // --- MUTE SOUND HELPER ---
+        private void PlaySound(SystemSound sound)
+        {
+            bool isMuted = chkMuteSound != null && chkMuteSound.Checked;
+            if (!isMuted && sound != null)
+            {
+                sound.Play();
+            }
+        }
+
+        // --- STARTUP REGISTRY HELPER ---
+        private void SetStartupRegistry(bool enableStartup)
+        {
+            try
+            {
+                string runKeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(runKeyPath, true))
+                {
+                    if (key != null)
+                    {
+                        if (enableStartup)
+                        {
+                            key.SetValue("CoalcavaDropzone", Application.ExecutablePath);
+                        }
+                        else
+                        {
+                            key.DeleteValue("CoalcavaDropzone", false);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to update startup registry: {ex.Message}");
             }
         }
 
@@ -192,7 +219,7 @@ namespace CoalcavaDropzone
 
             if (!Directory.Exists(downloadsPath))
             {
-                SystemSounds.Exclamation.Play();
+                PlaySound(SystemSounds.Exclamation);
                 MessageBox.Show("No se encontró la carpeta de Descargas del sistema.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -251,28 +278,85 @@ namespace CoalcavaDropzone
             UpdateFilenamePreview(null, null);
         }
 
-        // generates shell thumbnail for pdf, docx, xlsx, png, jpg or extracts system icon fallback
-        private void GeneratePreview(string filePath)
+        private Bitmap ExtractDocxThumbnail(string filePath)
         {
             try
             {
-                // 1. Dispose old image to free up memory/file locks
-                if (picPreview.Image != null)
+                string ext = Path.GetExtension(filePath).ToLower();
+                if (ext != ".docx" && ext != ".docm") return null;
+
+                using (ZipArchive archive = ZipFile.OpenRead(filePath))
                 {
-                    var oldImg = picPreview.Image;
-                    picPreview.Image = null;
-                    oldImg.Dispose();
+                    var entry = archive.Entries.FirstOrDefault(e =>
+                        e.FullName.Equals("docProps/thumbnail.jpeg", StringComparison.OrdinalIgnoreCase) ||
+                        e.FullName.Equals("docProps/thumbnail.png", StringComparison.OrdinalIgnoreCase));
+
+                    if (entry != null)
+                    {
+                        using (Stream stream = entry.Open())
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            stream.CopyTo(ms);
+                            ms.Position = 0;
+                            using (Image tempImg = Image.FromStream(ms))
+                            {
+                                return new Bitmap(tempImg);
+                            }
+                        }
+                    }
                 }
+            }
+            catch
+            {
+                // fallback gracefully
+            }
+            return null;
+        }
 
-                string extension = Path.GetExtension(filePath).ToLower();
+        private void GeneratePreview(string filePath)
+        {
+            if (picPreview.Image != null)
+            {
+                var oldImg = picPreview.Image;
+                picPreview.Image = null;
+                oldImg.Dispose();
+            }
 
-                // 2. HIGH-RES RENDER FOR PDFS VIA PDFIUM
-                if (extension == ".pdf")
+            string extension = Path.GetExtension(filePath).ToLower();
+
+            // 1. Native image preview
+            string[] imageExtensions = { ".png", ".jpg", ".jpeg", ".bmp", ".gif" };
+            if (imageExtensions.Contains(extension))
+            {
+                try
+                {
+                    using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        fs.CopyTo(ms);
+                        ms.Position = 0;
+                        using (Image img = Image.FromStream(ms))
+                        {
+                            picPreview.Image = new Bitmap(img);
+                            picPreview.SizeMode = PictureBoxSizeMode.Zoom;
+                            picPreview.Visible = true;
+                            return;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Image preview failed: {ex.Message}");
+                }
+            }
+
+            // 2. Pdfium render for PDFs
+            if (extension == ".pdf")
+            {
+                try
                 {
                     using (var pdfDocument = PdfiumViewer.PdfDocument.Load(filePath))
                     {
-                        // Render the first page at 300 DPI for sharp text
-                        // Adjust render dimensions to match your PictureBox box ratio
                         Bitmap pageImage = (Bitmap)pdfDocument.Render(
                             page: 0,
                             dpiX: 300,
@@ -286,37 +370,63 @@ namespace CoalcavaDropzone
                         return;
                     }
                 }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"PDFium failed: {ex.Message}");
+                }
+            }
 
-                // 3. FALLBACK FOR IMAGES & OTHER DOCUMENTS (DOCX, XLSX, PNG, JPG)
+            // 3. OpenXML embedded thumbnail for Word
+            if (extension == ".docx" || extension == ".docm")
+            {
+                Bitmap docxThumb = ExtractDocxThumbnail(filePath);
+                if (docxThumb != null)
+                {
+                    picPreview.Image = docxThumb;
+                    picPreview.SizeMode = PictureBoxSizeMode.Zoom;
+                    picPreview.Visible = true;
+                    return;
+                }
+            }
+
+            // 4. Windows shell thumbnail provider
+            try
+            {
                 Bitmap thumbnail = WindowsThumbnailProvider.GetThumbnail(filePath, 300, 400);
-
                 if (thumbnail != null)
                 {
                     picPreview.Image = thumbnail;
                     picPreview.SizeMode = PictureBoxSizeMode.Zoom;
                     picPreview.Visible = true;
+                    return;
                 }
-                else
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Shell thumbnail failed: {ex.Message}");
+            }
+
+            // 5. System icon fallback
+            try
+            {
+                using (Icon fileIcon = Icon.ExtractAssociatedIcon(filePath))
                 {
-                    // 4. FALLBACK TO SYSTEM ASSOCIATED FILE ICON
-                    using (Icon fileIcon = Icon.ExtractAssociatedIcon(filePath))
+                    if (fileIcon != null)
                     {
-                        if (fileIcon != null)
-                        {
-                            picPreview.Image = fileIcon.ToBitmap();
-                            picPreview.SizeMode = PictureBoxSizeMode.CenterImage;
-                            picPreview.Visible = true;
-                        }
+                        picPreview.Image = fileIcon.ToBitmap();
+                        picPreview.SizeMode = PictureBoxSizeMode.CenterImage;
+                        picPreview.Visible = true;
+                        return;
                     }
                 }
             }
             catch (Exception ex)
             {
-                // If PDFium or thumbnail fails, hide preview and restore default download icon
-                System.Diagnostics.Debug.WriteLine($"Preview error: {ex.Message}");
-                picPreview.Visible = false;
-                pbDownloadIcon.Visible = true;
+                System.Diagnostics.Debug.WriteLine($"Icon extraction failed: {ex.Message}");
             }
+
+            picPreview.Visible = false;
+            pbDownloadIcon.Visible = true;
         }
 
         private void btnClear_Click(object sender, EventArgs e)
@@ -354,7 +464,6 @@ namespace CoalcavaDropzone
 
             txtClientSearch.AutoCompleteMode = AutoCompleteMode.None;
 
-            // set placeholder behavior with text to indicate instructions
             txtClientSearch.Text = PlaceholderText;
             txtClientSearch.ForeColor = Color.Gray;
 
@@ -384,13 +493,11 @@ namespace CoalcavaDropzone
                 focusTimer.Start();
             };
 
-            // dynamic listbox search listeners
             txtClientSearch.TextChanged += TxtClientSearch_TextChanged;
             txtClientSearch.KeyDown += TxtClientSearch_KeyDown;
             lstClientSuggestions.Click += LstClientSuggestions_Click;
             lstClientSuggestions.KeyDown += LstClientSuggestions_KeyDown;
 
-            // populate departments
             cmbDepartment.Items.Clear();
             cmbDepartment.Items.AddRange(new string[] {
                 "Documentos / KYC",
@@ -401,16 +508,33 @@ namespace CoalcavaDropzone
                 "Cobros"
             });
 
-            // wire dynamic update of document types based on selected department
             cmbDepartment.SelectedIndexChanged += cmbDepartment_SelectedIndexChanged;
 
             if (cmbDepartment.Items.Count > 0) cmbDepartment.SelectedIndex = 0;
 
             dtpDocDate.Value = DateTime.Now;
 
+            // --- LOAD SAVED OPTIONS CHECKBOX STATES ---
+            try
+            {
+                if (chkMuteSound != null)
+                {
+                    chkMuteSound.Checked = Properties.Settings.Default.IsMuted;
+                }
+
+                if (chkOpenOnStartup != null)
+                {
+                    chkOpenOnStartup.Checked = Properties.Settings.Default.OpenOnStartup;
+                }
+            }
+            catch
+            {
+                // ignore unconfigured settings
+            }
+
             txtClientSearch.TextChanged += UpdateFilenamePreview;
             cmbDocType.SelectedIndexChanged += UpdateFilenamePreview;
-            cmbDocType.TextChanged += UpdateFilenamePreview; // catches typed input
+            cmbDocType.TextChanged += UpdateFilenamePreview;
             dtpDocDate.ValueChanged += UpdateFilenamePreview;
 
             if (chkIncludeDay != null)
@@ -427,7 +551,6 @@ namespace CoalcavaDropzone
             UpdateFilenamePreview(null, null);
         }
 
-        // document types switch based on department
         private void PopulateDocTypesForDepartment()
         {
             string selectedDept = cmbDepartment.SelectedItem?.ToString() ?? "";
@@ -475,7 +598,7 @@ namespace CoalcavaDropzone
                     });
                     break;
 
-                default: // riesgos generales, fianzas, fallback
+                default:
                     cmbDocType.Items.AddRange(new string[] {
                         "Póliza",
                         "Cotización",
@@ -514,7 +637,6 @@ namespace CoalcavaDropzone
                 return;
             }
 
-            // substring matching: prefix first then inner match
             var matches = cachedClientList
                 .Where(c => c.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
                 .OrderByDescending(c => c.StartsWith(query, StringComparison.OrdinalIgnoreCase))
@@ -596,7 +718,6 @@ namespace CoalcavaDropzone
             }
         }
 
-        // safe short doc code formatting (handles nulls and custom user text)
         private string GetShortDocTypeCode(string docType)
         {
             if (string.IsNullOrWhiteSpace(docType)) return "Doc";
@@ -649,10 +770,10 @@ namespace CoalcavaDropzone
 
             string department = cmbDepartment.SelectedItem?.ToString() ?? "";
 
-            // safely handle typed or selected combobox input
             string rawDocType = string.IsNullOrWhiteSpace(cmbDocType.Text) ? "Doc" : cmbDocType.Text;
             string docType = GetShortDocTypeCode(rawDocType);
 
+            // National Standard Date Format: dd_MMM_yyyy or MMM_yyyy
             bool includeDay = chkIncludeDay != null && chkIncludeDay.Checked;
             string formattedDate = includeDay
                 ? dtpDocDate.Value.ToString("dd_MMM_yyyy")
@@ -666,14 +787,17 @@ namespace CoalcavaDropzone
 
             string generatedFileName = $"{deptCode}_{docType}_{formattedDate}{fileExt}";
 
-            lblPreviewName.Text = $"📁 Ruta: {destinationFolder}\n📄 Archivo: {generatedFileName}";
+            if (lblPreviewName != null)
+            {
+                lblPreviewName.Text = $"📁 Ruta: {destinationFolder}\n📄 Archivo: {generatedFileName}";
+            }
         }
 
         private void btnSort_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(selectedFilePath) || !File.Exists(selectedFilePath))
             {
-                SystemSounds.Exclamation.Play();
+                PlaySound(SystemSounds.Exclamation);
                 MessageBox.Show("Por favor selecciona o arrastra un archivo primero.",
                                 "Atención", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -682,19 +806,18 @@ namespace CoalcavaDropzone
             string clientName = txtClientSearch.Text.Trim();
             if (string.IsNullOrEmpty(clientName) || clientName == PlaceholderText)
             {
-                SystemSounds.Exclamation.Play();
+                PlaySound(SystemSounds.Exclamation);
                 MessageBox.Show("Por favor ingresa o selecciona un cliente.",
                                 "Atención", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtClientSearch.Focus();
                 return;
             }
 
-            // security check: client folder existence with sound and flash
             string clientFolderPath = Path.Combine(clientRootPath, clientName);
 
             if (!Directory.Exists(clientFolderPath))
             {
-                SystemSounds.Hand.Play();
+                PlaySound(SystemSounds.Hand);
 
                 for (int i = 0; i < 3; i++)
                 {
@@ -720,7 +843,6 @@ namespace CoalcavaDropzone
 
             string department = cmbDepartment.SelectedItem?.ToString();
 
-            // safely read typed or selected document type
             string rawDocType = string.IsNullOrWhiteSpace(cmbDocType.Text) ? "Doc" : cmbDocType.Text;
             string docType = GetShortDocTypeCode(rawDocType);
 
@@ -742,12 +864,10 @@ namespace CoalcavaDropzone
                     Directory.CreateDirectory(targetDirectory);
                 }
 
-                // base filename structure: DEPT_DocType_Date.ext
                 string baseFileName = $"{deptCode}_{docType}_{formattedDate}";
                 string newFileName = $"{baseFileName}{fileExtension}";
                 string destinationPath = Path.Combine(targetDirectory, newFileName);
 
-                // clean incremental collision handler: (1), (2), (3)...
                 if (File.Exists(destinationPath))
                 {
                     int counter = 1;
@@ -761,7 +881,7 @@ namespace CoalcavaDropzone
 
                 File.Move(selectedFilePath, destinationPath);
 
-                SystemSounds.Asterisk.Play();
+                PlaySound(SystemSounds.Asterisk);
                 MessageBox.Show($"Archivo organizado con éxito. :)\n\nUbicación:\n{destinationPath}",
                                 "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -770,7 +890,7 @@ namespace CoalcavaDropzone
             }
             catch (Exception ex)
             {
-                SystemSounds.Hand.Play();
+                PlaySound(SystemSounds.Hand);
                 MessageBox.Show($"Error al mover el archivo: {ex.Message}",
                                 "Error de Operación", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -822,9 +942,23 @@ namespace CoalcavaDropzone
 
             clientRootPath = newPath;
 
+            // --- SAVE PREFERENCES & APPLY STARTUP REGISTRY ---
             try
             {
                 Properties.Settings.Default.ClientRootPath = clientRootPath;
+
+                if (chkMuteSound != null)
+                {
+                    Properties.Settings.Default.IsMuted = chkMuteSound.Checked;
+                }
+
+                if (chkOpenOnStartup != null)
+                {
+                    bool enableStartup = chkOpenOnStartup.Checked;
+                    Properties.Settings.Default.OpenOnStartup = enableStartup;
+                    SetStartupRegistry(enableStartup);
+                }
+
                 Properties.Settings.Default.Save();
             }
             catch

@@ -58,6 +58,8 @@
             this.btnBrowseRoot = new System.Windows.Forms.Button();
             this.txtRootPath = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
+            this.chkMuteSound = new System.Windows.Forms.CheckBox();
+            this.chkOpenOnStartup = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.pnlDropzone.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picPreview)).BeginInit();
@@ -337,6 +339,8 @@
             // 
             // tabPageOptions
             // 
+            this.tabPageOptions.Controls.Add(this.chkOpenOnStartup);
+            this.tabPageOptions.Controls.Add(this.chkMuteSound);
             this.tabPageOptions.Controls.Add(this.btnSaveSettings);
             this.tabPageOptions.Controls.Add(this.btnBrowseRoot);
             this.tabPageOptions.Controls.Add(this.txtRootPath);
@@ -386,6 +390,26 @@
             this.label6.Size = new System.Drawing.Size(176, 27);
             this.label6.TabIndex = 1;
             this.label6.Text = "Configuración";
+            // 
+            // chkMuteSound
+            // 
+            this.chkMuteSound.AutoSize = true;
+            this.chkMuteSound.Location = new System.Drawing.Point(15, 154);
+            this.chkMuteSound.Name = "chkMuteSound";
+            this.chkMuteSound.Size = new System.Drawing.Size(195, 21);
+            this.chkMuteSound.TabIndex = 5;
+            this.chkMuteSound.Text = "Silenciar sonidos de alerta";
+            this.chkMuteSound.UseVisualStyleBackColor = true;
+            // 
+            // chkOpenOnStartup
+            // 
+            this.chkOpenOnStartup.AutoSize = true;
+            this.chkOpenOnStartup.Location = new System.Drawing.Point(15, 181);
+            this.chkOpenOnStartup.Name = "chkOpenOnStartup";
+            this.chkOpenOnStartup.Size = new System.Drawing.Size(270, 21);
+            this.chkOpenOnStartup.TabIndex = 6;
+            this.chkOpenOnStartup.Text = "Iniciar automáticamente con Windows";
+            this.chkOpenOnStartup.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -446,6 +470,8 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.CheckBox chkIncludeDay;
         private System.Windows.Forms.ListBox lstClientSuggestions;
+        private System.Windows.Forms.CheckBox chkOpenOnStartup;
+        private System.Windows.Forms.CheckBox chkMuteSound;
     }
 }
 
