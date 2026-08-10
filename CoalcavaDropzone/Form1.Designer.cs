@@ -34,8 +34,10 @@
             this.btnOpenDoc = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
             this.btnQuickGrab = new System.Windows.Forms.Button();
-            this.lblFileName = new System.Windows.Forms.Label();
             this.pnlDropzone = new System.Windows.Forms.Panel();
+            this.picPreview = new System.Windows.Forms.PictureBox();
+            this.pbDownloadIcon = new System.Windows.Forms.PictureBox();
+            this.lblFileName = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
             this.txtClientSearch = new System.Windows.Forms.TextBox();
@@ -49,23 +51,21 @@
             this.label5 = new System.Windows.Forms.Label();
             this.tabControlMain = new System.Windows.Forms.TabControl();
             this.tabPageDropzone = new System.Windows.Forms.TabPage();
+            this.lstClientSuggestions = new System.Windows.Forms.ListBox();
             this.chkIncludeDay = new System.Windows.Forms.CheckBox();
             this.tabPageOptions = new System.Windows.Forms.TabPage();
             this.btnSaveSettings = new System.Windows.Forms.Button();
             this.btnBrowseRoot = new System.Windows.Forms.Button();
             this.txtRootPath = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.lstClientSuggestions = new System.Windows.Forms.ListBox();
-            this.picPreview = new System.Windows.Forms.PictureBox();
-            this.pbDownloadIcon = new System.Windows.Forms.PictureBox();
             this.panel1.SuspendLayout();
             this.pnlDropzone.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picPreview)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbDownloadIcon)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.tabControlMain.SuspendLayout();
             this.tabPageDropzone.SuspendLayout();
             this.tabPageOptions.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picPreview)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pbDownloadIcon)).BeginInit();
             this.SuspendLayout();
             // 
             // btnSort
@@ -126,16 +126,6 @@
             this.btnQuickGrab.UseVisualStyleBackColor = true;
             this.btnQuickGrab.Click += new System.EventHandler(this.btnQuickGrab_Click_1);
             // 
-            // lblFileName
-            // 
-            this.lblFileName.AutoSize = true;
-            this.lblFileName.Location = new System.Drawing.Point(22, 248);
-            this.lblFileName.Name = "lblFileName";
-            this.lblFileName.Size = new System.Drawing.Size(227, 17);
-            this.lblFileName.TabIndex = 2;
-            this.lblFileName.Text = "Arrastra un archivo o haz clic aquí.";
-            this.lblFileName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
             // pnlDropzone
             // 
             this.pnlDropzone.AllowDrop = true;
@@ -147,6 +137,35 @@
             this.pnlDropzone.Name = "pnlDropzone";
             this.pnlDropzone.Size = new System.Drawing.Size(282, 275);
             this.pnlDropzone.TabIndex = 1;
+            // 
+            // picPreview
+            // 
+            this.picPreview.Location = new System.Drawing.Point(0, 0);
+            this.picPreview.Name = "picPreview";
+            this.picPreview.Size = new System.Drawing.Size(282, 245);
+            this.picPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.picPreview.TabIndex = 2;
+            this.picPreview.TabStop = false;
+            // 
+            // pbDownloadIcon
+            // 
+            this.pbDownloadIcon.Image = global::CoalcavaDropzone.Properties.Resources._1410633_200;
+            this.pbDownloadIcon.Location = new System.Drawing.Point(66, 33);
+            this.pbDownloadIcon.Name = "pbDownloadIcon";
+            this.pbDownloadIcon.Size = new System.Drawing.Size(146, 192);
+            this.pbDownloadIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pbDownloadIcon.TabIndex = 1;
+            this.pbDownloadIcon.TabStop = false;
+            // 
+            // lblFileName
+            // 
+            this.lblFileName.AutoSize = true;
+            this.lblFileName.Location = new System.Drawing.Point(22, 248);
+            this.lblFileName.Name = "lblFileName";
+            this.lblFileName.Size = new System.Drawing.Size(227, 17);
+            this.lblFileName.TabIndex = 2;
+            this.lblFileName.Text = "Arrastra un archivo o haz clic aquí.";
+            this.lblFileName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label1
             // 
@@ -212,14 +231,14 @@
             // 
             // lblPreviewName
             // 
-            this.lblPreviewName.AutoSize = true;
             this.lblPreviewName.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblPreviewName.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.lblPreviewName.Location = new System.Drawing.Point(336, 396);
+            this.lblPreviewName.Location = new System.Drawing.Point(336, 371);
             this.lblPreviewName.Name = "lblPreviewName";
-            this.lblPreviewName.Size = new System.Drawing.Size(23, 17);
+            this.lblPreviewName.Size = new System.Drawing.Size(385, 65);
             this.lblPreviewName.TabIndex = 8;
-            this.lblPreviewName.Text = "---";
+            this.lblPreviewName.Text = "---------------------------------------------------------------------------------" +
+    "-----------------------";
             // 
             // label3
             // 
@@ -264,7 +283,7 @@
             this.tabControlMain.Location = new System.Drawing.Point(0, 0);
             this.tabControlMain.Name = "tabControlMain";
             this.tabControlMain.SelectedIndex = 0;
-            this.tabControlMain.Size = new System.Drawing.Size(668, 552);
+            this.tabControlMain.Size = new System.Drawing.Size(765, 552);
             this.tabControlMain.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.tabControlMain.TabIndex = 6;
             // 
@@ -284,12 +303,25 @@
             this.tabPageDropzone.Controls.Add(this.cmbDepartment);
             this.tabPageDropzone.Controls.Add(this.dtpDocDate);
             this.tabPageDropzone.Controls.Add(this.cmbDocType);
+            this.tabPageDropzone.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabPageDropzone.Location = new System.Drawing.Point(4, 24);
+            this.tabPageDropzone.Margin = new System.Windows.Forms.Padding(8);
             this.tabPageDropzone.Name = "tabPageDropzone";
             this.tabPageDropzone.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageDropzone.Size = new System.Drawing.Size(660, 524);
+            this.tabPageDropzone.Size = new System.Drawing.Size(757, 524);
             this.tabPageDropzone.TabIndex = 0;
             this.tabPageDropzone.Text = "Dropzone";
+            // 
+            // lstClientSuggestions
+            // 
+            this.lstClientSuggestions.Font = new System.Drawing.Font("Malgun Gothic", 8.8F);
+            this.lstClientSuggestions.FormattingEnabled = true;
+            this.lstClientSuggestions.ItemHeight = 20;
+            this.lstClientSuggestions.Location = new System.Drawing.Point(339, 49);
+            this.lstClientSuggestions.Name = "lstClientSuggestions";
+            this.lstClientSuggestions.Size = new System.Drawing.Size(249, 144);
+            this.lstClientSuggestions.TabIndex = 13;
+            this.lstClientSuggestions.Visible = false;
             // 
             // chkIncludeDay
             // 
@@ -312,7 +344,7 @@
             this.tabPageOptions.Location = new System.Drawing.Point(4, 24);
             this.tabPageOptions.Name = "tabPageOptions";
             this.tabPageOptions.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageOptions.Size = new System.Drawing.Size(660, 524);
+            this.tabPageOptions.Size = new System.Drawing.Size(757, 524);
             this.tabPageOptions.TabIndex = 1;
             this.tabPageOptions.Text = "Opciones";
             this.tabPageOptions.UseVisualStyleBackColor = true;
@@ -349,48 +381,18 @@
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Lucida Sans Unicode", 13.2F, System.Drawing.FontStyle.Bold);
-            this.label6.Location = new System.Drawing.Point(10, 22);
+            this.label6.Location = new System.Drawing.Point(22, 21);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(176, 27);
             this.label6.TabIndex = 1;
             this.label6.Text = "Configuración";
-            // 
-            // lstClientSuggestions
-            // 
-            this.lstClientSuggestions.Font = new System.Drawing.Font("Malgun Gothic", 8.8F);
-            this.lstClientSuggestions.FormattingEnabled = true;
-            this.lstClientSuggestions.ItemHeight = 20;
-            this.lstClientSuggestions.Location = new System.Drawing.Point(339, 49);
-            this.lstClientSuggestions.Name = "lstClientSuggestions";
-            this.lstClientSuggestions.Size = new System.Drawing.Size(249, 144);
-            this.lstClientSuggestions.TabIndex = 13;
-            this.lstClientSuggestions.Visible = false;
-            // 
-            // picPreview
-            // 
-            this.picPreview.Location = new System.Drawing.Point(0, 0);
-            this.picPreview.Name = "picPreview";
-            this.picPreview.Size = new System.Drawing.Size(279, 245);
-            this.picPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.picPreview.TabIndex = 2;
-            this.picPreview.TabStop = false;
-            // 
-            // pbDownloadIcon
-            // 
-            this.pbDownloadIcon.Image = global::CoalcavaDropzone.Properties.Resources._1410633_200;
-            this.pbDownloadIcon.Location = new System.Drawing.Point(66, 33);
-            this.pbDownloadIcon.Name = "pbDownloadIcon";
-            this.pbDownloadIcon.Size = new System.Drawing.Size(146, 192);
-            this.pbDownloadIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pbDownloadIcon.TabIndex = 1;
-            this.pbDownloadIcon.TabStop = false;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(89)))), ((int)(((byte)(91)))));
-            this.ClientSize = new System.Drawing.Size(674, 552);
+            this.ClientSize = new System.Drawing.Size(756, 552);
             this.Controls.Add(this.tabControlMain);
             this.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -402,14 +404,14 @@
             this.panel1.PerformLayout();
             this.pnlDropzone.ResumeLayout(false);
             this.pnlDropzone.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picPreview)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbDownloadIcon)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
             this.tabControlMain.ResumeLayout(false);
             this.tabPageDropzone.ResumeLayout(false);
             this.tabPageDropzone.PerformLayout();
             this.tabPageOptions.ResumeLayout(false);
             this.tabPageOptions.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picPreview)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pbDownloadIcon)).EndInit();
             this.ResumeLayout(false);
 
         }
