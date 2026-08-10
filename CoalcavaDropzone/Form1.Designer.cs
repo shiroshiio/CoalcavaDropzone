@@ -71,9 +71,9 @@
             // btnSort
             // 
             this.btnSort.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSort.Location = new System.Drawing.Point(339, 451);
+            this.btnSort.Location = new System.Drawing.Point(339, 469);
             this.btnSort.Name = "btnSort";
-            this.btnSort.Size = new System.Drawing.Size(126, 62);
+            this.btnSort.Size = new System.Drawing.Size(169, 47);
             this.btnSort.TabIndex = 1;
             this.btnSort.Text = "Guardar Documento";
             this.btnSort.UseVisualStyleBackColor = true;
@@ -233,9 +233,9 @@
             // 
             this.lblPreviewName.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblPreviewName.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.lblPreviewName.Location = new System.Drawing.Point(336, 371);
+            this.lblPreviewName.Location = new System.Drawing.Point(336, 369);
             this.lblPreviewName.Name = "lblPreviewName";
-            this.lblPreviewName.Size = new System.Drawing.Size(385, 65);
+            this.lblPreviewName.Size = new System.Drawing.Size(357, 97);
             this.lblPreviewName.TabIndex = 8;
             this.lblPreviewName.Text = "---------------------------------------------------------------------------------" +
     "-----------------------";

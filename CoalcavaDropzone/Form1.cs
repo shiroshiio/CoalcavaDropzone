@@ -6,6 +6,7 @@ using System.Linq;
 using System.Media;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using PdfiumViewer;
 
 namespace CoalcavaDropzone
 {
@@ -255,6 +256,7 @@ namespace CoalcavaDropzone
         {
             try
             {
+                // 1. Dispose old image to free up memory/file locks
                 if (picPreview.Image != null)
                 {
                     var oldImg = picPreview.Image;
@@ -262,6 +264,30 @@ namespace CoalcavaDropzone
                     oldImg.Dispose();
                 }
 
+                string extension = Path.GetExtension(filePath).ToLower();
+
+                // 2. HIGH-RES RENDER FOR PDFS VIA PDFIUM
+                if (extension == ".pdf")
+                {
+                    using (var pdfDocument = PdfiumViewer.PdfDocument.Load(filePath))
+                    {
+                        // Render the first page at 300 DPI for sharp text
+                        // Adjust render dimensions to match your PictureBox box ratio
+                        Bitmap pageImage = (Bitmap)pdfDocument.Render(
+                            page: 0,
+                            dpiX: 300,
+                            dpiY: 300,
+                            flags: PdfiumViewer.PdfRenderFlags.CorrectFromDpi
+                        );
+
+                        picPreview.Image = pageImage;
+                        picPreview.SizeMode = PictureBoxSizeMode.Zoom;
+                        picPreview.Visible = true;
+                        return;
+                    }
+                }
+
+                // 3. FALLBACK FOR IMAGES & OTHER DOCUMENTS (DOCX, XLSX, PNG, JPG)
                 Bitmap thumbnail = WindowsThumbnailProvider.GetThumbnail(filePath, 300, 400);
 
                 if (thumbnail != null)
@@ -272,6 +298,7 @@ namespace CoalcavaDropzone
                 }
                 else
                 {
+                    // 4. FALLBACK TO SYSTEM ASSOCIATED FILE ICON
                     using (Icon fileIcon = Icon.ExtractAssociatedIcon(filePath))
                     {
                         if (fileIcon != null)
@@ -283,8 +310,10 @@ namespace CoalcavaDropzone
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                // If PDFium or thumbnail fails, hide preview and restore default download icon
+                System.Diagnostics.Debug.WriteLine($"Preview error: {ex.Message}");
                 picPreview.Visible = false;
                 pbDownloadIcon.Visible = true;
             }
@@ -398,7 +427,7 @@ namespace CoalcavaDropzone
             UpdateFilenamePreview(null, null);
         }
 
-        // dynamic document types switch based on department
+        // document types switch based on department
         private void PopulateDocTypesForDepartment()
         {
             string selectedDept = cmbDepartment.SelectedItem?.ToString() ?? "";
