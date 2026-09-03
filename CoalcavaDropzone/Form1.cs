@@ -1226,16 +1226,30 @@ namespace CoalcavaDropzone
             }
         }
 
+        private void ResetPlaceholder(TextBox txt, string placeholder)
+        {
+            if (txt == null) return;
+            txt.Tag = placeholder;
+            txt.Text = placeholder;
+            txt.ForeColor = Color.Gray;
+        }
+
         private void ClearReembolsosForm()
         {
             reembolsoItems.Clear();
             dgvReembolsoFiles.Rows.Clear();
 
-            ApplyPlaceholder(txtReembolsoPoliza, PlaceholderPoliza);
-            ApplyPlaceholder(txtReembolsoCedula, PlaceholderCedula);
-            ApplyPlaceholder(txtReembolsoMonto, PlaceholderMonto);
-            ApplyPlaceholder(txtReembolsosNotasAdicionales, PlaceholderNotas);
-            ApplyPlaceholder(txtReembolsoClientSearch, PlaceholderText);
+            // Restablecer valores forzando el placeholder y color gris
+            ResetPlaceholder(txtReembolsoPoliza, PlaceholderPoliza);
+            ResetPlaceholder(txtReembolsoCedula, PlaceholderCedula);
+            ResetPlaceholder(txtReembolsoMonto, PlaceholderMonto);
+            ResetPlaceholder(txtReembolsosNotasAdicionales, PlaceholderNotas);
+            ResetPlaceholder(txtReembolsoClientSearch, PlaceholderText);
+
+            if (cmbReembolsoAseguradora != null && cmbReembolsoAseguradora.Items.Count > 0)
+            {
+                cmbReembolsoAseguradora.SelectedIndex = 0;
+            }
 
             if (lblPassportID != null)
             {
@@ -1246,6 +1260,9 @@ namespace CoalcavaDropzone
             {
                 lblReembolsoDropPrompt.Text = "Arrastra todos los archivos PDF del caso aquí";
             }
+
+            // Quitar el foco de los campos para evitar que borre el placeholder al instante
+            this.ActiveControl = null;
         }
 
         private void TxtReembolsoClientSearch_TextChanged(object sender, EventArgs e)
