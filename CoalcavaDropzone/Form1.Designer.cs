@@ -53,13 +53,45 @@
             this.tabPageDropzone = new System.Windows.Forms.TabPage();
             this.lstClientSuggestions = new System.Windows.Forms.ListBox();
             this.chkIncludeDay = new System.Windows.Forms.CheckBox();
+            this.tabPageReembolsos = new System.Windows.Forms.TabPage();
+            this.lstReembolsoClientSuggestions = new System.Windows.Forms.ListBox();
+            this.btnProcessReembolso = new System.Windows.Forms.Button();
+            this.rbDeleteOriginals = new System.Windows.Forms.RadioButton();
+            this.rbSaveOriginalsToFolder = new System.Windows.Forms.RadioButton();
+            this.txtReembolsoCedula = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.cmbReembolsoAseguradora = new System.Windows.Forms.ComboBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.txtReembolsoMonto = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.txtReembolsoPoliza = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.txtReembolsoClientSearch = new System.Windows.Forms.TextBox();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.btnClearReembolso = new System.Windows.Forms.Button();
+            this.btnRemoveSelectedFile = new System.Windows.Forms.Button();
+            this.dgvReembolsoFiles = new System.Windows.Forms.DataGridView();
+            this.Nombre = new System.Windows.Forms.DataGridViewLinkColumn();
+            this.Tipo = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.Tamaño = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.label7 = new System.Windows.Forms.Label();
+            this.pnlReembolsoDrop = new System.Windows.Forms.Panel();
+            this.picDownloadIcon = new System.Windows.Forms.PictureBox();
+            this.lblReembolsoDropPrompt = new System.Windows.Forms.Label();
             this.tabPageOptions = new System.Windows.Forms.TabPage();
+            this.chkOpenOnStartup = new System.Windows.Forms.CheckBox();
+            this.chkMuteSound = new System.Windows.Forms.CheckBox();
             this.btnSaveSettings = new System.Windows.Forms.Button();
             this.btnBrowseRoot = new System.Windows.Forms.Button();
             this.txtRootPath = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.chkMuteSound = new System.Windows.Forms.CheckBox();
-            this.chkOpenOnStartup = new System.Windows.Forms.CheckBox();
+            this.txtReembolsosNotasAdicionales = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
+            this.btnBrowseReembolsoRoot = new System.Windows.Forms.Button();
+            this.txtReembolsoRootPath = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.pnlDropzone.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picPreview)).BeginInit();
@@ -67,6 +99,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.tabControlMain.SuspendLayout();
             this.tabPageDropzone.SuspendLayout();
+            this.tabPageReembolsos.SuspendLayout();
+            this.panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvReembolsoFiles)).BeginInit();
+            this.pnlReembolsoDrop.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picDownloadIcon)).BeginInit();
             this.tabPageOptions.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -278,6 +315,7 @@
             // tabControlMain
             // 
             this.tabControlMain.Controls.Add(this.tabPageDropzone);
+            this.tabControlMain.Controls.Add(this.tabPageReembolsos);
             this.tabControlMain.Controls.Add(this.tabPageOptions);
             this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Left;
             this.tabControlMain.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -337,8 +375,292 @@
             this.chkIncludeDay.Text = "Incluir día en el nombre del documento";
             this.chkIncludeDay.UseVisualStyleBackColor = true;
             // 
+            // tabPageReembolsos
+            // 
+            this.tabPageReembolsos.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(89)))), ((int)(((byte)(91)))));
+            this.tabPageReembolsos.Controls.Add(this.txtReembolsosNotasAdicionales);
+            this.tabPageReembolsos.Controls.Add(this.label8);
+            this.tabPageReembolsos.Controls.Add(this.lstReembolsoClientSuggestions);
+            this.tabPageReembolsos.Controls.Add(this.btnProcessReembolso);
+            this.tabPageReembolsos.Controls.Add(this.rbDeleteOriginals);
+            this.tabPageReembolsos.Controls.Add(this.rbSaveOriginalsToFolder);
+            this.tabPageReembolsos.Controls.Add(this.txtReembolsoCedula);
+            this.tabPageReembolsos.Controls.Add(this.label13);
+            this.tabPageReembolsos.Controls.Add(this.cmbReembolsoAseguradora);
+            this.tabPageReembolsos.Controls.Add(this.label12);
+            this.tabPageReembolsos.Controls.Add(this.txtReembolsoMonto);
+            this.tabPageReembolsos.Controls.Add(this.label11);
+            this.tabPageReembolsos.Controls.Add(this.txtReembolsoPoliza);
+            this.tabPageReembolsos.Controls.Add(this.label10);
+            this.tabPageReembolsos.Controls.Add(this.label9);
+            this.tabPageReembolsos.Controls.Add(this.txtReembolsoClientSearch);
+            this.tabPageReembolsos.Controls.Add(this.panel2);
+            this.tabPageReembolsos.ForeColor = System.Drawing.SystemColors.MenuText;
+            this.tabPageReembolsos.Location = new System.Drawing.Point(4, 24);
+            this.tabPageReembolsos.Name = "tabPageReembolsos";
+            this.tabPageReembolsos.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageReembolsos.Size = new System.Drawing.Size(757, 524);
+            this.tabPageReembolsos.TabIndex = 2;
+            this.tabPageReembolsos.Text = "Reembolsos";
+            // 
+            // lstReembolsoClientSuggestions
+            // 
+            this.lstReembolsoClientSuggestions.Font = new System.Drawing.Font("Malgun Gothic", 8.8F);
+            this.lstReembolsoClientSuggestions.FormattingEnabled = true;
+            this.lstReembolsoClientSuggestions.ItemHeight = 20;
+            this.lstReembolsoClientSuggestions.Location = new System.Drawing.Point(482, 57);
+            this.lstReembolsoClientSuggestions.Name = "lstReembolsoClientSuggestions";
+            this.lstReembolsoClientSuggestions.Size = new System.Drawing.Size(245, 144);
+            this.lstReembolsoClientSuggestions.TabIndex = 16;
+            this.lstReembolsoClientSuggestions.Visible = false;
+            // 
+            // btnProcessReembolso
+            // 
+            this.btnProcessReembolso.Location = new System.Drawing.Point(641, 468);
+            this.btnProcessReembolso.Name = "btnProcessReembolso";
+            this.btnProcessReembolso.Size = new System.Drawing.Size(99, 48);
+            this.btnProcessReembolso.TabIndex = 3;
+            this.btnProcessReembolso.Text = "Guardar";
+            this.btnProcessReembolso.UseVisualStyleBackColor = true;
+            // 
+            // rbDeleteOriginals
+            // 
+            this.rbDeleteOriginals.AutoSize = true;
+            this.rbDeleteOriginals.ForeColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.rbDeleteOriginals.Location = new System.Drawing.Point(473, 415);
+            this.rbDeleteOriginals.Name = "rbDeleteOriginals";
+            this.rbDeleteOriginals.Size = new System.Drawing.Size(189, 21);
+            this.rbDeleteOriginals.TabIndex = 15;
+            this.rbDeleteOriginals.TabStop = true;
+            this.rbDeleteOriginals.Text = "Borrar archivos originales";
+            this.rbDeleteOriginals.UseVisualStyleBackColor = true;
+            this.rbDeleteOriginals.CheckedChanged += new System.EventHandler(this.rbDeleteOriginals_CheckedChanged);
+            // 
+            // rbSaveOriginalsToFolder
+            // 
+            this.rbSaveOriginalsToFolder.AutoSize = true;
+            this.rbSaveOriginalsToFolder.ForeColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.rbSaveOriginalsToFolder.Location = new System.Drawing.Point(473, 442);
+            this.rbSaveOriginalsToFolder.Name = "rbSaveOriginalsToFolder";
+            this.rbSaveOriginalsToFolder.Size = new System.Drawing.Size(161, 21);
+            this.rbSaveOriginalsToFolder.TabIndex = 14;
+            this.rbSaveOriginalsToFolder.TabStop = true;
+            this.rbSaveOriginalsToFolder.Text = "Guardar en OneDrive";
+            this.rbSaveOriginalsToFolder.UseVisualStyleBackColor = true;
+            this.rbSaveOriginalsToFolder.CheckedChanged += new System.EventHandler(this.rbSaveOriginalsToFolder_CheckedChanged);
+            // 
+            // txtReembolsoCedula
+            // 
+            this.txtReembolsoCedula.Location = new System.Drawing.Point(482, 90);
+            this.txtReembolsoCedula.Name = "txtReembolsoCedula";
+            this.txtReembolsoCedula.Size = new System.Drawing.Size(245, 25);
+            this.txtReembolsoCedula.TabIndex = 13;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label13.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.label13.Location = new System.Drawing.Point(479, 70);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(50, 17);
+            this.label13.TabIndex = 12;
+            this.label13.Text = "Cédula";
+            // 
+            // cmbReembolsoAseguradora
+            // 
+            this.cmbReembolsoAseguradora.FormattingEnabled = true;
+            this.cmbReembolsoAseguradora.Location = new System.Drawing.Point(482, 278);
+            this.cmbReembolsoAseguradora.Name = "cmbReembolsoAseguradora";
+            this.cmbReembolsoAseguradora.Size = new System.Drawing.Size(245, 25);
+            this.cmbReembolsoAseguradora.TabIndex = 11;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.label12.Location = new System.Drawing.Point(479, 258);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(86, 17);
+            this.label12.TabIndex = 10;
+            this.label12.Text = "Aseguradora";
+            // 
+            // txtReembolsoMonto
+            // 
+            this.txtReembolsoMonto.Location = new System.Drawing.Point(482, 216);
+            this.txtReembolsoMonto.Name = "txtReembolsoMonto";
+            this.txtReembolsoMonto.Size = new System.Drawing.Size(245, 25);
+            this.txtReembolsoMonto.TabIndex = 9;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label11.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.label11.Location = new System.Drawing.Point(479, 196);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(50, 17);
+            this.label11.TabIndex = 8;
+            this.label11.Text = "Monto";
+            // 
+            // txtReembolsoPoliza
+            // 
+            this.txtReembolsoPoliza.Location = new System.Drawing.Point(482, 153);
+            this.txtReembolsoPoliza.Name = "txtReembolsoPoliza";
+            this.txtReembolsoPoliza.Size = new System.Drawing.Size(245, 25);
+            this.txtReembolsoPoliza.TabIndex = 7;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.label10.Location = new System.Drawing.Point(479, 133);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(71, 17);
+            this.label10.TabIndex = 6;
+            this.label10.Text = "No. Póliza";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label9.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.label9.Location = new System.Drawing.Point(479, 13);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(51, 17);
+            this.label9.TabIndex = 5;
+            this.label9.Text = "Cliente";
+            // 
+            // txtReembolsoClientSearch
+            // 
+            this.txtReembolsoClientSearch.Location = new System.Drawing.Point(482, 33);
+            this.txtReembolsoClientSearch.Name = "txtReembolsoClientSearch";
+            this.txtReembolsoClientSearch.Size = new System.Drawing.Size(245, 25);
+            this.txtReembolsoClientSearch.TabIndex = 1;
+            // 
+            // panel2
+            // 
+            this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(245)))), ((int)(((byte)(242)))));
+            this.panel2.Controls.Add(this.btnClearReembolso);
+            this.panel2.Controls.Add(this.btnRemoveSelectedFile);
+            this.panel2.Controls.Add(this.dgvReembolsoFiles);
+            this.panel2.Controls.Add(this.label7);
+            this.panel2.Controls.Add(this.pnlReembolsoDrop);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Left;
+            this.panel2.Location = new System.Drawing.Point(3, 3);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(464, 518);
+            this.panel2.TabIndex = 0;
+            // 
+            // btnClearReembolso
+            // 
+            this.btnClearReembolso.Location = new System.Drawing.Point(19, 470);
+            this.btnClearReembolso.Name = "btnClearReembolso";
+            this.btnClearReembolso.Size = new System.Drawing.Size(93, 35);
+            this.btnClearReembolso.TabIndex = 4;
+            this.btnClearReembolso.Text = "Nuevo";
+            this.btnClearReembolso.UseVisualStyleBackColor = true;
+            this.btnClearReembolso.Click += new System.EventHandler(this.BtnClearReembolso_Click);
+            // 
+            // btnRemoveSelectedFile
+            // 
+            this.btnRemoveSelectedFile.Location = new System.Drawing.Point(288, 470);
+            this.btnRemoveSelectedFile.Name = "btnRemoveSelectedFile";
+            this.btnRemoveSelectedFile.Size = new System.Drawing.Size(163, 35);
+            this.btnRemoveSelectedFile.TabIndex = 3;
+            this.btnRemoveSelectedFile.Text = "Remover seleccionado";
+            this.btnRemoveSelectedFile.UseVisualStyleBackColor = true;
+            this.btnRemoveSelectedFile.Click += new System.EventHandler(this.BtnRemoveSelectedFile_Click);
+            // 
+            // dgvReembolsoFiles
+            // 
+            this.dgvReembolsoFiles.AllowUserToAddRows = false;
+            this.dgvReembolsoFiles.AllowUserToDeleteRows = false;
+            this.dgvReembolsoFiles.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvReembolsoFiles.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.Nombre,
+            this.Tipo,
+            this.Tamaño});
+            this.dgvReembolsoFiles.Location = new System.Drawing.Point(19, 262);
+            this.dgvReembolsoFiles.Name = "dgvReembolsoFiles";
+            this.dgvReembolsoFiles.ReadOnly = true;
+            this.dgvReembolsoFiles.RowHeadersWidth = 51;
+            this.dgvReembolsoFiles.RowTemplate.Height = 24;
+            this.dgvReembolsoFiles.Size = new System.Drawing.Size(432, 202);
+            this.dgvReembolsoFiles.TabIndex = 2;
+            // 
+            // Nombre
+            // 
+            this.Nombre.HeaderText = "Nombre";
+            this.Nombre.MinimumWidth = 6;
+            this.Nombre.Name = "Nombre";
+            this.Nombre.ReadOnly = true;
+            this.Nombre.Width = 125;
+            // 
+            // Tipo
+            // 
+            this.Tipo.HeaderText = "Tipo";
+            this.Tipo.MinimumWidth = 6;
+            this.Tipo.Name = "Tipo";
+            this.Tipo.ReadOnly = true;
+            this.Tipo.Width = 125;
+            // 
+            // Tamaño
+            // 
+            this.Tamaño.HeaderText = "Tamaño";
+            this.Tamaño.MinimumWidth = 6;
+            this.Tamaño.Name = "Tamaño";
+            this.Tamaño.ReadOnly = true;
+            this.Tamaño.Width = 125;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Nirmala UI", 20.2F, System.Drawing.FontStyle.Bold);
+            this.label7.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            this.label7.Location = new System.Drawing.Point(11, 9);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(211, 46);
+            this.label7.TabIndex = 1;
+            this.label7.Text = "Reembolsos";
+            // 
+            // pnlReembolsoDrop
+            // 
+            this.pnlReembolsoDrop.Controls.Add(this.picDownloadIcon);
+            this.pnlReembolsoDrop.Controls.Add(this.lblReembolsoDropPrompt);
+            this.pnlReembolsoDrop.Location = new System.Drawing.Point(19, 68);
+            this.pnlReembolsoDrop.Name = "pnlReembolsoDrop";
+            this.pnlReembolsoDrop.Size = new System.Drawing.Size(432, 168);
+            this.pnlReembolsoDrop.TabIndex = 0;
+            // 
+            // picDownloadIcon
+            // 
+            this.picDownloadIcon.Image = global::CoalcavaDropzone.Properties.Resources._1410633_200;
+            this.picDownloadIcon.Location = new System.Drawing.Point(161, 0);
+            this.picDownloadIcon.Name = "picDownloadIcon";
+            this.picDownloadIcon.Size = new System.Drawing.Size(103, 139);
+            this.picDownloadIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.picDownloadIcon.TabIndex = 4;
+            this.picDownloadIcon.TabStop = false;
+            // 
+            // lblReembolsoDropPrompt
+            // 
+            this.lblReembolsoDropPrompt.AutoSize = true;
+            this.lblReembolsoDropPrompt.Location = new System.Drawing.Point(96, 139);
+            this.lblReembolsoDropPrompt.Name = "lblReembolsoDropPrompt";
+            this.lblReembolsoDropPrompt.Size = new System.Drawing.Size(227, 17);
+            this.lblReembolsoDropPrompt.TabIndex = 3;
+            this.lblReembolsoDropPrompt.Text = "Arrastra un archivo o haz clic aquí.";
+            this.lblReembolsoDropPrompt.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // tabPageOptions
             // 
+            this.tabPageOptions.Controls.Add(this.label15);
+            this.tabPageOptions.Controls.Add(this.btnBrowseReembolsoRoot);
+            this.tabPageOptions.Controls.Add(this.txtReembolsoRootPath);
+            this.tabPageOptions.Controls.Add(this.label14);
             this.tabPageOptions.Controls.Add(this.chkOpenOnStartup);
             this.tabPageOptions.Controls.Add(this.chkMuteSound);
             this.tabPageOptions.Controls.Add(this.btnSaveSettings);
@@ -353,6 +675,26 @@
             this.tabPageOptions.Text = "Opciones";
             this.tabPageOptions.UseVisualStyleBackColor = true;
             // 
+            // chkOpenOnStartup
+            // 
+            this.chkOpenOnStartup.AutoSize = true;
+            this.chkOpenOnStartup.Location = new System.Drawing.Point(15, 249);
+            this.chkOpenOnStartup.Name = "chkOpenOnStartup";
+            this.chkOpenOnStartup.Size = new System.Drawing.Size(270, 21);
+            this.chkOpenOnStartup.TabIndex = 6;
+            this.chkOpenOnStartup.Text = "Iniciar automáticamente con Windows";
+            this.chkOpenOnStartup.UseVisualStyleBackColor = true;
+            // 
+            // chkMuteSound
+            // 
+            this.chkMuteSound.AutoSize = true;
+            this.chkMuteSound.Location = new System.Drawing.Point(15, 222);
+            this.chkMuteSound.Name = "chkMuteSound";
+            this.chkMuteSound.Size = new System.Drawing.Size(195, 21);
+            this.chkMuteSound.TabIndex = 5;
+            this.chkMuteSound.Text = "Silenciar sonidos de alerta";
+            this.chkMuteSound.UseVisualStyleBackColor = true;
+            // 
             // btnSaveSettings
             // 
             this.btnSaveSettings.Location = new System.Drawing.Point(15, 428);
@@ -365,7 +707,7 @@
             // 
             // btnBrowseRoot
             // 
-            this.btnBrowseRoot.Location = new System.Drawing.Point(422, 93);
+            this.btnBrowseRoot.Location = new System.Drawing.Point(422, 103);
             this.btnBrowseRoot.Name = "btnBrowseRoot";
             this.btnBrowseRoot.Size = new System.Drawing.Size(120, 25);
             this.btnBrowseRoot.TabIndex = 3;
@@ -375,7 +717,7 @@
             // 
             // txtRootPath
             // 
-            this.txtRootPath.Location = new System.Drawing.Point(15, 93);
+            this.txtRootPath.Location = new System.Drawing.Point(15, 103);
             this.txtRootPath.Name = "txtRootPath";
             this.txtRootPath.ReadOnly = true;
             this.txtRootPath.Size = new System.Drawing.Size(401, 25);
@@ -391,25 +733,59 @@
             this.label6.TabIndex = 1;
             this.label6.Text = "Configuración";
             // 
-            // chkMuteSound
+            // txtReembolsosNotasAdicionales
             // 
-            this.chkMuteSound.AutoSize = true;
-            this.chkMuteSound.Location = new System.Drawing.Point(15, 154);
-            this.chkMuteSound.Name = "chkMuteSound";
-            this.chkMuteSound.Size = new System.Drawing.Size(195, 21);
-            this.chkMuteSound.TabIndex = 5;
-            this.chkMuteSound.Text = "Silenciar sonidos de alerta";
-            this.chkMuteSound.UseVisualStyleBackColor = true;
+            this.txtReembolsosNotasAdicionales.Location = new System.Drawing.Point(482, 336);
+            this.txtReembolsosNotasAdicionales.Multiline = true;
+            this.txtReembolsosNotasAdicionales.Name = "txtReembolsosNotasAdicionales";
+            this.txtReembolsosNotasAdicionales.Size = new System.Drawing.Size(245, 73);
+            this.txtReembolsosNotasAdicionales.TabIndex = 18;
             // 
-            // chkOpenOnStartup
+            // label8
             // 
-            this.chkOpenOnStartup.AutoSize = true;
-            this.chkOpenOnStartup.Location = new System.Drawing.Point(15, 181);
-            this.chkOpenOnStartup.Name = "chkOpenOnStartup";
-            this.chkOpenOnStartup.Size = new System.Drawing.Size(270, 21);
-            this.chkOpenOnStartup.TabIndex = 6;
-            this.chkOpenOnStartup.Text = "Iniciar automáticamente con Windows";
-            this.chkOpenOnStartup.UseVisualStyleBackColor = true;
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label8.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.label8.Location = new System.Drawing.Point(479, 316);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(44, 17);
+            this.label8.TabIndex = 17;
+            this.label8.Text = "Notas";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(12, 83);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(126, 17);
+            this.label14.TabIndex = 7;
+            this.label14.Text = "Folder de Clientes ";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(12, 150);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(222, 17);
+            this.label15.TabIndex = 10;
+            this.label15.Text = "Folder de Reembolsos DROPZONE";
+            // 
+            // btnBrowseReembolsoRoot
+            // 
+            this.btnBrowseReembolsoRoot.Location = new System.Drawing.Point(422, 170);
+            this.btnBrowseReembolsoRoot.Name = "btnBrowseReembolsoRoot";
+            this.btnBrowseReembolsoRoot.Size = new System.Drawing.Size(120, 25);
+            this.btnBrowseReembolsoRoot.TabIndex = 9;
+            this.btnBrowseReembolsoRoot.Text = "Buscar Ruta";
+            this.btnBrowseReembolsoRoot.UseVisualStyleBackColor = true;
+            // 
+            // txtReembolsoRootPath
+            // 
+            this.txtReembolsoRootPath.Location = new System.Drawing.Point(15, 170);
+            this.txtReembolsoRootPath.Name = "txtReembolsoRootPath";
+            this.txtReembolsoRootPath.ReadOnly = true;
+            this.txtReembolsoRootPath.Size = new System.Drawing.Size(401, 25);
+            this.txtReembolsoRootPath.TabIndex = 8;
             // 
             // Form1
             // 
@@ -434,6 +810,14 @@
             this.tabControlMain.ResumeLayout(false);
             this.tabPageDropzone.ResumeLayout(false);
             this.tabPageDropzone.PerformLayout();
+            this.tabPageReembolsos.ResumeLayout(false);
+            this.tabPageReembolsos.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvReembolsoFiles)).EndInit();
+            this.pnlReembolsoDrop.ResumeLayout(false);
+            this.pnlReembolsoDrop.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picDownloadIcon)).EndInit();
             this.tabPageOptions.ResumeLayout(false);
             this.tabPageOptions.PerformLayout();
             this.ResumeLayout(false);
@@ -446,7 +830,6 @@
         private System.Windows.Forms.Panel pnlDropzone;
         private System.Windows.Forms.Label label1;
         private System.IO.FileSystemWatcher fileSystemWatcher1;
-        private System.Windows.Forms.PictureBox pbDownloadIcon;
         private System.Windows.Forms.Button btnQuickGrab;
         private System.Windows.Forms.Label lblFileName;
         private System.Windows.Forms.PictureBox picPreview;
@@ -472,6 +855,39 @@
         private System.Windows.Forms.ListBox lstClientSuggestions;
         private System.Windows.Forms.CheckBox chkOpenOnStartup;
         private System.Windows.Forms.CheckBox chkMuteSound;
+        private System.Windows.Forms.TabPage tabPageReembolsos;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Panel pnlReembolsoDrop;
+        private System.Windows.Forms.TextBox txtReembolsoClientSearch;
+        private System.Windows.Forms.DataGridView dgvReembolsoFiles;
+        private System.Windows.Forms.DataGridViewLinkColumn Nombre;
+        private System.Windows.Forms.DataGridViewComboBoxColumn Tipo;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Tamaño;
+        private System.Windows.Forms.Label lblReembolsoDropPrompt;
+        private System.Windows.Forms.RadioButton rbDeleteOriginals;
+        private System.Windows.Forms.RadioButton rbSaveOriginalsToFolder;
+        private System.Windows.Forms.TextBox txtReembolsoCedula;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.ComboBox cmbReembolsoAseguradora;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.TextBox txtReembolsoMonto;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox txtReembolsoPoliza;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Button btnProcessReembolso;
+        private System.Windows.Forms.Button btnRemoveSelectedFile;
+        private System.Windows.Forms.Button btnClearReembolso;
+        private System.Windows.Forms.PictureBox pbDownloadIcon;
+        private System.Windows.Forms.ListBox lstReembolsoClientSuggestions;
+        private System.Windows.Forms.PictureBox picDownloadIcon;
+        private System.Windows.Forms.TextBox txtReembolsosNotasAdicionales;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.Button btnBrowseReembolsoRoot;
+        private System.Windows.Forms.TextBox txtReembolsoRootPath;
+        private System.Windows.Forms.Label label14;
     }
 }
 

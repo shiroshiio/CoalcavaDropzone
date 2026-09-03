@@ -58,5 +58,17 @@ namespace CoalcavaDropzone.Properties {
                 this["OpenOnStartup"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\Public\\OneDrive - COALCAVA\\DROPZONE_FLOW\\")]
+        public string ReembolsoRootPath {
+            get {
+                return ((string)(this["ReembolsoRootPath"]));
+            }
+            set {
+                this["ReembolsoRootPath"] = value;
+            }
+        }
     }
 }
