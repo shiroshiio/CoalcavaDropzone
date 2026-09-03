@@ -8,6 +8,7 @@ using System.Linq;
 using System.Media;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using PdfiumViewer;
@@ -31,7 +32,7 @@ namespace CoalcavaDropzone
         // Placeholders para campos de Reembolso
         private const string PlaceholderPoliza = "POL-00000000";
         private const string PlaceholderCedula = "001-0000000-0";
-        private const string PlaceholderMonto = "$00.00";
+        private const string PlaceholderMonto = "$0.00";
         private const string PlaceholderNotas = "Notas adicionales, diagnósticos o instrucciones de la reclamación...";
 
         private readonly Color NormalDropzoneColor = Color.FromArgb(248, 248, 246);
@@ -821,7 +822,6 @@ namespace CoalcavaDropzone
 
         #region Reembolsos (Salud & Vida) Implementation
 
-        // Helper reutilizable para Placeholders
         private void ApplyPlaceholder(TextBox txt, string placeholder)
         {
             if (txt == null) return;
@@ -891,12 +891,14 @@ namespace CoalcavaDropzone
             dgvReembolsoFiles.AutoGenerateColumns = false;
             dgvReembolsoFiles.AllowUserToAddRows = false;
             dgvReembolsoFiles.RowHeadersVisible = false;
-            dgvReembolsoFiles.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvReembolsoFiles.SelectionMode = DataGridViewSelectionMode.CellSelect;
             dgvReembolsoFiles.MultiSelect = false;
+            dgvReembolsoFiles.ReadOnly = false;
+            dgvReembolsoFiles.EditMode = DataGridViewEditMode.EditOnEnter;
 
             dgvReembolsoFiles.Columns.Clear();
 
-            // Columna 1: Enlace con el nombre de archivo
+            // Columna 1: Enlace con el nombre de archivo (Solo lectura)
             DataGridViewLinkColumn colName = new DataGridViewLinkColumn
             {
                 HeaderText = "Archivo",
@@ -905,22 +907,25 @@ namespace CoalcavaDropzone
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 LinkBehavior = LinkBehavior.HoverUnderline,
                 LinkColor = Color.FromArgb(0, 102, 204),
-                TrackVisitedState = false
+                TrackVisitedState = false,
+                ReadOnly = true
             };
             dgvReembolsoFiles.Columns.Add(colName);
 
-            // Columna 2: Tipo de Documento (ComboBox por fila)
+            // Columna 2: Tipo de Documento (ComboBox editable)
             DataGridViewComboBoxColumn colType = new DataGridViewComboBoxColumn
             {
                 HeaderText = "Tipo de Documento",
                 Name = "colType",
-                Width = 200,
-                FlatStyle = FlatStyle.Flat
+                Width = 220,
+                FlatStyle = FlatStyle.Flat,
+                DisplayStyle = DataGridViewComboBoxDisplayStyle.ComboBox,
+                ReadOnly = false
             };
             colType.Items.AddRange(docTypeOptions);
             dgvReembolsoFiles.Columns.Add(colType);
 
-            // Columna 3: Tamaño
+            // Columna 3: Tamaño (Solo lectura)
             DataGridViewTextBoxColumn colSize = new DataGridViewTextBoxColumn
             {
                 HeaderText = "Tamaño",
@@ -934,13 +939,7 @@ namespace CoalcavaDropzone
             // Eventos del DataGridView
             dgvReembolsoFiles.CellContentClick += DgvReembolsoFiles_CellContentClick;
             dgvReembolsoFiles.CellValueChanged += DgvReembolsoFiles_CellValueChanged;
-            dgvReembolsoFiles.CurrentCellDirtyStateChanged += (s, e) =>
-            {
-                if (dgvReembolsoFiles.IsCurrentCellDirty)
-                {
-                    dgvReembolsoFiles.CommitEdit(DataGridViewDataErrorContexts.Commit);
-                }
-            };
+            dgvReembolsoFiles.CurrentCellDirtyStateChanged += DgvReembolsoFiles_CurrentCellDirtyStateChanged;
 
             // Botones de acción
             btnRemoveSelectedFile.Click += BtnRemoveSelectedFile_Click;
@@ -985,11 +984,14 @@ namespace CoalcavaDropzone
             txtReembolsoClientSearch.AutoCompleteMode = AutoCompleteMode.None;
             ApplyPlaceholder(txtReembolsoClientSearch, PlaceholderText);
 
-            // Placeholders para el resto de los campos de texto
+            // Placeholders para campos de texto
             ApplyPlaceholder(txtReembolsoPoliza, PlaceholderPoliza);
             ApplyPlaceholder(txtReembolsoCedula, PlaceholderCedula);
             ApplyPlaceholder(txtReembolsoMonto, PlaceholderMonto);
             ApplyPlaceholder(txtReembolsosNotasAdicionales, PlaceholderNotas);
+
+            // Detección Cédula / Pasaporte en tiempo real
+            txtReembolsoCedula.TextChanged += TxtReembolsoCedula_TextChanged;
 
             txtReembolsoClientSearch.LostFocus += (s, e) =>
             {
@@ -1009,6 +1011,38 @@ namespace CoalcavaDropzone
             txtReembolsoClientSearch.KeyDown += TxtReembolsoClientSearch_KeyDown;
             lstReembolsoClientSuggestions.Click += LstReembolsoClientSuggestions_Click;
             lstReembolsoClientSuggestions.KeyDown += LstReembolsoClientSuggestions_KeyDown;
+        }
+
+        private void TxtReembolsoCedula_TextChanged(object sender, EventArgs e)
+        {
+            if (lblPassportID == null) return;
+
+            string text = GetCleanText(txtReembolsoCedula);
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                lblPassportID.Text = "Cédula | Pasaporte";
+                return;
+            }
+
+            // Si contiene letras, se clasifica como pasaporte
+            if (text.Any(char.IsLetter))
+            {
+                lblPassportID.Text = "Pasaporte";
+            }
+            else
+            {
+                // Si contiene solo números y opcionalmente guiones (formato dominicano estándar)
+                string digitsOnly = Regex.Replace(text, @"[^\d]", "");
+                if (digitsOnly.Length > 0)
+                {
+                    lblPassportID.Text = "Cédula";
+                }
+                else
+                {
+                    lblPassportID.Text = "Cédula | Pasaporte";
+                }
+            }
         }
 
         private void PnlReembolsoDrop_DragEnter(object sender, DragEventArgs e)
@@ -1136,23 +1170,32 @@ namespace CoalcavaDropzone
             }
         }
 
+        private void DgvReembolsoFiles_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            if (dgvReembolsoFiles.IsCurrentCellDirty && dgvReembolsoFiles.CurrentCell is DataGridViewComboBoxCell)
+            {
+                dgvReembolsoFiles.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
+        }
+
         private void DgvReembolsoFiles_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0 && e.ColumnIndex == dgvReembolsoFiles.Columns["colType"].Index)
             {
-                var item = dgvReembolsoFiles.Rows[e.RowIndex].Tag as ReembolsoFileItem;
+                var row = dgvReembolsoFiles.Rows[e.RowIndex];
+                var item = row.Tag as ReembolsoFileItem;
                 if (item != null)
                 {
-                    item.DocumentType = dgvReembolsoFiles.Rows[e.RowIndex].Cells["colType"].Value?.ToString() ?? "Otros";
+                    item.DocumentType = row.Cells["colType"].Value?.ToString() ?? "Otros";
                 }
             }
         }
 
         private void BtnRemoveSelectedFile_Click(object sender, EventArgs e)
         {
-            if (dgvReembolsoFiles.SelectedRows.Count > 0)
+            if (dgvReembolsoFiles.CurrentRow != null && dgvReembolsoFiles.CurrentRow.Index >= 0)
             {
-                var selectedRow = dgvReembolsoFiles.SelectedRows[0];
+                var selectedRow = dgvReembolsoFiles.CurrentRow;
                 var item = selectedRow.Tag as ReembolsoFileItem;
                 if (item != null)
                 {
@@ -1193,6 +1236,11 @@ namespace CoalcavaDropzone
             ApplyPlaceholder(txtReembolsoMonto, PlaceholderMonto);
             ApplyPlaceholder(txtReembolsosNotasAdicionales, PlaceholderNotas);
             ApplyPlaceholder(txtReembolsoClientSearch, PlaceholderText);
+
+            if (lblPassportID != null)
+            {
+                lblPassportID.Text = "Cédula | Pasaporte";
+            }
 
             if (lblReembolsoDropPrompt != null)
             {
@@ -1325,13 +1373,21 @@ namespace CoalcavaDropzone
                     Directory.CreateDirectory(dropzoneFlowPath);
                 }
 
-                // 1. Consolidación de PDFs y Metadata
+                // 1. Consolidación de PDFs y Metadata embebida
                 using (PdfSharp.Pdf.PdfDocument outputDoc = new PdfSharp.Pdf.PdfDocument())
                 {
                     outputDoc.Info.Title = $"Expediente Reembolso - {clientName}";
                     outputDoc.Info.Author = "Coalcava Dropzone Suite";
-                    outputDoc.Info.Subject = $"Póliza: {policyNumber} | Aseguradora: {insurer} | Cédula: {cedula}";
+                    outputDoc.Info.Subject = $"Póliza: {policyNumber} | Aseguradora: {insurer} | Documento: {cedula} | Monto: {amount}";
                     outputDoc.Info.Keywords = $"Reembolso, {clientName}, {policyNumber}, {insurer}, {string.Join(", ", presentDocTypes)}";
+                    outputDoc.Info.CreationDate = DateTime.Now;
+
+                    if (!string.IsNullOrWhiteSpace(notes))
+                    {
+                        outputDoc.Info.Elements.SetString("/NotasAdicionales", notes);
+                    }
+                    outputDoc.Info.Elements.SetString("/MontoReclamado", string.IsNullOrWhiteSpace(amount) ? "0.00" : amount);
+                    outputDoc.Info.Elements.SetString("/Aseguradora", insurer);
 
                     foreach (var item in reembolsoItems)
                     {
@@ -1351,13 +1407,16 @@ namespace CoalcavaDropzone
                     outputDoc.Save(finalPdfLocalPath);
                 }
 
-                // 2. Generación del Schema JSON para Planner con notas adicionales
+                // 2. Generación del Schema JSON para Planner con notas y tipo de documento de identidad
+                string docIdType = lblPassportID != null ? lblPassportID.Text : "Documento de Identidad";
+
                 var plannerPayload = new
                 {
                     ClientName = clientName,
                     PolicyNumber = policyNumber,
                     Insurer = insurer,
-                    Cedula = string.IsNullOrWhiteSpace(cedula) ? "No indicada" : cedula,
+                    IdDocumentType = docIdType,
+                    CedulaOrPassport = string.IsNullOrWhiteSpace(cedula) ? "No indicada" : cedula,
                     ClaimAmount = string.IsNullOrWhiteSpace(amount) ? "No especificado" : amount,
                     AdditionalNotes = string.IsNullOrWhiteSpace(notes) ? "Sin notas adicionales." : notes,
                     DocumentTypes = presentDocTypes,
@@ -1404,9 +1463,9 @@ namespace CoalcavaDropzone
                 PlaySound(SystemSounds.Asterisk);
                 MessageBox.Show(
                     $"Expediente generado exitosamente:\n\n" +
-                    $"📄 PDF: {finalPdfName}\n" +
-                    $"⚙️ Metadatos: {finalJsonName}\n" +
-                    $"📁 Destino: {dropzoneFlowPath}\n\n" +
+                    $"PDF: {finalPdfName}\n" +
+                    $"Metadatos: {finalJsonName}\n" +
+                    $"Destino: {dropzoneFlowPath}\n\n" +
                     $"Power Automate procesará la tarea en Planner.",
                     "Expediente Procesado",
                     MessageBoxButtons.OK,
@@ -1414,6 +1473,8 @@ namespace CoalcavaDropzone
                 );
 
                 LoadClientFolders();
+
+                // Limpieza total de los campos tras completar la operación
                 ClearReembolsosForm();
             }
             catch (Exception ex)
@@ -1468,10 +1529,7 @@ namespace CoalcavaDropzone
             string newClientPath = txtRootPath.Text.Trim().Replace('/', '\\');
             string newReembolsoPath = txtReembolsoRootPath != null ? txtReembolsoRootPath.Text.Trim().Replace('/', '\\') : dropzoneFlowPath;
 
-            // Validación de carpeta de Clientes
             if (!ValidateOrCreateDirectory(ref newClientPath, "Clientes")) return;
-
-            // Validación de carpeta de Reembolsos
             if (!ValidateOrCreateDirectory(ref newReembolsoPath, "Reembolsos Flow")) return;
 
             clientRootPath = newClientPath;

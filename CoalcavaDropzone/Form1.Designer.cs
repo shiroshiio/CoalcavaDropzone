@@ -59,7 +59,7 @@
             this.rbDeleteOriginals = new System.Windows.Forms.RadioButton();
             this.rbSaveOriginalsToFolder = new System.Windows.Forms.RadioButton();
             this.txtReembolsoCedula = new System.Windows.Forms.TextBox();
-            this.label13 = new System.Windows.Forms.Label();
+            this.lblPassportID = new System.Windows.Forms.Label();
             this.cmbReembolsoAseguradora = new System.Windows.Forms.ComboBox();
             this.label12 = new System.Windows.Forms.Label();
             this.txtReembolsoMonto = new System.Windows.Forms.TextBox();
@@ -385,7 +385,7 @@
             this.tabPageReembolsos.Controls.Add(this.rbDeleteOriginals);
             this.tabPageReembolsos.Controls.Add(this.rbSaveOriginalsToFolder);
             this.tabPageReembolsos.Controls.Add(this.txtReembolsoCedula);
-            this.tabPageReembolsos.Controls.Add(this.label13);
+            this.tabPageReembolsos.Controls.Add(this.lblPassportID);
             this.tabPageReembolsos.Controls.Add(this.cmbReembolsoAseguradora);
             this.tabPageReembolsos.Controls.Add(this.label12);
             this.tabPageReembolsos.Controls.Add(this.txtReembolsoMonto);
@@ -456,16 +456,16 @@
             this.txtReembolsoCedula.Size = new System.Drawing.Size(245, 25);
             this.txtReembolsoCedula.TabIndex = 13;
             // 
-            // label13
+            // lblPassportID
             // 
-            this.label13.AutoSize = true;
-            this.label13.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label13.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label13.Location = new System.Drawing.Point(479, 70);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(50, 17);
-            this.label13.TabIndex = 12;
-            this.label13.Text = "Cédula";
+            this.lblPassportID.AutoSize = true;
+            this.lblPassportID.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblPassportID.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.lblPassportID.Location = new System.Drawing.Point(479, 70);
+            this.lblPassportID.Name = "lblPassportID";
+            this.lblPassportID.Size = new System.Drawing.Size(125, 17);
+            this.lblPassportID.TabIndex = 12;
+            this.lblPassportID.Text = "Cédula | Pasaporte";
             // 
             // cmbReembolsoAseguradora
             // 
@@ -585,18 +585,17 @@
             this.Tamaño});
             this.dgvReembolsoFiles.Location = new System.Drawing.Point(19, 262);
             this.dgvReembolsoFiles.Name = "dgvReembolsoFiles";
-            this.dgvReembolsoFiles.ReadOnly = true;
             this.dgvReembolsoFiles.RowHeadersWidth = 51;
             this.dgvReembolsoFiles.RowTemplate.Height = 24;
             this.dgvReembolsoFiles.Size = new System.Drawing.Size(432, 202);
             this.dgvReembolsoFiles.TabIndex = 2;
+            this.dgvReembolsoFiles.CurrentCellDirtyStateChanged += new System.EventHandler(this.TxtClientSearch_TextChanged);
             // 
             // Nombre
             // 
             this.Nombre.HeaderText = "Nombre";
             this.Nombre.MinimumWidth = 6;
             this.Nombre.Name = "Nombre";
-            this.Nombre.ReadOnly = true;
             this.Nombre.Width = 125;
             // 
             // Tipo
@@ -604,7 +603,6 @@
             this.Tipo.HeaderText = "Tipo";
             this.Tipo.MinimumWidth = 6;
             this.Tipo.Name = "Tipo";
-            this.Tipo.ReadOnly = true;
             this.Tipo.Width = 125;
             // 
             // Tamaño
@@ -612,7 +610,6 @@
             this.Tamaño.HeaderText = "Tamaño";
             this.Tamaño.MinimumWidth = 6;
             this.Tamaño.Name = "Tamaño";
-            this.Tamaño.ReadOnly = true;
             this.Tamaño.Width = 125;
             // 
             // label7
@@ -868,7 +865,7 @@
         private System.Windows.Forms.RadioButton rbDeleteOriginals;
         private System.Windows.Forms.RadioButton rbSaveOriginalsToFolder;
         private System.Windows.Forms.TextBox txtReembolsoCedula;
-        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label lblPassportID;
         private System.Windows.Forms.ComboBox cmbReembolsoAseguradora;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.TextBox txtReembolsoMonto;
