@@ -862,28 +862,41 @@ namespace CoalcavaDropzone
 
         private void SetupReembolsosUI()
         {
+            // Limpiar y reasignar eventos de arrastre en panel
             pnlReembolsoDrop.AllowDrop = true;
+            pnlReembolsoDrop.DragEnter -= PnlReembolsoDrop_DragEnter;
             pnlReembolsoDrop.DragEnter += PnlReembolsoDrop_DragEnter;
+            pnlReembolsoDrop.DragLeave -= PnlReembolsoDrop_DragLeave;
             pnlReembolsoDrop.DragLeave += PnlReembolsoDrop_DragLeave;
+            pnlReembolsoDrop.DragDrop -= PnlReembolsoDrop_DragDrop;
             pnlReembolsoDrop.DragDrop += PnlReembolsoDrop_DragDrop;
+            pnlReembolsoDrop.Click -= PnlReembolsoDrop_Click;
             pnlReembolsoDrop.Click += PnlReembolsoDrop_Click;
 
             if (picDownloadIcon != null)
             {
                 picDownloadIcon.AllowDrop = true;
                 picDownloadIcon.BackColor = Color.Transparent;
+                picDownloadIcon.DragEnter -= PnlReembolsoDrop_DragEnter;
                 picDownloadIcon.DragEnter += PnlReembolsoDrop_DragEnter;
+                picDownloadIcon.DragLeave -= PnlReembolsoDrop_DragLeave;
                 picDownloadIcon.DragLeave += PnlReembolsoDrop_DragLeave;
+                picDownloadIcon.DragDrop -= PnlReembolsoDrop_DragDrop;
                 picDownloadIcon.DragDrop += PnlReembolsoDrop_DragDrop;
+                picDownloadIcon.Click -= PnlReembolsoDrop_Click;
                 picDownloadIcon.Click += PnlReembolsoDrop_Click;
             }
 
             if (lblReembolsoDropPrompt != null)
             {
                 lblReembolsoDropPrompt.AllowDrop = true;
+                lblReembolsoDropPrompt.DragEnter -= PnlReembolsoDrop_DragEnter;
                 lblReembolsoDropPrompt.DragEnter += PnlReembolsoDrop_DragEnter;
+                lblReembolsoDropPrompt.DragLeave -= PnlReembolsoDrop_DragLeave;
                 lblReembolsoDropPrompt.DragLeave += PnlReembolsoDrop_DragLeave;
+                lblReembolsoDropPrompt.DragDrop -= PnlReembolsoDrop_DragDrop;
                 lblReembolsoDropPrompt.DragDrop += PnlReembolsoDrop_DragDrop;
+                lblReembolsoDropPrompt.Click -= PnlReembolsoDrop_Click;
                 lblReembolsoDropPrompt.Click += PnlReembolsoDrop_Click;
             }
 
@@ -891,7 +904,7 @@ namespace CoalcavaDropzone
             dgvReembolsoFiles.AutoGenerateColumns = false;
             dgvReembolsoFiles.AllowUserToAddRows = false;
             dgvReembolsoFiles.RowHeadersVisible = false;
-            dgvReembolsoFiles.SelectionMode = DataGridViewSelectionMode.CellSelect;
+            dgvReembolsoFiles.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvReembolsoFiles.MultiSelect = false;
             dgvReembolsoFiles.ReadOnly = false;
             dgvReembolsoFiles.EditMode = DataGridViewEditMode.EditOnEnter;
@@ -936,14 +949,24 @@ namespace CoalcavaDropzone
             };
             dgvReembolsoFiles.Columns.Add(colSize);
 
-            // Eventos del DataGridView
+            // Eventos del DataGridView (desvincular primero para evitar ejecuciones múltiples)
+            dgvReembolsoFiles.CellContentClick -= DgvReembolsoFiles_CellContentClick;
             dgvReembolsoFiles.CellContentClick += DgvReembolsoFiles_CellContentClick;
+
+            dgvReembolsoFiles.CellValueChanged -= DgvReembolsoFiles_CellValueChanged;
             dgvReembolsoFiles.CellValueChanged += DgvReembolsoFiles_CellValueChanged;
+
+            dgvReembolsoFiles.CurrentCellDirtyStateChanged -= DgvReembolsoFiles_CurrentCellDirtyStateChanged;
             dgvReembolsoFiles.CurrentCellDirtyStateChanged += DgvReembolsoFiles_CurrentCellDirtyStateChanged;
 
-            // Botones de acción
+            // Botones de acción: desvincular antes de asignar para evitar suscripciones duplicadas
+            btnRemoveSelectedFile.Click -= BtnRemoveSelectedFile_Click;
             btnRemoveSelectedFile.Click += BtnRemoveSelectedFile_Click;
+
+            btnClearReembolso.Click -= BtnClearReembolso_Click;
             btnClearReembolso.Click += BtnClearReembolso_Click;
+
+            btnProcessReembolso.Click -= BtnProcessReembolso_Click;
             btnProcessReembolso.Click += BtnProcessReembolso_Click;
 
             // Valores por defecto
@@ -1193,19 +1216,24 @@ namespace CoalcavaDropzone
 
         private void BtnRemoveSelectedFile_Click(object sender, EventArgs e)
         {
-            if (dgvReembolsoFiles.CurrentRow != null && dgvReembolsoFiles.CurrentRow.Index >= 0)
-            {
-                var selectedRow = dgvReembolsoFiles.CurrentRow;
-                var item = selectedRow.Tag as ReembolsoFileItem;
-                if (item != null)
-                {
-                    reembolsoItems.Remove(item);
-                    RefreshReembolsosGrid();
-                }
-            }
-            else
+            // Check if there is an active row selected
+            if (dgvReembolsoFiles.CurrentRow == null || dgvReembolsoFiles.CurrentRow.Index < 0)
             {
                 MessageBox.Show("Seleccione una fila para eliminar.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var selectedItem = dgvReembolsoFiles.CurrentRow.Tag as ReembolsoFileItem;
+            if (selectedItem != null)
+            {
+                // Remove only this specific item reference from the underlying list
+                reembolsoItems.Remove(selectedItem);
+
+                // Clear selection to prevent automatic chain-selection
+                dgvReembolsoFiles.ClearSelection();
+
+                // Re-render rows
+                RefreshReembolsosGrid();
             }
         }
 

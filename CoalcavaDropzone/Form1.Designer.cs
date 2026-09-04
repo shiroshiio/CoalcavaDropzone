@@ -54,6 +54,8 @@
             this.lstClientSuggestions = new System.Windows.Forms.ListBox();
             this.chkIncludeDay = new System.Windows.Forms.CheckBox();
             this.tabPageReembolsos = new System.Windows.Forms.TabPage();
+            this.txtReembolsosNotasAdicionales = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
             this.lstReembolsoClientSuggestions = new System.Windows.Forms.ListBox();
             this.btnProcessReembolso = new System.Windows.Forms.Button();
             this.rbDeleteOriginals = new System.Windows.Forms.RadioButton();
@@ -80,18 +82,16 @@
             this.picDownloadIcon = new System.Windows.Forms.PictureBox();
             this.lblReembolsoDropPrompt = new System.Windows.Forms.Label();
             this.tabPageOptions = new System.Windows.Forms.TabPage();
+            this.label15 = new System.Windows.Forms.Label();
+            this.btnBrowseReembolsoRoot = new System.Windows.Forms.Button();
+            this.txtReembolsoRootPath = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
             this.chkOpenOnStartup = new System.Windows.Forms.CheckBox();
             this.chkMuteSound = new System.Windows.Forms.CheckBox();
             this.btnSaveSettings = new System.Windows.Forms.Button();
             this.btnBrowseRoot = new System.Windows.Forms.Button();
             this.txtRootPath = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.txtReembolsosNotasAdicionales = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label14 = new System.Windows.Forms.Label();
-            this.label15 = new System.Windows.Forms.Label();
-            this.btnBrowseReembolsoRoot = new System.Windows.Forms.Button();
-            this.txtReembolsoRootPath = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.pnlDropzone.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picPreview)).BeginInit();
@@ -403,6 +403,25 @@
             this.tabPageReembolsos.TabIndex = 2;
             this.tabPageReembolsos.Text = "Reembolsos";
             // 
+            // txtReembolsosNotasAdicionales
+            // 
+            this.txtReembolsosNotasAdicionales.Location = new System.Drawing.Point(482, 336);
+            this.txtReembolsosNotasAdicionales.Multiline = true;
+            this.txtReembolsosNotasAdicionales.Name = "txtReembolsosNotasAdicionales";
+            this.txtReembolsosNotasAdicionales.Size = new System.Drawing.Size(245, 73);
+            this.txtReembolsosNotasAdicionales.TabIndex = 18;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label8.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.label8.Location = new System.Drawing.Point(479, 316);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(44, 17);
+            this.label8.TabIndex = 17;
+            this.label8.Text = "Notas";
+            // 
             // lstReembolsoClientSuggestions
             // 
             this.lstReembolsoClientSuggestions.Font = new System.Drawing.Font("Malgun Gothic", 8.8F);
@@ -566,9 +585,9 @@
             // 
             // btnRemoveSelectedFile
             // 
-            this.btnRemoveSelectedFile.Location = new System.Drawing.Point(288, 470);
+            this.btnRemoveSelectedFile.Location = new System.Drawing.Point(256, 470);
             this.btnRemoveSelectedFile.Name = "btnRemoveSelectedFile";
-            this.btnRemoveSelectedFile.Size = new System.Drawing.Size(163, 35);
+            this.btnRemoveSelectedFile.Size = new System.Drawing.Size(195, 35);
             this.btnRemoveSelectedFile.TabIndex = 3;
             this.btnRemoveSelectedFile.Text = "Remover seleccionado";
             this.btnRemoveSelectedFile.UseVisualStyleBackColor = true;
@@ -672,6 +691,41 @@
             this.tabPageOptions.Text = "Opciones";
             this.tabPageOptions.UseVisualStyleBackColor = true;
             // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(12, 150);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(222, 17);
+            this.label15.TabIndex = 10;
+            this.label15.Text = "Folder de Reembolsos DROPZONE";
+            // 
+            // btnBrowseReembolsoRoot
+            // 
+            this.btnBrowseReembolsoRoot.Location = new System.Drawing.Point(422, 170);
+            this.btnBrowseReembolsoRoot.Name = "btnBrowseReembolsoRoot";
+            this.btnBrowseReembolsoRoot.Size = new System.Drawing.Size(120, 25);
+            this.btnBrowseReembolsoRoot.TabIndex = 9;
+            this.btnBrowseReembolsoRoot.Text = "Buscar Ruta";
+            this.btnBrowseReembolsoRoot.UseVisualStyleBackColor = true;
+            // 
+            // txtReembolsoRootPath
+            // 
+            this.txtReembolsoRootPath.Location = new System.Drawing.Point(15, 170);
+            this.txtReembolsoRootPath.Name = "txtReembolsoRootPath";
+            this.txtReembolsoRootPath.ReadOnly = true;
+            this.txtReembolsoRootPath.Size = new System.Drawing.Size(401, 25);
+            this.txtReembolsoRootPath.TabIndex = 8;
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(12, 83);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(126, 17);
+            this.label14.TabIndex = 7;
+            this.label14.Text = "Folder de Clientes ";
+            // 
             // chkOpenOnStartup
             // 
             this.chkOpenOnStartup.AutoSize = true;
@@ -729,60 +783,6 @@
             this.label6.Size = new System.Drawing.Size(176, 27);
             this.label6.TabIndex = 1;
             this.label6.Text = "Configuración";
-            // 
-            // txtReembolsosNotasAdicionales
-            // 
-            this.txtReembolsosNotasAdicionales.Location = new System.Drawing.Point(482, 336);
-            this.txtReembolsosNotasAdicionales.Multiline = true;
-            this.txtReembolsosNotasAdicionales.Name = "txtReembolsosNotasAdicionales";
-            this.txtReembolsosNotasAdicionales.Size = new System.Drawing.Size(245, 73);
-            this.txtReembolsosNotasAdicionales.TabIndex = 18;
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label8.Location = new System.Drawing.Point(479, 316);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(44, 17);
-            this.label8.TabIndex = 17;
-            this.label8.Text = "Notas";
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(12, 83);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(126, 17);
-            this.label14.TabIndex = 7;
-            this.label14.Text = "Folder de Clientes ";
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(12, 150);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(222, 17);
-            this.label15.TabIndex = 10;
-            this.label15.Text = "Folder de Reembolsos DROPZONE";
-            // 
-            // btnBrowseReembolsoRoot
-            // 
-            this.btnBrowseReembolsoRoot.Location = new System.Drawing.Point(422, 170);
-            this.btnBrowseReembolsoRoot.Name = "btnBrowseReembolsoRoot";
-            this.btnBrowseReembolsoRoot.Size = new System.Drawing.Size(120, 25);
-            this.btnBrowseReembolsoRoot.TabIndex = 9;
-            this.btnBrowseReembolsoRoot.Text = "Buscar Ruta";
-            this.btnBrowseReembolsoRoot.UseVisualStyleBackColor = true;
-            // 
-            // txtReembolsoRootPath
-            // 
-            this.txtReembolsoRootPath.Location = new System.Drawing.Point(15, 170);
-            this.txtReembolsoRootPath.Name = "txtReembolsoRootPath";
-            this.txtReembolsoRootPath.ReadOnly = true;
-            this.txtReembolsoRootPath.Size = new System.Drawing.Size(401, 25);
-            this.txtReembolsoRootPath.TabIndex = 8;
             // 
             // Form1
             // 
