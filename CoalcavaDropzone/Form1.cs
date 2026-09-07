@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -12,6 +13,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using PdfiumViewer;
+using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 
@@ -29,14 +31,20 @@ namespace CoalcavaDropzone
         private string selectedFilePath = string.Empty;
         private const string PlaceholderText = "Seleccionar o buscar cliente...";
 
-        // Placeholders para campos de Reembolso
+        // Placeholders para campos de Reembolso y Completivos
         private const string PlaceholderPoliza = "POL-00000000";
         private const string PlaceholderCedula = "001-0000000-0";
-        private const string PlaceholderMonto = "$0.00";
+        private const string PlaceholderMonto = "0.00";
         private const string PlaceholderNotas = "Notas adicionales, diagnósticos o instrucciones de la reclamación...";
+        private const string PlaceholderTargetCaseId = "REE-XX-000000";
+        private const string PlaceholderCompletivoNotas = "Detalles o justificación de los documentos completivos agregados...";
+        private const string PlaceholderAppUser = "Ingresar nombre o iniciales del usuario...";
 
         private readonly Color NormalDropzoneColor = Color.FromArgb(248, 248, 246);
         private readonly Color HoverDropzoneColor = Color.FromArgb(254, 243, 235);
+
+        // Estado del modo actual
+        private bool isCompletivoMode = false;
 
         // Estructura interna para los ítems de Reembolso
         public class ReembolsoFileItem
@@ -820,7 +828,7 @@ namespace CoalcavaDropzone
 
         #endregion
 
-        #region Reembolsos (Salud & Vida) Implementation
+        #region Reembolsos (Salud & Vida) & Completivos Implementation
 
         private void ApplyPlaceholder(TextBox txt, string placeholder)
         {
@@ -862,7 +870,6 @@ namespace CoalcavaDropzone
 
         private void SetupReembolsosUI()
         {
-            // Limpiar y reasignar eventos de arrastre en panel
             pnlReembolsoDrop.AllowDrop = true;
             pnlReembolsoDrop.DragEnter -= PnlReembolsoDrop_DragEnter;
             pnlReembolsoDrop.DragEnter += PnlReembolsoDrop_DragEnter;
@@ -900,7 +907,6 @@ namespace CoalcavaDropzone
                 lblReembolsoDropPrompt.Click += PnlReembolsoDrop_Click;
             }
 
-            // Configurar DataGridView interactivo
             dgvReembolsoFiles.AutoGenerateColumns = false;
             dgvReembolsoFiles.AllowUserToAddRows = false;
             dgvReembolsoFiles.RowHeadersVisible = false;
@@ -911,7 +917,6 @@ namespace CoalcavaDropzone
 
             dgvReembolsoFiles.Columns.Clear();
 
-            // Columna 1: Enlace con el nombre de archivo (Solo lectura)
             DataGridViewLinkColumn colName = new DataGridViewLinkColumn
             {
                 HeaderText = "Archivo",
@@ -925,7 +930,6 @@ namespace CoalcavaDropzone
             };
             dgvReembolsoFiles.Columns.Add(colName);
 
-            // Columna 2: Tipo de Documento (ComboBox editable)
             DataGridViewComboBoxColumn colType = new DataGridViewComboBoxColumn
             {
                 HeaderText = "Tipo de Documento",
@@ -938,7 +942,6 @@ namespace CoalcavaDropzone
             colType.Items.AddRange(docTypeOptions);
             dgvReembolsoFiles.Columns.Add(colType);
 
-            // Columna 3: Tamaño (Solo lectura)
             DataGridViewTextBoxColumn colSize = new DataGridViewTextBoxColumn
             {
                 HeaderText = "Tamaño",
@@ -949,7 +952,6 @@ namespace CoalcavaDropzone
             };
             dgvReembolsoFiles.Columns.Add(colSize);
 
-            // Eventos del DataGridView (desvincular primero para evitar ejecuciones múltiples)
             dgvReembolsoFiles.CellContentClick -= DgvReembolsoFiles_CellContentClick;
             dgvReembolsoFiles.CellContentClick += DgvReembolsoFiles_CellContentClick;
 
@@ -959,7 +961,6 @@ namespace CoalcavaDropzone
             dgvReembolsoFiles.CurrentCellDirtyStateChanged -= DgvReembolsoFiles_CurrentCellDirtyStateChanged;
             dgvReembolsoFiles.CurrentCellDirtyStateChanged += DgvReembolsoFiles_CurrentCellDirtyStateChanged;
 
-            // Botones de acción: desvincular antes de asignar para evitar suscripciones duplicadas
             btnRemoveSelectedFile.Click -= BtnRemoveSelectedFile_Click;
             btnRemoveSelectedFile.Click += BtnRemoveSelectedFile_Click;
 
@@ -969,58 +970,71 @@ namespace CoalcavaDropzone
             btnProcessReembolso.Click -= BtnProcessReembolso_Click;
             btnProcessReembolso.Click += BtnProcessReembolso_Click;
 
-            // Valores por defecto
-            rbSaveOriginalsToFolder.Checked = true;
+            if (btnToggleMode != null)
+            {
+                btnToggleMode.Click -= BtnToggleMode_Click;
+                btnToggleMode.Click += BtnToggleMode_Click;
+            }
+
+            if (cmbCurrency != null)
+            {
+                cmbCurrency.Items.Clear();
+                cmbCurrency.Items.AddRange(new string[] { "DOP", "USD" });
+                cmbCurrency.SelectedIndex = 0;
+            }
+
+            if (txtReembolsoMonto != null)
+            {
+                txtReembolsoMonto.KeyPress -= TxtReembolsoMonto_KeyPress;
+                txtReembolsoMonto.KeyPress += TxtReembolsoMonto_KeyPress;
+            }
+        }
+
+        private void TxtReembolsoMonto_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBox tb = sender as TextBox;
+            if (char.IsControl(e.KeyChar)) return;
+
+            if (char.IsDigit(e.KeyChar)) return;
+
+            if (e.KeyChar == '.' && tb != null)
+            {
+                string clean = GetCleanText(tb);
+                if (!clean.Contains(".")) return;
+            }
+
+            e.Handled = true;
         }
 
         private void InitializeReembolsosTab()
         {
-            // Cargar Aseguradoras comunes
             cmbReembolsoAseguradora.Items.Clear();
             cmbReembolsoAseguradora.Items.AddRange(new string[] {
-                "Sura",
-                "Humano",
-                "Universal",
-                "La Colonial",
-                "Mapfre",
-                "SeNaSa",
-                "Cigna",
-                "Bupa",
-                "BMI",
-                "One Alliance",
-                "Aetna",
-                "American Fidelity International",
-                "Yunen",
-                "WorldWide Medical",
-                "Primera",
-                "Aurora",
-                "APS",
-                "COOPSEGUROS",
-                "Crecer",
-                "La Monumental",
-                "Seguros Reservas",
-                "Otra Aseguradora"
+                "Sura", "Humano", "Universal", "La Colonial", "Mapfre", "Mapfre BHD",
+                "SeNaSa", "Cigna", "Bupa", "BMI", "One Alliance", "Aetna",
+                "American Fidelity International", "Yunen", "Seguros Pepin",
+                "WorldWide Medical", "Primera", "Aurora", "APS", "COOPSEGUROS",
+                "Crecer", "La Monumental", "Seguros Reservas", "Otra Aseguradora"
             });
             if (cmbReembolsoAseguradora.Items.Count > 0) cmbReembolsoAseguradora.SelectedIndex = 0;
 
-            // Búsqueda de cliente en tab Reembolsos
             txtReembolsoClientSearch.AutoCompleteMode = AutoCompleteMode.None;
             ApplyPlaceholder(txtReembolsoClientSearch, PlaceholderText);
 
-            // Placeholders para campos de texto
             ApplyPlaceholder(txtReembolsoPoliza, PlaceholderPoliza);
             ApplyPlaceholder(txtReembolsoCedula, PlaceholderCedula);
             ApplyPlaceholder(txtReembolsoMonto, PlaceholderMonto);
             ApplyPlaceholder(txtReembolsosNotasAdicionales, PlaceholderNotas);
 
-            // Detección Cédula / Pasaporte en tiempo real
+            if (txtTargetCaseId != null) ApplyPlaceholder(txtTargetCaseId, PlaceholderTargetCaseId);
+            if (txtCompletivoNotas != null) ApplyPlaceholder(txtCompletivoNotas, PlaceholderCompletivoNotas);
+
             txtReembolsoCedula.TextChanged += TxtReembolsoCedula_TextChanged;
 
             txtReembolsoClientSearch.LostFocus += (s, e) =>
             {
                 Timer focusTimer = new Timer { Interval = 150 };
-                focusTimer.Tick += (st, et) =>
-                {
+                focusTimer.Tick += (st, et) => {
                     focusTimer.Stop();
                     if (!lstReembolsoClientSuggestions.Focused && !txtReembolsoClientSearch.Focused)
                     {
@@ -1034,6 +1048,99 @@ namespace CoalcavaDropzone
             txtReembolsoClientSearch.KeyDown += TxtReembolsoClientSearch_KeyDown;
             lstReembolsoClientSuggestions.Click += LstReembolsoClientSuggestions_Click;
             lstReembolsoClientSuggestions.KeyDown += LstReembolsoClientSuggestions_KeyDown;
+
+            if (pnlCompletivos != null)
+            {
+                pnlCompletivos.Visible = false;
+            }
+
+            if (btnProcessReembolso != null)
+            {
+                btnProcessReembolso.BringToFront();
+            }
+        }
+
+        private void BtnToggleMode_Click(object sender, EventArgs e)
+        {
+            isCompletivoMode = !isCompletivoMode;
+
+            if (isCompletivoMode)
+            {
+                if (pnlCompletivos != null)
+                {
+                    pnlCompletivos.Visible = true;
+                    pnlCompletivos.BringToFront();
+                }
+
+                if (btnProcessReembolso != null)
+                {
+                    btnProcessReembolso.Text = "Procesar Completivo";
+                    btnProcessReembolso.BringToFront();
+                }
+
+                if (btnToggleMode != null)
+                {
+                    btnToggleMode.Text = "Reembolso";
+                }
+            }
+            else
+            {
+                if (pnlCompletivos != null)
+                {
+                    pnlCompletivos.Visible = false;
+                }
+
+                if (btnProcessReembolso != null)
+                {
+                    btnProcessReembolso.Text = "Procesar";
+                    btnProcessReembolso.BringToFront();
+                }
+
+                if (btnToggleMode != null)
+                {
+                    btnToggleMode.Text = "Completivo";
+                }
+            }
+        }
+
+        private string GetConfiguredAppUser()
+        {
+            string settingUser = Properties.Settings.Default.SelectedAppUser?.Trim() ?? string.Empty;
+            if (!string.IsNullOrWhiteSpace(settingUser) && settingUser != PlaceholderAppUser)
+            {
+                return settingUser;
+            }
+
+            if (txtAppUser != null)
+            {
+                string textVal = GetCleanText(txtAppUser);
+                if (!string.IsNullOrWhiteSpace(textVal)) return textVal;
+            }
+
+            return string.Empty;
+        }
+
+        private string GetUserInitials(string appUser)
+        {
+            if (string.IsNullOrWhiteSpace(appUser)) return "XX";
+
+            var parts = appUser.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 1)
+            {
+                return parts[0].Length >= 2 ? parts[0].Substring(0, 2).ToUpper() : parts[0].ToUpper();
+            }
+
+            return $"{parts[0][0]}{parts[parts.Length - 1][0]}".ToUpper();
+        }
+
+        private string GenerateCaseId(string userInitials, string modePrefix)
+        {
+            string initials = string.IsNullOrWhiteSpace(userInitials) ? "XX" : userInitials.Trim().ToUpper();
+            long ticks = DateTime.UtcNow.Ticks;
+            string timePart = Convert.ToString(ticks, 16).ToUpper();
+            if (timePart.Length > 6) timePart = timePart.Substring(timePart.Length - 6);
+            string rand = Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper();
+            return $"{modePrefix}-{initials}-{timePart}{rand}";
         }
 
         private void TxtReembolsoCedula_TextChanged(object sender, EventArgs e)
@@ -1048,14 +1155,12 @@ namespace CoalcavaDropzone
                 return;
             }
 
-            // Si contiene letras, se clasifica como pasaporte
             if (text.Any(char.IsLetter))
             {
                 lblPassportID.Text = "Pasaporte";
             }
             else
             {
-                // Si contiene solo números y opcionalmente guiones (formato dominicano estándar)
                 string digitsOnly = Regex.Replace(text, @"[^\d]", "");
                 if (digitsOnly.Length > 0)
                 {
@@ -1095,7 +1200,7 @@ namespace CoalcavaDropzone
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
-                ofd.Filter = "Documentos PDF (*.pdf)|*.pdf";
+                ofd.Filter = "Documentos e Imágenes (*.pdf;*.png;*.jpg;*.jpeg;*.bmp)|*.pdf;*.png;*.jpg;*.jpeg;*.bmp|Todos los Archivos (*.*)|*.*";
                 ofd.Multiselect = true;
                 ofd.Title = "Seleccionar documentos para Reembolso";
 
@@ -1109,22 +1214,28 @@ namespace CoalcavaDropzone
         private void AddFilesToReembolsoQueue(string[] filePaths)
         {
             int addedCount = 0;
+            string[] allowedExts = { ".pdf", ".png", ".jpg", ".jpeg", ".bmp" };
+
             foreach (string path in filePaths)
             {
-                if (File.Exists(path) && Path.GetExtension(path).Equals(".pdf", StringComparison.OrdinalIgnoreCase))
+                if (File.Exists(path))
                 {
-                    if (!reembolsoItems.Any(x => x.FullPath.Equals(path, StringComparison.OrdinalIgnoreCase)))
+                    string ext = Path.GetExtension(path).ToLower();
+                    if (allowedExts.Contains(ext))
                     {
-                        string suggestedType = GuessDocTypeFromName(Path.GetFileName(path));
-
-                        var newItem = new ReembolsoFileItem
+                        if (!reembolsoItems.Any(x => x.FullPath.Equals(path, StringComparison.OrdinalIgnoreCase)))
                         {
-                            FullPath = path,
-                            DocumentType = suggestedType
-                        };
+                            string suggestedType = GuessDocTypeFromName(Path.GetFileName(path));
 
-                        reembolsoItems.Add(newItem);
-                        addedCount++;
+                            var newItem = new ReembolsoFileItem
+                            {
+                                FullPath = path,
+                                DocumentType = suggestedType
+                            };
+
+                            reembolsoItems.Add(newItem);
+                            addedCount++;
+                        }
                     }
                 }
             }
@@ -1216,7 +1327,6 @@ namespace CoalcavaDropzone
 
         private void BtnRemoveSelectedFile_Click(object sender, EventArgs e)
         {
-            // Check if there is an active row selected
             if (dgvReembolsoFiles.CurrentRow == null || dgvReembolsoFiles.CurrentRow.Index < 0)
             {
                 MessageBox.Show("Seleccione una fila para eliminar.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -1226,13 +1336,8 @@ namespace CoalcavaDropzone
             var selectedItem = dgvReembolsoFiles.CurrentRow.Tag as ReembolsoFileItem;
             if (selectedItem != null)
             {
-                // Remove only this specific item reference from the underlying list
                 reembolsoItems.Remove(selectedItem);
-
-                // Clear selection to prevent automatic chain-selection
                 dgvReembolsoFiles.ClearSelection();
-
-                // Re-render rows
                 RefreshReembolsosGrid();
             }
         }
@@ -1242,7 +1347,7 @@ namespace CoalcavaDropzone
             if (reembolsoItems.Count == 0 && string.IsNullOrWhiteSpace(GetCleanText(txtReembolsoPoliza))) return;
 
             DialogResult confirm = MessageBox.Show(
-                "¿Estás seguro de que deseas limpiar la lista de documentos y todos los campos de este reembolso?",
+                "¿Estás seguro de que deseas limpiar la lista de documentos y todos los campos?",
                 "Confirmar limpieza",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question
@@ -1267,16 +1372,23 @@ namespace CoalcavaDropzone
             reembolsoItems.Clear();
             dgvReembolsoFiles.Rows.Clear();
 
-            // Restablecer valores forzando el placeholder y color gris
             ResetPlaceholder(txtReembolsoPoliza, PlaceholderPoliza);
             ResetPlaceholder(txtReembolsoCedula, PlaceholderCedula);
             ResetPlaceholder(txtReembolsoMonto, PlaceholderMonto);
             ResetPlaceholder(txtReembolsosNotasAdicionales, PlaceholderNotas);
             ResetPlaceholder(txtReembolsoClientSearch, PlaceholderText);
 
+            if (txtTargetCaseId != null) ResetPlaceholder(txtTargetCaseId, PlaceholderTargetCaseId);
+            if (txtCompletivoNotas != null) ResetPlaceholder(txtCompletivoNotas, PlaceholderCompletivoNotas);
+
             if (cmbReembolsoAseguradora != null && cmbReembolsoAseguradora.Items.Count > 0)
             {
                 cmbReembolsoAseguradora.SelectedIndex = 0;
+            }
+
+            if (cmbCurrency != null && cmbCurrency.Items.Count > 0)
+            {
+                cmbCurrency.SelectedIndex = 0;
             }
 
             if (lblPassportID != null)
@@ -1289,7 +1401,6 @@ namespace CoalcavaDropzone
                 lblReembolsoDropPrompt.Text = "Arrastra todos los archivos PDF del caso aquí";
             }
 
-            // Quitar el foco de los campos para evitar que borre el placeholder al instante
             this.ActiveControl = null;
         }
 
@@ -1369,20 +1480,27 @@ namespace CoalcavaDropzone
         // Ejecución Principal: Merge + Metadata + JSON Trigger
         private void BtnProcessReembolso_Click(object sender, EventArgs e)
         {
-            string clientName = GetCleanText(txtReembolsoClientSearch);
-            string policyNumber = GetCleanText(txtReembolsoPoliza);
-            string cedula = GetCleanText(txtReembolsoCedula);
-            string insurer = cmbReembolsoAseguradora.SelectedItem?.ToString() ?? "Aseguradora";
-            string amount = GetCleanText(txtReembolsoMonto);
-            string notes = GetCleanText(txtReembolsosNotasAdicionales);
+            string appUser = GetConfiguredAppUser();
+            if (string.IsNullOrWhiteSpace(appUser))
+            {
+                PlaySound(SystemSounds.Exclamation);
+                MessageBox.Show("Debe definir y configurar un Usuario (AppUser) en la pestaña de Opciones antes de procesar cualquier caso.", "Usuario Requerido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                if (tabControlMain != null && tabPageOptions != null)
+                {
+                    tabControlMain.SelectedTab = tabPageOptions;
+                }
+                txtAppUser?.Focus();
+                return;
+            }
 
             if (reembolsoItems.Count == 0)
             {
                 PlaySound(SystemSounds.Exclamation);
-                MessageBox.Show("Debe agregar al menos un documento PDF al caso de reembolso.", "Faltan Archivos", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Debe agregar al menos un documento a la lista.", "Faltan Archivos", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
+            string clientName = GetCleanText(txtReembolsoClientSearch);
             if (string.IsNullOrWhiteSpace(clientName))
             {
                 PlaySound(SystemSounds.Exclamation);
@@ -1391,22 +1509,99 @@ namespace CoalcavaDropzone
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(policyNumber))
-            {
-                PlaySound(SystemSounds.Exclamation);
-                MessageBox.Show("Por favor introduzca el número de póliza del cliente.", "Póliza Requerida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtReembolsoPoliza.Focus();
-                return;
-            }
-
             string safeClient = string.Concat(clientName.Split(Path.GetInvalidFileNameChars())).Replace(" ", "_");
-            string safePolicy = string.Concat(policyNumber.Split(Path.GetInvalidFileNameChars())).Replace(" ", "");
-            string timestamp = DateTime.Now.ToString("dd_MMM_yyyy_HHmm");
+            string formattedDate = DateTime.Now.ToString("ddMMMyy", new CultureInfo("es-ES"));
+            string userInitials = GetUserInitials(appUser);
 
-            List<string> presentDocTypes = reembolsoItems.Select(x => x.DocumentType).Distinct().ToList();
+            string finalPdfName;
+            string finalJsonName;
+            object plannerPayload;
+            string caseId;
 
-            string finalPdfName = $"REEMBOLSO_{safeClient}_{safePolicy}_{timestamp}.pdf";
-            string finalJsonName = $"REEMBOLSO_{safeClient}_{safePolicy}_{timestamp}.json";
+            if (isCompletivoMode)
+            {
+                string targetCaseId = GetCleanText(txtTargetCaseId);
+                string completivoNotes = GetCleanText(txtCompletivoNotas);
+
+                if (string.IsNullOrWhiteSpace(targetCaseId))
+                {
+                    PlaySound(SystemSounds.Exclamation);
+                    MessageBox.Show("Debe ingresar el ID Único del caso original al cual asociar este completivo.", "ID de Caso Requerido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    txtTargetCaseId?.Focus();
+                    return;
+                }
+
+                string safeTargetId = string.Concat(targetCaseId.Split(Path.GetInvalidFileNameChars())).Replace(" ", "");
+                caseId = GenerateCaseId(userInitials, "CMP");
+
+                finalPdfName = $"CMP_{safeClient}_{safeTargetId}_{formattedDate}.pdf";
+                finalJsonName = $"CMP_{safeClient}_{safeTargetId}_{formattedDate}.json";
+
+                List<string> presentDocTypes = reembolsoItems.Select(x => x.DocumentType).Distinct().ToList();
+
+                plannerPayload = new
+                {
+                    CaseType = "CMP",
+                    CaseId = caseId,
+                    TargetCaseId = targetCaseId,
+                    ClientName = clientName,
+                    DocumentTypes = presentDocTypes,
+                    SourceFilesCount = reembolsoItems.Count,
+                    AdditionalNotes = string.IsNullOrWhiteSpace(completivoNotes) ? "Sin notas adicionales." : completivoNotes,
+                    GeneratedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                    PdfFileName = finalPdfName
+                };
+            }
+            else
+            {
+                string policyNumber = GetCleanText(txtReembolsoPoliza);
+                string cedula = GetCleanText(txtReembolsoCedula);
+                string insurer = cmbReembolsoAseguradora.SelectedItem?.ToString() ?? "Aseguradora";
+                string rawAmount = GetCleanText(txtReembolsoMonto);
+                string currency = cmbCurrency?.SelectedItem?.ToString() ?? "DOP";
+                string notes = GetCleanText(txtReembolsosNotasAdicionales);
+
+                if (string.IsNullOrWhiteSpace(policyNumber))
+                {
+                    PlaySound(SystemSounds.Exclamation);
+                    MessageBox.Show("Por favor introduzca el número de póliza del cliente.", "Póliza Requerida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    txtReembolsoPoliza.Focus();
+                    return;
+                }
+
+                decimal numericAmount = 0.00m;
+                if (!string.IsNullOrWhiteSpace(rawAmount))
+                {
+                    decimal.TryParse(rawAmount, NumberStyles.Any, CultureInfo.InvariantCulture, out numericAmount);
+                }
+
+                string safePolicy = string.Concat(policyNumber.Split(Path.GetInvalidFileNameChars())).Replace(" ", "");
+                caseId = GenerateCaseId(userInitials, "REE");
+
+                finalPdfName = $"REE_{safeClient}_{safePolicy}_{formattedDate}.pdf";
+                finalJsonName = $"REE_{safeClient}_{safePolicy}_{formattedDate}.json";
+
+                List<string> presentDocTypes = reembolsoItems.Select(x => x.DocumentType).Distinct().ToList();
+                string docIdType = lblPassportID != null ? lblPassportID.Text : "Documento de Identidad";
+
+                plannerPayload = new
+                {
+                    CaseType = "REE",
+                    CaseId = caseId,
+                    ClientName = clientName,
+                    PolicyNumber = policyNumber,
+                    Insurer = insurer,
+                    IdDocumentType = docIdType,
+                    CedulaOrPassport = string.IsNullOrWhiteSpace(cedula) ? "No indicada" : cedula,
+                    ClaimAmount = numericAmount,
+                    Currency = currency,
+                    AdditionalNotes = string.IsNullOrWhiteSpace(notes) ? "Sin notas adicionales." : notes,
+                    DocumentTypes = presentDocTypes,
+                    SourceFilesCount = reembolsoItems.Count,
+                    GeneratedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                    PdfFileName = finalPdfName
+                };
+            }
 
             string finalPdfLocalPath = Path.Combine(dropzoneFlowPath, finalPdfName);
             string finalJsonLocalPath = Path.Combine(dropzoneFlowPath, finalJsonName);
@@ -1418,33 +1613,41 @@ namespace CoalcavaDropzone
                     Directory.CreateDirectory(dropzoneFlowPath);
                 }
 
-                // 1. Consolidación de PDFs y Metadata embebida
+                // 1. Compilación Limpia: Transferencia directa sin encabezados, textos o metadatos de marcas
                 using (PdfSharp.Pdf.PdfDocument outputDoc = new PdfSharp.Pdf.PdfDocument())
                 {
-                    outputDoc.Info.Title = $"Expediente Reembolso - {clientName}";
-                    outputDoc.Info.Author = "Coalcava Dropzone Suite";
-                    outputDoc.Info.Subject = $"Póliza: {policyNumber} | Aseguradora: {insurer} | Documento: {cedula} | Monto: {amount}";
-                    outputDoc.Info.Keywords = $"Reembolso, {clientName}, {policyNumber}, {insurer}, {string.Join(", ", presentDocTypes)}";
-                    outputDoc.Info.CreationDate = DateTime.Now;
-
-                    if (!string.IsNullOrWhiteSpace(notes))
-                    {
-                        outputDoc.Info.Elements.SetString("/NotasAdicionales", notes);
-                    }
-                    outputDoc.Info.Elements.SetString("/MontoReclamado", string.IsNullOrWhiteSpace(amount) ? "0.00" : amount);
-                    outputDoc.Info.Elements.SetString("/Aseguradora", insurer);
+                    string[] imageExtensions = { ".png", ".jpg", ".jpeg", ".bmp" };
 
                     foreach (var item in reembolsoItems)
                     {
                         if (!File.Exists(item.FullPath)) continue;
 
-                        using (PdfSharp.Pdf.PdfDocument inputDoc = PdfReader.Open(item.FullPath, PdfDocumentOpenMode.Import))
+                        string ext = Path.GetExtension(item.FullPath).ToLower();
+
+                        if (ext == ".pdf")
                         {
-                            int count = inputDoc.PageCount;
-                            for (int idx = 0; idx < count; idx++)
+                            using (PdfSharp.Pdf.PdfDocument inputDoc = PdfReader.Open(item.FullPath, PdfDocumentOpenMode.Import))
                             {
-                                PdfSharp.Pdf.PdfPage page = inputDoc.Pages[idx];
-                                outputDoc.AddPage(page);
+                                int count = inputDoc.PageCount;
+                                for (int idx = 0; idx < count; idx++)
+                                {
+                                    PdfSharp.Pdf.PdfPage page = inputDoc.Pages[idx];
+                                    outputDoc.AddPage(page);
+                                }
+                            }
+                        }
+                        else if (imageExtensions.Contains(ext))
+                        {
+                            using (XImage img = XImage.FromFile(item.FullPath))
+                            {
+                                PdfSharp.Pdf.PdfPage page = outputDoc.AddPage();
+                                page.Width = img.PointWidth;
+                                page.Height = img.PointHeight;
+
+                                using (XGraphics gfx = XGraphics.FromPdfPage(page))
+                                {
+                                    gfx.DrawImage(img, 0, 0, page.Width, page.Height);
+                                }
                             }
                         }
                     }
@@ -1452,80 +1655,40 @@ namespace CoalcavaDropzone
                     outputDoc.Save(finalPdfLocalPath);
                 }
 
-                // 2. Generación del Schema JSON para Planner con notas y tipo de documento de identidad
-                string docIdType = lblPassportID != null ? lblPassportID.Text : "Documento de Identidad";
-
-                var plannerPayload = new
-                {
-                    ClientName = clientName,
-                    PolicyNumber = policyNumber,
-                    Insurer = insurer,
-                    IdDocumentType = docIdType,
-                    CedulaOrPassport = string.IsNullOrWhiteSpace(cedula) ? "No indicada" : cedula,
-                    ClaimAmount = string.IsNullOrWhiteSpace(amount) ? "No especificado" : amount,
-                    AdditionalNotes = string.IsNullOrWhiteSpace(notes) ? "Sin notas adicionales." : notes,
-                    DocumentTypes = presentDocTypes,
-                    SourceFilesCount = reembolsoItems.Count,
-                    GeneratedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                    PdfFileName = finalPdfName
-                };
-
+                // 2. Generación del Schema JSON (Sin AppUser)
                 string jsonContent = JsonSerializer.Serialize(plannerPayload, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(finalJsonLocalPath, jsonContent);
 
-                // 3. Manejo de originales
-                if (rbSaveOriginalsToFolder.Checked)
+                // 3. Eliminación automática de archivos originales
+                foreach (var item in reembolsoItems)
                 {
-                    string clientReembolsoDir = Path.Combine(clientRootPath, clientName, "Reembolsos", $"{DateTime.Now:yyyy-MM-dd}_{safePolicy}");
-                    if (!Directory.Exists(clientReembolsoDir)) Directory.CreateDirectory(clientReembolsoDir);
-
-                    foreach (var item in reembolsoItems)
+                    try
                     {
-                        if (File.Exists(item.FullPath))
-                        {
-                            string dest = Path.Combine(clientReembolsoDir, $"{item.DocumentType.Replace(" ", "_")}_{Path.GetFileName(item.FullPath)}");
-                            File.Copy(item.FullPath, dest, true);
-                        }
+                        if (File.Exists(item.FullPath)) File.Delete(item.FullPath);
                     }
-
-                    File.Copy(finalPdfLocalPath, Path.Combine(clientReembolsoDir, finalPdfName), true);
-                }
-                else if (rbDeleteOriginals.Checked)
-                {
-                    foreach (var item in reembolsoItems)
+                    catch (Exception ex)
                     {
-                        try
-                        {
-                            if (File.Exists(item.FullPath)) File.Delete(item.FullPath);
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine($"No se pudo borrar {item.FullPath}: {ex.Message}");
-                        }
+                        Debug.WriteLine($"No se pudo borrar {item.FullPath}: {ex.Message}");
                     }
                 }
 
                 PlaySound(SystemSounds.Asterisk);
                 MessageBox.Show(
-                    $"Expediente generado exitosamente:\n\n" +
-                    $"PDF: {finalPdfName}\n" +
-                    $"Metadatos: {finalJsonName}\n" +
-                    $"Destino: {dropzoneFlowPath}\n\n" +
-                    $"Power Automate procesará la tarea en Planner.",
-                    "Expediente Procesado",
+                    $"{(isCompletivoMode ? "Completivo" : "Expediente")} generado exitosamente:\n\n" +
+                    $"ID Único: {caseId}\n" +
+                    $"Microsoft Lists será actualizado dentro de 2 minutos.",
+                    "Operación Completada",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information
                 );
 
                 LoadClientFolders();
-
-                // Limpieza total de los campos tras completar la operación
                 ClearReembolsosForm();
             }
             catch (Exception ex)
             {
                 PlaySound(SystemSounds.Hand);
-                MessageBox.Show($"Ocurrió un error al procesar el reembolso:\n{ex.Message}", "Error Crítico", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Ocurrió un error al procesar el caso:\n{ex.Message}", "Error Crítico", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -1538,6 +1701,17 @@ namespace CoalcavaDropzone
             if (btnBrowseReembolsoRoot != null)
             {
                 btnBrowseReembolsoRoot.Click += btnBrowseReembolsoRoot_Click;
+            }
+
+            if (txtAppUser != null)
+            {
+                ApplyPlaceholder(txtAppUser, PlaceholderAppUser);
+                string savedUser = Properties.Settings.Default.SelectedAppUser;
+                if (!string.IsNullOrWhiteSpace(savedUser))
+                {
+                    txtAppUser.Text = savedUser;
+                    txtAppUser.ForeColor = Color.Black;
+                }
             }
         }
 
@@ -1584,6 +1758,12 @@ namespace CoalcavaDropzone
             {
                 Properties.Settings.Default.ClientRootPath = clientRootPath;
                 Properties.Settings.Default.ReembolsoRootPath = dropzoneFlowPath;
+
+                if (txtAppUser != null)
+                {
+                    string user = GetCleanText(txtAppUser);
+                    Properties.Settings.Default.SelectedAppUser = user;
+                }
 
                 if (chkMuteSound != null)
                 {
@@ -1646,8 +1826,5 @@ namespace CoalcavaDropzone
         }
 
         #endregion
-
-        private void rbDeleteOriginals_CheckedChanged(object sender, EventArgs e) { }
-        private void rbSaveOriginalsToFolder_CheckedChanged(object sender, EventArgs e) { }
     }
 }

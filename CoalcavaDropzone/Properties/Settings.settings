@@ -14,5 +14,8 @@
     <Setting Name="ReembolsoRootPath" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\Users\Public\OneDrive - COALCAVA\DROPZONE_FLOW\</Value>
     </Setting>
+    <Setting Name="SelectedAppUser" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

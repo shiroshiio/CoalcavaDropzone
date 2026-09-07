@@ -70,5 +70,17 @@ namespace CoalcavaDropzone.Properties {
                 this["ReembolsoRootPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SelectedAppUser {
+            get {
+                return ((string)(this["SelectedAppUser"]));
+            }
+            set {
+                this["SelectedAppUser"] = value;
+            }
+        }
     }
 }
