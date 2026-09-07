@@ -1500,16 +1500,6 @@ namespace CoalcavaDropzone
                 return;
             }
 
-            string clientName = GetCleanText(txtReembolsoClientSearch);
-            if (string.IsNullOrWhiteSpace(clientName))
-            {
-                PlaySound(SystemSounds.Exclamation);
-                MessageBox.Show("Por favor indique o seleccione un cliente válido.", "Cliente Requerido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtReembolsoClientSearch.Focus();
-                return;
-            }
-
-            string safeClient = string.Concat(clientName.Split(Path.GetInvalidFileNameChars())).Replace(" ", "_");
             string formattedDate = DateTime.Now.ToString("ddMMMyy", new CultureInfo("es-ES"));
             string userInitials = GetUserInitials(appUser);
 
@@ -1534,8 +1524,8 @@ namespace CoalcavaDropzone
                 string safeTargetId = string.Concat(targetCaseId.Split(Path.GetInvalidFileNameChars())).Replace(" ", "");
                 caseId = GenerateCaseId(userInitials, "CMP");
 
-                finalPdfName = $"CMP_{safeClient}_{safeTargetId}_{formattedDate}.pdf";
-                finalJsonName = $"CMP_{safeClient}_{safeTargetId}_{formattedDate}.json";
+                finalPdfName = $"CMP_{safeTargetId}_{formattedDate}.pdf";
+                finalJsonName = $"CMP_{safeTargetId}_{formattedDate}.json";
 
                 List<string> presentDocTypes = reembolsoItems.Select(x => x.DocumentType).Distinct().ToList();
 
@@ -1544,7 +1534,6 @@ namespace CoalcavaDropzone
                     CaseType = "CMP",
                     CaseId = caseId,
                     TargetCaseId = targetCaseId,
-                    ClientName = clientName,
                     DocumentTypes = presentDocTypes,
                     SourceFilesCount = reembolsoItems.Count,
                     AdditionalNotes = string.IsNullOrWhiteSpace(completivoNotes) ? "Sin notas adicionales." : completivoNotes,
@@ -1554,6 +1543,15 @@ namespace CoalcavaDropzone
             }
             else
             {
+                string clientName = GetCleanText(txtReembolsoClientSearch);
+                if (string.IsNullOrWhiteSpace(clientName))
+                {
+                    PlaySound(SystemSounds.Exclamation);
+                    MessageBox.Show("Por favor indique o seleccione un cliente válido.", "Cliente Requerido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    txtReembolsoClientSearch.Focus();
+                    return;
+                }
+
                 string policyNumber = GetCleanText(txtReembolsoPoliza);
                 string cedula = GetCleanText(txtReembolsoCedula);
                 string insurer = cmbReembolsoAseguradora.SelectedItem?.ToString() ?? "Aseguradora";
@@ -1575,6 +1573,7 @@ namespace CoalcavaDropzone
                     decimal.TryParse(rawAmount, NumberStyles.Any, CultureInfo.InvariantCulture, out numericAmount);
                 }
 
+                string safeClient = string.Concat(clientName.Split(Path.GetInvalidFileNameChars())).Replace(" ", "_");
                 string safePolicy = string.Concat(policyNumber.Split(Path.GetInvalidFileNameChars())).Replace(" ", "");
                 caseId = GenerateCaseId(userInitials, "REE");
 
@@ -1676,6 +1675,8 @@ namespace CoalcavaDropzone
                 MessageBox.Show(
                     $"{(isCompletivoMode ? "Completivo" : "Expediente")} generado exitosamente:\n\n" +
                     $"ID Único: {caseId}\n" +
+                    $"PDF: {finalPdfName}\n" +
+                    $"Metadatos: {finalJsonName}\n\n" +
                     $"Microsoft Lists será actualizado dentro de 2 minutos.",
                     "Operación Completada",
                     MessageBoxButtons.OK,
