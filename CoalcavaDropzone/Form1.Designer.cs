@@ -87,6 +87,7 @@
             this.picDownloadIcon = new System.Windows.Forms.PictureBox();
             this.lblReembolsoDropPrompt = new System.Windows.Forms.Label();
             this.tabPageOptions = new System.Windows.Forms.TabPage();
+            this.txtAppUser = new System.Windows.Forms.TextBox();
             this.label17 = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
             this.btnBrowseReembolsoRoot = new System.Windows.Forms.Button();
@@ -98,7 +99,6 @@
             this.btnBrowseRoot = new System.Windows.Forms.Button();
             this.txtRootPath = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.txtAppUser = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.pnlDropzone.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picPreview)).BeginInit();
@@ -410,6 +410,7 @@
             this.tabPageReembolsos.Size = new System.Drawing.Size(757, 524);
             this.tabPageReembolsos.TabIndex = 2;
             this.tabPageReembolsos.Text = "Reembolsos";
+            this.tabPageReembolsos.Click += new System.EventHandler(this.tabPageReembolsos_Click);
             // 
             // pnlCompletivos
             // 
@@ -508,21 +509,23 @@
             // 
             // txtReembolsoCedula
             // 
-            this.txtReembolsoCedula.Location = new System.Drawing.Point(482, 90);
+            this.txtReembolsoCedula.Location = new System.Drawing.Point(482, 156);
             this.txtReembolsoCedula.Name = "txtReembolsoCedula";
             this.txtReembolsoCedula.Size = new System.Drawing.Size(245, 25);
             this.txtReembolsoCedula.TabIndex = 13;
+            this.txtReembolsoCedula.TextChanged += new System.EventHandler(this.txtReembolsoCedula_TextChanged_1);
             // 
             // lblPassportID
             // 
             this.lblPassportID.AutoSize = true;
             this.lblPassportID.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblPassportID.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.lblPassportID.Location = new System.Drawing.Point(479, 70);
+            this.lblPassportID.Location = new System.Drawing.Point(479, 136);
             this.lblPassportID.Name = "lblPassportID";
             this.lblPassportID.Size = new System.Drawing.Size(125, 17);
             this.lblPassportID.TabIndex = 12;
             this.lblPassportID.Text = "Cédula | Pasaporte";
+            this.lblPassportID.Click += new System.EventHandler(this.lblPassportID_Click);
             // 
             // cmbReembolsoAseguradora
             // 
@@ -563,7 +566,7 @@
             // 
             // txtReembolsoPoliza
             // 
-            this.txtReembolsoPoliza.Location = new System.Drawing.Point(482, 153);
+            this.txtReembolsoPoliza.Location = new System.Drawing.Point(482, 95);
             this.txtReembolsoPoliza.Name = "txtReembolsoPoliza";
             this.txtReembolsoPoliza.Size = new System.Drawing.Size(245, 25);
             this.txtReembolsoPoliza.TabIndex = 7;
@@ -573,7 +576,7 @@
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label10.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label10.Location = new System.Drawing.Point(479, 133);
+            this.label10.Location = new System.Drawing.Point(479, 75);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(71, 17);
             this.label10.TabIndex = 6;
@@ -741,6 +744,13 @@
             this.tabPageOptions.Text = "Opciones";
             this.tabPageOptions.UseVisualStyleBackColor = true;
             // 
+            // txtAppUser
+            // 
+            this.txtAppUser.Location = new System.Drawing.Point(15, 236);
+            this.txtAppUser.Name = "txtAppUser";
+            this.txtAppUser.Size = new System.Drawing.Size(401, 25);
+            this.txtAppUser.TabIndex = 13;
+            // 
             // label17
             // 
             this.label17.AutoSize = true;
@@ -842,13 +852,6 @@
             this.label6.Size = new System.Drawing.Size(176, 27);
             this.label6.TabIndex = 1;
             this.label6.Text = "Configuración";
-            // 
-            // txtAppUser
-            // 
-            this.txtAppUser.Location = new System.Drawing.Point(15, 236);
-            this.txtAppUser.Name = "txtAppUser";
-            this.txtAppUser.Size = new System.Drawing.Size(401, 25);
-            this.txtAppUser.TabIndex = 13;
             // 
             // Form1
             // 

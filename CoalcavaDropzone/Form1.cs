@@ -38,7 +38,7 @@ namespace CoalcavaDropzone
         private const string PlaceholderNotas = "Notas adicionales, diagnósticos o instrucciones de la reclamación...";
         private const string PlaceholderTargetCaseId = "REE-XX-000000";
         private const string PlaceholderCompletivoNotas = "Detalles o justificación de los documentos completivos agregados...";
-        private const string PlaceholderAppUser = "Ingresar nombre o iniciales del usuario...";
+        private const string PlaceholderAppUser = "John Appleseed";
 
         private readonly Color NormalDropzoneColor = Color.FromArgb(248, 248, 246);
         private readonly Color HoverDropzoneColor = Color.FromArgb(254, 243, 235);
@@ -988,6 +988,13 @@ namespace CoalcavaDropzone
                 txtReembolsoMonto.KeyPress -= TxtReembolsoMonto_KeyPress;
                 txtReembolsoMonto.KeyPress += TxtReembolsoMonto_KeyPress;
             }
+
+            if (lblPassportID != null)
+            {
+                lblPassportID.Cursor = Cursors.Hand;
+                lblPassportID.Click -= lblPassportID_Click;
+                lblPassportID.Click += lblPassportID_Click;
+            }
         }
 
         private void TxtReembolsoMonto_KeyPress(object sender, KeyPressEventArgs e)
@@ -1155,14 +1162,29 @@ namespace CoalcavaDropzone
                 return;
             }
 
+            // 1. Si contiene letras: Pasaporte (cubre Next-Gen EE. UU. como A12345678 o pasaportes internacionales)
             if (text.Any(char.IsLetter))
             {
                 lblPassportID.Text = "Pasaporte";
+                return;
+            }
+
+            string digitsOnly = Regex.Replace(text, @"[^\d]", "");
+
+            // 2. Pasaporte de EE. UU. tradicional (Pre-2021): exactamente 9 dígitos numéricos
+            if (digitsOnly.Length == 9 && !text.Contains("-"))
+            {
+                lblPassportID.Text = "Pasaporte";
+            }
+            // 3. Cédula Dominicana: exactamente 11 dígitos numéricos o incluye guiones estructurados
+            else if (digitsOnly.Length == 11 || text.Contains("-"))
+            {
+                lblPassportID.Text = "Cédula";
             }
             else
             {
-                string digitsOnly = Regex.Replace(text, @"[^\d]", "");
-                if (digitsOnly.Length > 0)
+                // En proceso de digitación
+                if (digitsOnly.Length > 9)
                 {
                     lblPassportID.Text = "Cédula";
                 }
@@ -1170,6 +1192,21 @@ namespace CoalcavaDropzone
                 {
                     lblPassportID.Text = "Cédula | Pasaporte";
                 }
+            }
+        }
+
+        private void lblPassportID_Click(object sender, EventArgs e)
+        {
+            if (lblPassportID == null) return;
+
+            // Permite alternar manualmente en caso de discrepancia
+            if (lblPassportID.Text == "Cédula")
+            {
+                lblPassportID.Text = "Pasaporte";
+            }
+            else
+            {
+                lblPassportID.Text = "Cédula";
             }
         }
 
@@ -1674,9 +1711,7 @@ namespace CoalcavaDropzone
                 PlaySound(SystemSounds.Asterisk);
                 MessageBox.Show(
                     $"{(isCompletivoMode ? "Completivo" : "Expediente")} generado exitosamente:\n\n" +
-                    $"ID Único: {caseId}\n" +
-                    $"PDF: {finalPdfName}\n" +
-                    $"Metadatos: {finalJsonName}\n\n" +
+                    $"ID de Caso: {caseId}\n" +
                     $"Microsoft Lists será actualizado dentro de 2 minutos.",
                     "Operación Completada",
                     MessageBoxButtons.OK,
@@ -1827,5 +1862,8 @@ namespace CoalcavaDropzone
         }
 
         #endregion
+
+        private void tabPageReembolsos_Click(object sender, EventArgs e) { }
+        private void txtReembolsoCedula_TextChanged_1(object sender, EventArgs e) { }
     }
 }
