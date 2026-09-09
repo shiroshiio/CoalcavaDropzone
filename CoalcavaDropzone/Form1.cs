@@ -1017,12 +1017,17 @@ namespace CoalcavaDropzone
         {
             cmbReembolsoAseguradora.Items.Clear();
             cmbReembolsoAseguradora.Items.AddRange(new string[] {
-                "Sura", "Humano", "Universal", "La Colonial", "Mapfre", "Mapfre BHD",
-                "SeNaSa", "Cigna", "Bupa", "BMI", "One Alliance", "Aetna",
-                "American Fidelity International", "Yunen", "Seguros Pepin",
-                "WorldWide Medical", "Primera", "Aurora", "APS", "COOPSEGUROS",
-                "Crecer", "La Monumental", "Seguros Reservas", "Otra Aseguradora"
+            "Sura", "Humano", "Universal", "La Colonial", "Mapfre", "Mapfre BHD",
+            "SeNaSa", "Cigna", "Bupa", "BMI", "One Alliance", "Aetna",
+            "American Fidelity International", "Yunen", "Seguros Pepin",
+            "WorldWide Medical", "Primera", "Aurora", "APS", "COOPSEGUROS",
+            "Crecer", "La Monumental", "Seguros Reservas", "Otra Aseguradora"
             });
+
+            // Enables inline typing prediction and dropdown suggestions
+            cmbReembolsoAseguradora.DropDownStyle = ComboBoxStyle.DropDown;
+            cmbReembolsoAseguradora.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            cmbReembolsoAseguradora.AutoCompleteSource = AutoCompleteSource.ListItems;
             if (cmbReembolsoAseguradora.Items.Count > 0) cmbReembolsoAseguradora.SelectedIndex = 0;
 
             txtReembolsoClientSearch.AutoCompleteMode = AutoCompleteMode.None;
