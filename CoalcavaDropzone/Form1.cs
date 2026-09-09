@@ -830,41 +830,41 @@ namespace CoalcavaDropzone
 
         #region Reembolsos (Salud & Vida) & Completivos Implementation
 
-        private void ApplyPlaceholder(TextBox txt, string placeholder)
+        private void ApplyPlaceholder(Control ctrl, string placeholder)
         {
-            if (txt == null) return;
+            if (ctrl == null) return;
 
-            txt.Tag = placeholder;
-            if (string.IsNullOrWhiteSpace(txt.Text) || txt.Text == placeholder)
+            ctrl.Tag = placeholder;
+            if (string.IsNullOrWhiteSpace(ctrl.Text) || ctrl.Text == placeholder)
             {
-                txt.Text = placeholder;
-                txt.ForeColor = Color.Gray;
+                ctrl.Text = placeholder;
+                ctrl.ForeColor = Color.Gray;
             }
 
-            txt.GotFocus += (s, e) =>
+            ctrl.GotFocus += (s, e) =>
             {
-                if (txt.Text == placeholder)
+                if (ctrl.Text == placeholder)
                 {
-                    txt.Text = "";
-                    txt.ForeColor = Color.Black;
+                    ctrl.Text = "";
+                    ctrl.ForeColor = Color.Black;
                 }
             };
 
-            txt.LostFocus += (s, e) =>
+            ctrl.LostFocus += (s, e) =>
             {
-                if (string.IsNullOrWhiteSpace(txt.Text))
+                if (string.IsNullOrWhiteSpace(ctrl.Text))
                 {
-                    txt.Text = placeholder;
-                    txt.ForeColor = Color.Gray;
+                    ctrl.Text = placeholder;
+                    ctrl.ForeColor = Color.Gray;
                 }
             };
         }
 
-        private string GetCleanText(TextBox txt)
+        private string GetCleanText(Control ctrl)
         {
-            if (txt == null) return string.Empty;
-            string placeholder = txt.Tag?.ToString() ?? "";
-            string val = txt.Text.Trim();
+            if (ctrl == null) return string.Empty;
+            string placeholder = ctrl.Tag?.ToString() ?? "";
+            string val = ctrl.Text.Trim();
             return (val == placeholder) ? string.Empty : val;
         }
 
@@ -1017,18 +1017,26 @@ namespace CoalcavaDropzone
         {
             cmbReembolsoAseguradora.Items.Clear();
             cmbReembolsoAseguradora.Items.AddRange(new string[] {
-            "Sura", "Humano", "Universal", "La Colonial", "Mapfre", "Mapfre BHD",
-            "SeNaSa", "Cigna", "Bupa", "BMI", "One Alliance", "Aetna",
-            "American Fidelity International", "Yunen", "Seguros Pepin",
-            "WorldWide Medical", "Primera", "Aurora", "APS", "COOPSEGUROS",
-            "Crecer", "La Monumental", "Seguros Reservas", "Otra Aseguradora"
+                "Sura", "Humano", "Universal", "La Colonial", "Mapfre", "Mapfre BHD",
+                "SeNaSa", "Cigna", "Bupa", "BMI", "One Alliance", "Aetna",
+                "American Fidelity International", "Yunen", "Seguros Pepin",
+                "WorldWide Medical", "Primera", "Aurora", "APS", "COOPSEGUROS",
+                "Crecer", "La Monumental", "Seguros Reservas", "Otra Aseguradora"
             });
 
-            // Enables inline typing prediction and dropdown suggestions
             cmbReembolsoAseguradora.DropDownStyle = ComboBoxStyle.DropDown;
             cmbReembolsoAseguradora.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             cmbReembolsoAseguradora.AutoCompleteSource = AutoCompleteSource.ListItems;
             if (cmbReembolsoAseguradora.Items.Count > 0) cmbReembolsoAseguradora.SelectedIndex = 0;
+
+            if (cmbAfiliado != null)
+            {
+                cmbAfiliado.DropDownStyle = ComboBoxStyle.DropDown;
+                cmbAfiliado.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                cmbAfiliado.AutoCompleteSource = AutoCompleteSource.ListItems;
+                cmbAfiliado.SelectedIndexChanged += (s, e) => AutoFillCedulaFromAffiliate();
+                cmbAfiliado.TextChanged += (s, e) => AutoFillCedulaFromAffiliate();
+            }
 
             txtReembolsoClientSearch.AutoCompleteMode = AutoCompleteMode.None;
             ApplyPlaceholder(txtReembolsoClientSearch, PlaceholderText);
@@ -1061,6 +1069,13 @@ namespace CoalcavaDropzone
             lstReembolsoClientSuggestions.Click += LstReembolsoClientSuggestions_Click;
             lstReembolsoClientSuggestions.KeyDown += LstReembolsoClientSuggestions_KeyDown;
 
+            // Dependencias en cascada: Cliente -> Poliza -> Afiliado -> Cédula/Pasaporte
+            txtReembolsoClientSearch.TextChanged += (s, e) => PopulatePoliciesForClient();
+            if (txtReembolsoPoliza != null)
+            {
+                txtReembolsoPoliza.TextChanged += (s, e) => PopulateAffiliatesForPolicy();
+            }
+
             if (pnlCompletivos != null)
             {
                 pnlCompletivos.Visible = false;
@@ -1069,6 +1084,96 @@ namespace CoalcavaDropzone
             if (btnProcessReembolso != null)
             {
                 btnProcessReembolso.BringToFront();
+            }
+        }
+
+        private void PopulatePoliciesForClient()
+        {
+            string client = GetCleanText(txtReembolsoClientSearch);
+            if (string.IsNullOrWhiteSpace(client) || !Directory.Exists(clientRootPath))
+            {
+                return;
+            }
+
+            string clientPath = Path.Combine(clientRootPath, client);
+            if (!Directory.Exists(clientPath)) return;
+
+            var policies = Directory.GetDirectories(clientPath)
+                .Select(d => new DirectoryInfo(d).Name)
+                .ToArray();
+
+            AutoCompleteStringCollection policyCollection = new AutoCompleteStringCollection();
+            policyCollection.AddRange(policies);
+
+            txtReembolsoPoliza.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            txtReembolsoPoliza.AutoCompleteSource = AutoCompleteSource.CustomSource;
+            txtReembolsoPoliza.AutoCompleteCustomSource = policyCollection;
+
+            if (policies.Length > 0 && string.IsNullOrWhiteSpace(GetCleanText(txtReembolsoPoliza)))
+            {
+                txtReembolsoPoliza.Text = policies[0];
+                txtReembolsoPoliza.ForeColor = Color.Black;
+                PopulateAffiliatesForPolicy();
+            }
+        }
+
+        private void PopulateAffiliatesForPolicy()
+        {
+            if (cmbAfiliado == null) return;
+
+            string client = GetCleanText(txtReembolsoClientSearch);
+            string policy = GetCleanText(txtReembolsoPoliza);
+
+            cmbAfiliado.Items.Clear();
+
+            if (string.IsNullOrWhiteSpace(client) || string.IsNullOrWhiteSpace(policy) || !Directory.Exists(clientRootPath))
+            {
+                return;
+            }
+
+            string policyPath = Path.Combine(clientRootPath, client, policy);
+            if (!Directory.Exists(policyPath)) return;
+
+            var affiliates = Directory.GetDirectories(policyPath)
+                .Select(d => new DirectoryInfo(d).Name)
+                .ToArray();
+
+            cmbAfiliado.Items.AddRange(affiliates);
+            if (cmbAfiliado.Items.Count > 0)
+            {
+                cmbAfiliado.SelectedIndex = 0;
+            }
+
+            AutoFillCedulaFromAffiliate();
+        }
+
+        private void AutoFillCedulaFromAffiliate()
+        {
+            string client = GetCleanText(txtReembolsoClientSearch);
+            string policy = GetCleanText(txtReembolsoPoliza);
+            string affiliate = GetCleanText(cmbAfiliado);
+
+            if (string.IsNullOrWhiteSpace(client) || string.IsNullOrWhiteSpace(policy) || string.IsNullOrWhiteSpace(affiliate))
+            {
+                return;
+            }
+
+            string affiliatePath = Path.Combine(clientRootPath, client, policy, affiliate);
+            if (!Directory.Exists(affiliatePath)) return;
+
+            // Busca un archivo .txt con prefijo ID_ (ej: ID_001-0000000-0.txt)
+            var idFile = Directory.GetFiles(affiliatePath, "ID_*.txt").FirstOrDefault();
+            if (idFile != null)
+            {
+                string rawName = Path.GetFileNameWithoutExtension(idFile);
+                string idNumber = rawName.Substring(3).Trim(); // Elimina prefijo "ID_"
+
+                if (!string.IsNullOrWhiteSpace(idNumber) && txtReembolsoCedula != null)
+                {
+                    txtReembolsoCedula.Text = idNumber;
+                    txtReembolsoCedula.ForeColor = Color.Black;
+                    TxtReembolsoCedula_TextChanged(txtReembolsoCedula, EventArgs.Empty);
+                }
             }
         }
 
@@ -1167,7 +1272,6 @@ namespace CoalcavaDropzone
                 return;
             }
 
-            // 1. Si contiene letras: Pasaporte (cubre Next-Gen EE. UU. como A12345678 o pasaportes internacionales)
             if (text.Any(char.IsLetter))
             {
                 lblPassportID.Text = "Pasaporte";
@@ -1176,19 +1280,16 @@ namespace CoalcavaDropzone
 
             string digitsOnly = Regex.Replace(text, @"[^\d]", "");
 
-            // 2. Pasaporte de EE. UU. tradicional (Pre-2021): exactamente 9 dígitos numéricos
             if (digitsOnly.Length == 9 && !text.Contains("-"))
             {
                 lblPassportID.Text = "Pasaporte";
             }
-            // 3. Cédula Dominicana: exactamente 11 dígitos numéricos o incluye guiones estructurados
             else if (digitsOnly.Length == 11 || text.Contains("-"))
             {
                 lblPassportID.Text = "Cédula";
             }
             else
             {
-                // En proceso de digitación
                 if (digitsOnly.Length > 9)
                 {
                     lblPassportID.Text = "Cédula";
@@ -1204,7 +1305,6 @@ namespace CoalcavaDropzone
         {
             if (lblPassportID == null) return;
 
-            // Permite alternar manualmente en caso de discrepancia
             if (lblPassportID.Text == "Cédula")
             {
                 lblPassportID.Text = "Pasaporte";
@@ -1401,12 +1501,12 @@ namespace CoalcavaDropzone
             }
         }
 
-        private void ResetPlaceholder(TextBox txt, string placeholder)
+        private void ResetPlaceholder(Control ctrl, string placeholder)
         {
-            if (txt == null) return;
-            txt.Tag = placeholder;
-            txt.Text = placeholder;
-            txt.ForeColor = Color.Gray;
+            if (ctrl == null) return;
+            ctrl.Tag = placeholder;
+            ctrl.Text = placeholder;
+            ctrl.ForeColor = Color.Gray;
         }
 
         private void ClearReembolsosForm()
@@ -1419,6 +1519,12 @@ namespace CoalcavaDropzone
             ResetPlaceholder(txtReembolsoMonto, PlaceholderMonto);
             ResetPlaceholder(txtReembolsosNotasAdicionales, PlaceholderNotas);
             ResetPlaceholder(txtReembolsoClientSearch, PlaceholderText);
+
+            if (cmbAfiliado != null)
+            {
+                cmbAfiliado.Items.Clear();
+                cmbAfiliado.Text = string.Empty;
+            }
 
             if (txtTargetCaseId != null) ResetPlaceholder(txtTargetCaseId, PlaceholderTargetCaseId);
             if (txtCompletivoNotas != null) ResetPlaceholder(txtCompletivoNotas, PlaceholderCompletivoNotas);
@@ -1516,6 +1622,7 @@ namespace CoalcavaDropzone
                 txtReembolsoClientSearch.SelectionStart = txtReembolsoClientSearch.Text.Length;
                 lstReembolsoClientSuggestions.Visible = false;
                 txtReembolsoClientSearch.Focus();
+                PopulatePoliciesForClient();
             }
         }
 
@@ -1542,7 +1649,6 @@ namespace CoalcavaDropzone
                 return;
             }
 
-            string formattedDate = DateTime.Now.ToString("ddMMMyy", new CultureInfo("es-ES"));
             string userInitials = GetUserInitials(appUser);
 
             string finalPdfName;
@@ -1563,6 +1669,7 @@ namespace CoalcavaDropzone
                     return;
                 }
 
+                string formattedDate = DateTime.Now.ToString("ddMMMyy", new CultureInfo("es-ES"));
                 string safeTargetId = string.Concat(targetCaseId.Split(Path.GetInvalidFileNameChars())).Replace(" ", "");
                 caseId = GenerateCaseId(userInitials, "CMP");
 
@@ -1595,6 +1702,7 @@ namespace CoalcavaDropzone
                 }
 
                 string policyNumber = GetCleanText(txtReembolsoPoliza);
+                string affiliate = GetCleanText(cmbAfiliado);
                 string cedula = GetCleanText(txtReembolsoCedula);
                 string insurer = cmbReembolsoAseguradora.SelectedItem?.ToString() ?? "Aseguradora";
                 string rawAmount = GetCleanText(txtReembolsoMonto);
@@ -1615,12 +1723,14 @@ namespace CoalcavaDropzone
                     decimal.TryParse(rawAmount, NumberStyles.Any, CultureInfo.InvariantCulture, out numericAmount);
                 }
 
-                string safeClient = string.Concat(clientName.Split(Path.GetInvalidFileNameChars())).Replace(" ", "_");
-                string safePolicy = string.Concat(policyNumber.Split(Path.GetInvalidFileNameChars())).Replace(" ", "");
+                // Generación y almacenamiento jerárquico del afiliado y su Cédula/Pasaporte
+                EnsureDirectoryHierarchy(clientName, policyNumber, affiliate, cedula);
+
                 caseId = GenerateCaseId(userInitials, "REE");
 
-                finalPdfName = $"REE_{safeClient}_{safePolicy}_{formattedDate}.pdf";
-                finalJsonName = $"REE_{safeClient}_{safePolicy}_{formattedDate}.json";
+                // Nombre exclusivo con el Case ID
+                finalPdfName = $"{caseId}.pdf";
+                finalJsonName = $"{caseId}.json";
 
                 List<string> presentDocTypes = reembolsoItems.Select(x => x.DocumentType).Distinct().ToList();
                 string docIdType = lblPassportID != null ? lblPassportID.Text : "Documento de Identidad";
@@ -1631,6 +1741,7 @@ namespace CoalcavaDropzone
                     CaseId = caseId,
                     ClientName = clientName,
                     PolicyNumber = policyNumber,
+                    Afiliado = string.IsNullOrWhiteSpace(affiliate) ? clientName : affiliate,
                     Insurer = insurer,
                     IdDocumentType = docIdType,
                     CedulaOrPassport = string.IsNullOrWhiteSpace(cedula) ? "No indicada" : cedula,
@@ -1696,7 +1807,7 @@ namespace CoalcavaDropzone
                     outputDoc.Save(finalPdfLocalPath);
                 }
 
-                // 2. Generación del Schema JSON (Sin AppUser)
+                // 2. Generación del Schema JSON
                 string jsonContent = JsonSerializer.Serialize(plannerPayload, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(finalJsonLocalPath, jsonContent);
 
@@ -1717,6 +1828,7 @@ namespace CoalcavaDropzone
                 MessageBox.Show(
                     $"{(isCompletivoMode ? "Completivo" : "Expediente")} generado exitosamente:\n\n" +
                     $"ID de Caso: {caseId}\n" +
+                    $"PDF: {finalPdfName}\n\n" +
                     $"Microsoft Lists será actualizado dentro de 2 minutos.",
                     "Operación Completada",
                     MessageBoxButtons.OK,
@@ -1730,6 +1842,55 @@ namespace CoalcavaDropzone
             {
                 PlaySound(SystemSounds.Hand);
                 MessageBox.Show($"Ocurrió un error al procesar el caso:\n{ex.Message}", "Error Crítico", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void EnsureDirectoryHierarchy(string client, string policy, string affiliate, string cedulaOrPassport = "")
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(client) || !Directory.Exists(clientRootPath)) return;
+
+                string clientDir = Path.Combine(clientRootPath, client);
+                if (!Directory.Exists(clientDir)) Directory.CreateDirectory(clientDir);
+
+                if (!string.IsNullOrWhiteSpace(policy))
+                {
+                    string policyDir = Path.Combine(clientDir, policy);
+                    if (!Directory.Exists(policyDir)) Directory.CreateDirectory(policyDir);
+
+                    if (!string.IsNullOrWhiteSpace(affiliate))
+                    {
+                        string affiliateDir = Path.Combine(policyDir, affiliate);
+                        if (!Directory.Exists(affiliateDir)) Directory.CreateDirectory(affiliateDir);
+
+                        // Almacenar el documento de identidad como archivo .txt con prefijo ID_
+                        if (!string.IsNullOrWhiteSpace(cedulaOrPassport) && cedulaOrPassport != PlaceholderCedula)
+                        {
+                            string cleanDoc = string.Concat(cedulaOrPassport.Split(Path.GetInvalidFileNameChars())).Trim();
+                            string targetIdFilePath = Path.Combine(affiliateDir, $"ID_{cleanDoc}.txt");
+
+                            // Limpiar archivos de identidad obsoletos en la carpeta del afiliado
+                            var oldFiles = Directory.GetFiles(affiliateDir, "ID_*.txt");
+                            foreach (var old in oldFiles)
+                            {
+                                if (!old.Equals(targetIdFilePath, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    try { File.Delete(old); } catch { }
+                                }
+                            }
+
+                            if (!File.Exists(targetIdFilePath))
+                            {
+                                File.WriteAllText(targetIdFilePath, cedulaOrPassport);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error creando jerarquía de directorios: {ex.Message}");
             }
         }
 
@@ -1870,5 +2031,9 @@ namespace CoalcavaDropzone
 
         private void tabPageReembolsos_Click(object sender, EventArgs e) { }
         private void txtReembolsoCedula_TextChanged_1(object sender, EventArgs e) { }
+        private void lstReembolsoClientSuggestions_SelectedIndexChanged(object sender, EventArgs e) { }
+        private void txtReembolsosNotasAdicionales_TextChanged(object sender, EventArgs e) { }
+        private void label8_Click(object sender, EventArgs e) { }
+        private void dgvReembolsoFiles_CellContentClick_1(object sender, DataGridViewCellEventArgs e) { }
     }
 }
