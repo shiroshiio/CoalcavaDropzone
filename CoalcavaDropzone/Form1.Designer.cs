@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.TabPage tabPageReembolsos;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.btnSort = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -51,14 +50,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.tabControlMain = new System.Windows.Forms.TabControl();
-            this.tabPageDropzone = new System.Windows.Forms.TabPage();
-            this.lstClientSuggestions = new System.Windows.Forms.ListBox();
-            this.chkIncludeDay = new System.Windows.Forms.CheckBox();
-            this.pnlCompletivos = new System.Windows.Forms.Panel();
-            this.txtCompletivoNotas = new System.Windows.Forms.TextBox();
-            this.label16 = new System.Windows.Forms.Label();
-            this.txtTargetCaseId = new System.Windows.Forms.TextBox();
-            this.label13 = new System.Windows.Forms.Label();
+            this.tabPageReembolsos = new System.Windows.Forms.TabPage();
             this.lstReembolsoClientSuggestions = new System.Windows.Forms.ListBox();
             this.cmbAfiliado = new System.Windows.Forms.ComboBox();
             this.txtReembolsoPoliza = new System.Windows.Forms.ComboBox();
@@ -77,6 +69,7 @@
             this.label9 = new System.Windows.Forms.Label();
             this.txtReembolsoClientSearch = new System.Windows.Forms.TextBox();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.label19 = new System.Windows.Forms.Label();
             this.btnToggleMode = new System.Windows.Forms.Button();
             this.btnClearReembolso = new System.Windows.Forms.Button();
             this.btnRemoveSelectedFile = new System.Windows.Forms.Button();
@@ -101,21 +94,32 @@
             this.btnBrowseRoot = new System.Windows.Forms.Button();
             this.txtRootPath = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
-            tabPageReembolsos = new System.Windows.Forms.TabPage();
+            this.tabPageDropzone = new System.Windows.Forms.TabPage();
+            this.lstClientSuggestions = new System.Windows.Forms.ListBox();
+            this.chkIncludeDay = new System.Windows.Forms.CheckBox();
+            this.pnlCompletivos = new System.Windows.Forms.Panel();
+            this.txtCompletivoNotas = new System.Windows.Forms.TextBox();
+            this.label16 = new System.Windows.Forms.Label();
+            this.txtTargetCaseId = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.dtpReminderTime = new System.Windows.Forms.DateTimePicker();
+            this.dtpReminderTimeComp = new System.Windows.Forms.DateTimePicker();
+            this.chkSendReminderComp = new System.Windows.Forms.CheckBox();
+            this.chkSendReminder = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.pnlDropzone.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picPreview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbDownloadIcon)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.tabControlMain.SuspendLayout();
-            this.tabPageDropzone.SuspendLayout();
-            tabPageReembolsos.SuspendLayout();
-            this.pnlCompletivos.SuspendLayout();
+            this.tabPageReembolsos.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvReembolsoFiles)).BeginInit();
             this.pnlReembolsoDrop.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picDownloadIcon)).BeginInit();
             this.tabPageOptions.SuspendLayout();
+            this.tabPageDropzone.SuspendLayout();
+            this.pnlCompletivos.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnSort
@@ -140,7 +144,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel1.Location = new System.Drawing.Point(3, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(312, 551);
+            this.panel1.Size = new System.Drawing.Size(312, 580);
             this.panel1.TabIndex = 2;
             // 
             // btnOpenDoc
@@ -325,7 +329,7 @@
             // 
             // tabControlMain
             // 
-            this.tabControlMain.Controls.Add(tabPageReembolsos);
+            this.tabControlMain.Controls.Add(this.tabPageReembolsos);
             this.tabControlMain.Controls.Add(this.tabPageOptions);
             this.tabControlMain.Controls.Add(this.tabPageDropzone);
             this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Left;
@@ -334,143 +338,50 @@
             this.tabControlMain.Location = new System.Drawing.Point(0, 0);
             this.tabControlMain.Name = "tabControlMain";
             this.tabControlMain.SelectedIndex = 0;
-            this.tabControlMain.Size = new System.Drawing.Size(765, 585);
+            this.tabControlMain.Size = new System.Drawing.Size(765, 614);
             this.tabControlMain.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.tabControlMain.TabIndex = 6;
             // 
-            // tabPageDropzone
-            // 
-            this.tabPageDropzone.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(89)))), ((int)(((byte)(91)))));
-            this.tabPageDropzone.Controls.Add(this.lstClientSuggestions);
-            this.tabPageDropzone.Controls.Add(this.chkIncludeDay);
-            this.tabPageDropzone.Controls.Add(this.panel1);
-            this.tabPageDropzone.Controls.Add(this.label5);
-            this.tabPageDropzone.Controls.Add(this.txtClientSearch);
-            this.tabPageDropzone.Controls.Add(this.label4);
-            this.tabPageDropzone.Controls.Add(this.btnSort);
-            this.tabPageDropzone.Controls.Add(this.label3);
-            this.tabPageDropzone.Controls.Add(this.label2);
-            this.tabPageDropzone.Controls.Add(this.lblPreviewName);
-            this.tabPageDropzone.Controls.Add(this.cmbDepartment);
-            this.tabPageDropzone.Controls.Add(this.dtpDocDate);
-            this.tabPageDropzone.Controls.Add(this.cmbDocType);
-            this.tabPageDropzone.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabPageDropzone.Location = new System.Drawing.Point(4, 24);
-            this.tabPageDropzone.Margin = new System.Windows.Forms.Padding(8);
-            this.tabPageDropzone.Name = "tabPageDropzone";
-            this.tabPageDropzone.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageDropzone.Size = new System.Drawing.Size(757, 557);
-            this.tabPageDropzone.TabIndex = 0;
-            this.tabPageDropzone.Text = "Dropzone";
-            // 
-            // lstClientSuggestions
-            // 
-            this.lstClientSuggestions.Font = new System.Drawing.Font("Malgun Gothic", 8.8F);
-            this.lstClientSuggestions.FormattingEnabled = true;
-            this.lstClientSuggestions.ItemHeight = 20;
-            this.lstClientSuggestions.Location = new System.Drawing.Point(339, 49);
-            this.lstClientSuggestions.Name = "lstClientSuggestions";
-            this.lstClientSuggestions.Size = new System.Drawing.Size(249, 144);
-            this.lstClientSuggestions.TabIndex = 13;
-            this.lstClientSuggestions.Visible = false;
-            // 
-            // chkIncludeDay
-            // 
-            this.chkIncludeDay.AutoSize = true;
-            this.chkIncludeDay.Font = new System.Drawing.Font("Malgun Gothic", 6.5F, System.Drawing.FontStyle.Bold);
-            this.chkIncludeDay.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.chkIncludeDay.Location = new System.Drawing.Point(339, 331);
-            this.chkIncludeDay.Name = "chkIncludeDay";
-            this.chkIncludeDay.Size = new System.Drawing.Size(240, 17);
-            this.chkIncludeDay.TabIndex = 12;
-            this.chkIncludeDay.Text = "Incluir día en el nombre del documento";
-            this.chkIncludeDay.UseVisualStyleBackColor = true;
-            // 
             // tabPageReembolsos
             // 
-            tabPageReembolsos.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(89)))), ((int)(((byte)(91)))));
-            tabPageReembolsos.Controls.Add(this.pnlCompletivos);
-            tabPageReembolsos.Controls.Add(this.lstReembolsoClientSuggestions);
-            tabPageReembolsos.Controls.Add(this.cmbAfiliado);
-            tabPageReembolsos.Controls.Add(this.txtReembolsoPoliza);
-            tabPageReembolsos.Controls.Add(this.label18);
-            tabPageReembolsos.Controls.Add(this.cmbCurrency);
-            tabPageReembolsos.Controls.Add(this.txtReembolsosNotasAdicionales);
-            tabPageReembolsos.Controls.Add(this.label8);
-            tabPageReembolsos.Controls.Add(this.btnProcessReembolso);
-            tabPageReembolsos.Controls.Add(this.txtReembolsoCedula);
-            tabPageReembolsos.Controls.Add(this.lblPassportID);
-            tabPageReembolsos.Controls.Add(this.cmbReembolsoAseguradora);
-            tabPageReembolsos.Controls.Add(this.label12);
-            tabPageReembolsos.Controls.Add(this.txtReembolsoMonto);
-            tabPageReembolsos.Controls.Add(this.label11);
-            tabPageReembolsos.Controls.Add(this.label10);
-            tabPageReembolsos.Controls.Add(this.label9);
-            tabPageReembolsos.Controls.Add(this.txtReembolsoClientSearch);
-            tabPageReembolsos.Controls.Add(this.panel2);
-            tabPageReembolsos.ForeColor = System.Drawing.SystemColors.MenuText;
-            tabPageReembolsos.Location = new System.Drawing.Point(4, 24);
-            tabPageReembolsos.Name = "tabPageReembolsos";
-            tabPageReembolsos.Padding = new System.Windows.Forms.Padding(3);
-            tabPageReembolsos.Size = new System.Drawing.Size(757, 557);
-            tabPageReembolsos.TabIndex = 2;
-            tabPageReembolsos.Text = "Reembolsos";
-            tabPageReembolsos.Click += new System.EventHandler(this.tabPageReembolsos_Click);
-            // 
-            // pnlCompletivos
-            // 
-            this.pnlCompletivos.Controls.Add(this.txtCompletivoNotas);
-            this.pnlCompletivos.Controls.Add(this.label16);
-            this.pnlCompletivos.Controls.Add(this.txtTargetCaseId);
-            this.pnlCompletivos.Controls.Add(this.label13);
-            this.pnlCompletivos.Location = new System.Drawing.Point(469, 0);
-            this.pnlCompletivos.Name = "pnlCompletivos";
-            this.pnlCompletivos.Size = new System.Drawing.Size(288, 495);
-            this.pnlCompletivos.TabIndex = 7;
-            // 
-            // txtCompletivoNotas
-            // 
-            this.txtCompletivoNotas.Location = new System.Drawing.Point(13, 90);
-            this.txtCompletivoNotas.Multiline = true;
-            this.txtCompletivoNotas.Name = "txtCompletivoNotas";
-            this.txtCompletivoNotas.Size = new System.Drawing.Size(245, 111);
-            this.txtCompletivoNotas.TabIndex = 21;
-            // 
-            // label16
-            // 
-            this.label16.AutoSize = true;
-            this.label16.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label16.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label16.Location = new System.Drawing.Point(10, 70);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(44, 17);
-            this.label16.TabIndex = 20;
-            this.label16.Text = "Notas";
-            // 
-            // txtTargetCaseId
-            // 
-            this.txtTargetCaseId.Location = new System.Drawing.Point(13, 33);
-            this.txtTargetCaseId.Name = "txtTargetCaseId";
-            this.txtTargetCaseId.Size = new System.Drawing.Size(245, 25);
-            this.txtTargetCaseId.TabIndex = 20;
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label13.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label13.Location = new System.Drawing.Point(10, 12);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(76, 17);
-            this.label13.TabIndex = 20;
-            this.label13.Text = "ID de Caso";
+            this.tabPageReembolsos.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(89)))), ((int)(((byte)(91)))));
+            this.tabPageReembolsos.Controls.Add(this.label19);
+            this.tabPageReembolsos.Controls.Add(this.pnlCompletivos);
+            this.tabPageReembolsos.Controls.Add(this.chkSendReminder);
+            this.tabPageReembolsos.Controls.Add(this.dtpReminderTime);
+            this.tabPageReembolsos.Controls.Add(this.lstReembolsoClientSuggestions);
+            this.tabPageReembolsos.Controls.Add(this.cmbAfiliado);
+            this.tabPageReembolsos.Controls.Add(this.txtReembolsoPoliza);
+            this.tabPageReembolsos.Controls.Add(this.label18);
+            this.tabPageReembolsos.Controls.Add(this.cmbCurrency);
+            this.tabPageReembolsos.Controls.Add(this.txtReembolsosNotasAdicionales);
+            this.tabPageReembolsos.Controls.Add(this.label8);
+            this.tabPageReembolsos.Controls.Add(this.btnProcessReembolso);
+            this.tabPageReembolsos.Controls.Add(this.txtReembolsoCedula);
+            this.tabPageReembolsos.Controls.Add(this.lblPassportID);
+            this.tabPageReembolsos.Controls.Add(this.cmbReembolsoAseguradora);
+            this.tabPageReembolsos.Controls.Add(this.label12);
+            this.tabPageReembolsos.Controls.Add(this.txtReembolsoMonto);
+            this.tabPageReembolsos.Controls.Add(this.label11);
+            this.tabPageReembolsos.Controls.Add(this.label10);
+            this.tabPageReembolsos.Controls.Add(this.label9);
+            this.tabPageReembolsos.Controls.Add(this.txtReembolsoClientSearch);
+            this.tabPageReembolsos.Controls.Add(this.panel2);
+            this.tabPageReembolsos.ForeColor = System.Drawing.SystemColors.MenuText;
+            this.tabPageReembolsos.Location = new System.Drawing.Point(4, 24);
+            this.tabPageReembolsos.Name = "tabPageReembolsos";
+            this.tabPageReembolsos.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageReembolsos.Size = new System.Drawing.Size(757, 586);
+            this.tabPageReembolsos.TabIndex = 2;
+            this.tabPageReembolsos.Text = "Reembolsos";
+            this.tabPageReembolsos.Click += new System.EventHandler(this.tabPageReembolsos_Click);
             // 
             // lstReembolsoClientSuggestions
             // 
             this.lstReembolsoClientSuggestions.Font = new System.Drawing.Font("Malgun Gothic", 8.8F);
             this.lstReembolsoClientSuggestions.FormattingEnabled = true;
             this.lstReembolsoClientSuggestions.ItemHeight = 20;
-            this.lstReembolsoClientSuggestions.Location = new System.Drawing.Point(482, 57);
+            this.lstReembolsoClientSuggestions.Location = new System.Drawing.Point(482, 52);
             this.lstReembolsoClientSuggestions.Name = "lstReembolsoClientSuggestions";
             this.lstReembolsoClientSuggestions.Size = new System.Drawing.Size(245, 144);
             this.lstReembolsoClientSuggestions.TabIndex = 16;
@@ -479,7 +390,7 @@
             // cmbAfiliado
             // 
             this.cmbAfiliado.FormattingEnabled = true;
-            this.cmbAfiliado.Location = new System.Drawing.Point(482, 144);
+            this.cmbAfiliado.Location = new System.Drawing.Point(482, 139);
             this.cmbAfiliado.Name = "cmbAfiliado";
             this.cmbAfiliado.Size = new System.Drawing.Size(245, 25);
             this.cmbAfiliado.TabIndex = 21;
@@ -487,7 +398,7 @@
             // txtReembolsoPoliza
             // 
             this.txtReembolsoPoliza.FormattingEnabled = true;
-            this.txtReembolsoPoliza.Location = new System.Drawing.Point(482, 89);
+            this.txtReembolsoPoliza.Location = new System.Drawing.Point(482, 84);
             this.txtReembolsoPoliza.Name = "txtReembolsoPoliza";
             this.txtReembolsoPoliza.Size = new System.Drawing.Size(245, 25);
             this.txtReembolsoPoliza.TabIndex = 22;
@@ -497,7 +408,7 @@
             this.label18.AutoSize = true;
             this.label18.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label18.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label18.Location = new System.Drawing.Point(479, 124);
+            this.label18.Location = new System.Drawing.Point(479, 119);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(57, 17);
             this.label18.TabIndex = 20;
@@ -506,14 +417,14 @@
             // cmbCurrency
             // 
             this.cmbCurrency.FormattingEnabled = true;
-            this.cmbCurrency.Location = new System.Drawing.Point(650, 260);
+            this.cmbCurrency.Location = new System.Drawing.Point(650, 255);
             this.cmbCurrency.Name = "cmbCurrency";
             this.cmbCurrency.Size = new System.Drawing.Size(77, 25);
             this.cmbCurrency.TabIndex = 19;
             // 
             // txtReembolsosNotasAdicionales
             // 
-            this.txtReembolsosNotasAdicionales.Location = new System.Drawing.Point(482, 380);
+            this.txtReembolsosNotasAdicionales.Location = new System.Drawing.Point(482, 362);
             this.txtReembolsosNotasAdicionales.Multiline = true;
             this.txtReembolsosNotasAdicionales.Name = "txtReembolsosNotasAdicionales";
             this.txtReembolsosNotasAdicionales.Size = new System.Drawing.Size(245, 113);
@@ -524,7 +435,7 @@
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label8.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label8.Location = new System.Drawing.Point(479, 360);
+            this.label8.Location = new System.Drawing.Point(479, 342);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(44, 17);
             this.label8.TabIndex = 17;
@@ -532,7 +443,7 @@
             // 
             // btnProcessReembolso
             // 
-            this.btnProcessReembolso.Location = new System.Drawing.Point(650, 501);
+            this.btnProcessReembolso.Location = new System.Drawing.Point(650, 532);
             this.btnProcessReembolso.Name = "btnProcessReembolso";
             this.btnProcessReembolso.Size = new System.Drawing.Size(99, 48);
             this.btnProcessReembolso.TabIndex = 3;
@@ -541,7 +452,7 @@
             // 
             // txtReembolsoCedula
             // 
-            this.txtReembolsoCedula.Location = new System.Drawing.Point(482, 200);
+            this.txtReembolsoCedula.Location = new System.Drawing.Point(482, 195);
             this.txtReembolsoCedula.Name = "txtReembolsoCedula";
             this.txtReembolsoCedula.Size = new System.Drawing.Size(245, 25);
             this.txtReembolsoCedula.TabIndex = 13;
@@ -552,17 +463,16 @@
             this.lblPassportID.AutoSize = true;
             this.lblPassportID.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblPassportID.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.lblPassportID.Location = new System.Drawing.Point(479, 180);
+            this.lblPassportID.Location = new System.Drawing.Point(479, 175);
             this.lblPassportID.Name = "lblPassportID";
             this.lblPassportID.Size = new System.Drawing.Size(125, 17);
             this.lblPassportID.TabIndex = 12;
             this.lblPassportID.Text = "Cédula | Pasaporte";
-            this.lblPassportID.Click += new System.EventHandler(this.lblPassportID_Click);
             // 
             // cmbReembolsoAseguradora
             // 
             this.cmbReembolsoAseguradora.FormattingEnabled = true;
-            this.cmbReembolsoAseguradora.Location = new System.Drawing.Point(482, 322);
+            this.cmbReembolsoAseguradora.Location = new System.Drawing.Point(482, 308);
             this.cmbReembolsoAseguradora.Name = "cmbReembolsoAseguradora";
             this.cmbReembolsoAseguradora.Size = new System.Drawing.Size(245, 25);
             this.cmbReembolsoAseguradora.TabIndex = 11;
@@ -572,7 +482,7 @@
             this.label12.AutoSize = true;
             this.label12.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label12.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label12.Location = new System.Drawing.Point(479, 302);
+            this.label12.Location = new System.Drawing.Point(479, 288);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(86, 17);
             this.label12.TabIndex = 10;
@@ -580,7 +490,7 @@
             // 
             // txtReembolsoMonto
             // 
-            this.txtReembolsoMonto.Location = new System.Drawing.Point(482, 260);
+            this.txtReembolsoMonto.Location = new System.Drawing.Point(482, 255);
             this.txtReembolsoMonto.Name = "txtReembolsoMonto";
             this.txtReembolsoMonto.Size = new System.Drawing.Size(168, 25);
             this.txtReembolsoMonto.TabIndex = 9;
@@ -590,7 +500,7 @@
             this.label11.AutoSize = true;
             this.label11.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label11.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label11.Location = new System.Drawing.Point(479, 240);
+            this.label11.Location = new System.Drawing.Point(479, 235);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(50, 17);
             this.label11.TabIndex = 8;
@@ -601,7 +511,7 @@
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label10.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label10.Location = new System.Drawing.Point(479, 69);
+            this.label10.Location = new System.Drawing.Point(479, 64);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(71, 17);
             this.label10.TabIndex = 6;
@@ -612,7 +522,7 @@
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label9.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label9.Location = new System.Drawing.Point(479, 13);
+            this.label9.Location = new System.Drawing.Point(479, 8);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(51, 17);
             this.label9.TabIndex = 5;
@@ -620,7 +530,7 @@
             // 
             // txtReembolsoClientSearch
             // 
-            this.txtReembolsoClientSearch.Location = new System.Drawing.Point(482, 33);
+            this.txtReembolsoClientSearch.Location = new System.Drawing.Point(482, 28);
             this.txtReembolsoClientSearch.Name = "txtReembolsoClientSearch";
             this.txtReembolsoClientSearch.Size = new System.Drawing.Size(245, 25);
             this.txtReembolsoClientSearch.TabIndex = 1;
@@ -637,12 +547,22 @@
             this.panel2.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel2.Location = new System.Drawing.Point(3, 3);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(464, 551);
+            this.panel2.Size = new System.Drawing.Size(464, 580);
             this.panel2.TabIndex = 0;
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Font = new System.Drawing.Font("Malgun Gothic", 4.8F, System.Drawing.FontStyle.Bold);
+            this.label19.Location = new System.Drawing.Point(467, 572);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(40, 11);
+            this.label19.TabIndex = 6;
+            this.label19.Text = "ver. 0.1.3";
             // 
             // btnToggleMode
             // 
-            this.btnToggleMode.Location = new System.Drawing.Point(118, 511);
+            this.btnToggleMode.Location = new System.Drawing.Point(118, 536);
             this.btnToggleMode.Name = "btnToggleMode";
             this.btnToggleMode.Size = new System.Drawing.Size(122, 35);
             this.btnToggleMode.TabIndex = 5;
@@ -651,7 +571,7 @@
             // 
             // btnClearReembolso
             // 
-            this.btnClearReembolso.Location = new System.Drawing.Point(19, 511);
+            this.btnClearReembolso.Location = new System.Drawing.Point(19, 536);
             this.btnClearReembolso.Name = "btnClearReembolso";
             this.btnClearReembolso.Size = new System.Drawing.Size(93, 35);
             this.btnClearReembolso.TabIndex = 4;
@@ -661,7 +581,7 @@
             // 
             // btnRemoveSelectedFile
             // 
-            this.btnRemoveSelectedFile.Location = new System.Drawing.Point(256, 511);
+            this.btnRemoveSelectedFile.Location = new System.Drawing.Point(256, 536);
             this.btnRemoveSelectedFile.Name = "btnRemoveSelectedFile";
             this.btnRemoveSelectedFile.Size = new System.Drawing.Size(195, 35);
             this.btnRemoveSelectedFile.TabIndex = 3;
@@ -678,7 +598,7 @@
             this.Nombre,
             this.Tipo,
             this.Tamaño});
-            this.dgvReembolsoFiles.Location = new System.Drawing.Point(19, 216);
+            this.dgvReembolsoFiles.Location = new System.Drawing.Point(19, 241);
             this.dgvReembolsoFiles.Name = "dgvReembolsoFiles";
             this.dgvReembolsoFiles.RowHeadersWidth = 51;
             this.dgvReembolsoFiles.RowTemplate.Height = 24;
@@ -724,15 +644,15 @@
             this.pnlReembolsoDrop.Controls.Add(this.lblReembolsoDropPrompt);
             this.pnlReembolsoDrop.Location = new System.Drawing.Point(19, 68);
             this.pnlReembolsoDrop.Name = "pnlReembolsoDrop";
-            this.pnlReembolsoDrop.Size = new System.Drawing.Size(432, 142);
+            this.pnlReembolsoDrop.Size = new System.Drawing.Size(432, 167);
             this.pnlReembolsoDrop.TabIndex = 0;
             // 
             // picDownloadIcon
             // 
             this.picDownloadIcon.Image = global::CoalcavaDropzone.Properties.Resources._1410633_200;
-            this.picDownloadIcon.Location = new System.Drawing.Point(161, 0);
+            this.picDownloadIcon.Location = new System.Drawing.Point(149, 0);
             this.picDownloadIcon.Name = "picDownloadIcon";
-            this.picDownloadIcon.Size = new System.Drawing.Size(84, 113);
+            this.picDownloadIcon.Size = new System.Drawing.Size(126, 142);
             this.picDownloadIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.picDownloadIcon.TabIndex = 4;
             this.picDownloadIcon.TabStop = false;
@@ -740,7 +660,7 @@
             // lblReembolsoDropPrompt
             // 
             this.lblReembolsoDropPrompt.AutoSize = true;
-            this.lblReembolsoDropPrompt.Location = new System.Drawing.Point(96, 116);
+            this.lblReembolsoDropPrompt.Location = new System.Drawing.Point(96, 145);
             this.lblReembolsoDropPrompt.Name = "lblReembolsoDropPrompt";
             this.lblReembolsoDropPrompt.Size = new System.Drawing.Size(227, 17);
             this.lblReembolsoDropPrompt.TabIndex = 3;
@@ -764,7 +684,7 @@
             this.tabPageOptions.Location = new System.Drawing.Point(4, 24);
             this.tabPageOptions.Name = "tabPageOptions";
             this.tabPageOptions.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageOptions.Size = new System.Drawing.Size(757, 557);
+            this.tabPageOptions.Size = new System.Drawing.Size(757, 586);
             this.tabPageOptions.TabIndex = 1;
             this.tabPageOptions.Text = "Opciones";
             this.tabPageOptions.UseVisualStyleBackColor = true;
@@ -878,12 +798,146 @@
             this.label6.TabIndex = 1;
             this.label6.Text = "Configuración";
             // 
+            // tabPageDropzone
+            // 
+            this.tabPageDropzone.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(89)))), ((int)(((byte)(91)))));
+            this.tabPageDropzone.Controls.Add(this.lstClientSuggestions);
+            this.tabPageDropzone.Controls.Add(this.chkIncludeDay);
+            this.tabPageDropzone.Controls.Add(this.panel1);
+            this.tabPageDropzone.Controls.Add(this.label5);
+            this.tabPageDropzone.Controls.Add(this.txtClientSearch);
+            this.tabPageDropzone.Controls.Add(this.label4);
+            this.tabPageDropzone.Controls.Add(this.btnSort);
+            this.tabPageDropzone.Controls.Add(this.label3);
+            this.tabPageDropzone.Controls.Add(this.label2);
+            this.tabPageDropzone.Controls.Add(this.lblPreviewName);
+            this.tabPageDropzone.Controls.Add(this.cmbDepartment);
+            this.tabPageDropzone.Controls.Add(this.dtpDocDate);
+            this.tabPageDropzone.Controls.Add(this.cmbDocType);
+            this.tabPageDropzone.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabPageDropzone.Location = new System.Drawing.Point(4, 24);
+            this.tabPageDropzone.Margin = new System.Windows.Forms.Padding(8);
+            this.tabPageDropzone.Name = "tabPageDropzone";
+            this.tabPageDropzone.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageDropzone.Size = new System.Drawing.Size(757, 586);
+            this.tabPageDropzone.TabIndex = 0;
+            this.tabPageDropzone.Text = "Dropzone";
+            // 
+            // lstClientSuggestions
+            // 
+            this.lstClientSuggestions.Font = new System.Drawing.Font("Malgun Gothic", 8.8F);
+            this.lstClientSuggestions.FormattingEnabled = true;
+            this.lstClientSuggestions.ItemHeight = 20;
+            this.lstClientSuggestions.Location = new System.Drawing.Point(339, 49);
+            this.lstClientSuggestions.Name = "lstClientSuggestions";
+            this.lstClientSuggestions.Size = new System.Drawing.Size(249, 144);
+            this.lstClientSuggestions.TabIndex = 13;
+            this.lstClientSuggestions.Visible = false;
+            // 
+            // chkIncludeDay
+            // 
+            this.chkIncludeDay.AutoSize = true;
+            this.chkIncludeDay.Font = new System.Drawing.Font("Malgun Gothic", 6.5F, System.Drawing.FontStyle.Bold);
+            this.chkIncludeDay.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.chkIncludeDay.Location = new System.Drawing.Point(339, 331);
+            this.chkIncludeDay.Name = "chkIncludeDay";
+            this.chkIncludeDay.Size = new System.Drawing.Size(240, 17);
+            this.chkIncludeDay.TabIndex = 12;
+            this.chkIncludeDay.Text = "Incluir día en el nombre del documento";
+            this.chkIncludeDay.UseVisualStyleBackColor = true;
+            // 
+            // pnlCompletivos
+            // 
+            this.pnlCompletivos.Controls.Add(this.chkSendReminderComp);
+            this.pnlCompletivos.Controls.Add(this.dtpReminderTimeComp);
+            this.pnlCompletivos.Controls.Add(this.txtCompletivoNotas);
+            this.pnlCompletivos.Controls.Add(this.label16);
+            this.pnlCompletivos.Controls.Add(this.txtTargetCaseId);
+            this.pnlCompletivos.Controls.Add(this.label13);
+            this.pnlCompletivos.Location = new System.Drawing.Point(469, 0);
+            this.pnlCompletivos.Name = "pnlCompletivos";
+            this.pnlCompletivos.Size = new System.Drawing.Size(288, 530);
+            this.pnlCompletivos.TabIndex = 7;
+            // 
+            // txtCompletivoNotas
+            // 
+            this.txtCompletivoNotas.Location = new System.Drawing.Point(13, 90);
+            this.txtCompletivoNotas.Multiline = true;
+            this.txtCompletivoNotas.Name = "txtCompletivoNotas";
+            this.txtCompletivoNotas.Size = new System.Drawing.Size(245, 111);
+            this.txtCompletivoNotas.TabIndex = 21;
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label16.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.label16.Location = new System.Drawing.Point(10, 70);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(44, 17);
+            this.label16.TabIndex = 20;
+            this.label16.Text = "Notas";
+            // 
+            // txtTargetCaseId
+            // 
+            this.txtTargetCaseId.Location = new System.Drawing.Point(13, 33);
+            this.txtTargetCaseId.Name = "txtTargetCaseId";
+            this.txtTargetCaseId.Size = new System.Drawing.Size(245, 25);
+            this.txtTargetCaseId.TabIndex = 20;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label13.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.label13.Location = new System.Drawing.Point(10, 12);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(76, 17);
+            this.label13.TabIndex = 20;
+            this.label13.Text = "ID de Caso";
+            // 
+            // dtpReminderTime
+            // 
+            this.dtpReminderTime.Location = new System.Drawing.Point(482, 501);
+            this.dtpReminderTime.Name = "dtpReminderTime";
+            this.dtpReminderTime.Size = new System.Drawing.Size(245, 25);
+            this.dtpReminderTime.TabIndex = 24;
+            // 
+            // dtpReminderTimeComp
+            // 
+            this.dtpReminderTimeComp.Location = new System.Drawing.Point(13, 231);
+            this.dtpReminderTimeComp.Name = "dtpReminderTimeComp";
+            this.dtpReminderTimeComp.Size = new System.Drawing.Size(245, 25);
+            this.dtpReminderTimeComp.TabIndex = 26;
+            // 
+            // chkSendReminderComp
+            // 
+            this.chkSendReminderComp.AutoSize = true;
+            this.chkSendReminderComp.ForeColor = System.Drawing.SystemColors.HighlightText;
+            this.chkSendReminderComp.Location = new System.Drawing.Point(13, 208);
+            this.chkSendReminderComp.Name = "chkSendReminderComp";
+            this.chkSendReminderComp.Size = new System.Drawing.Size(169, 21);
+            this.chkSendReminderComp.TabIndex = 27;
+            this.chkSendReminderComp.Text = "Fecha de Recordatorio";
+            this.chkSendReminderComp.UseVisualStyleBackColor = true;
+            // 
+            // chkSendReminder
+            // 
+            this.chkSendReminder.AutoSize = true;
+            this.chkSendReminder.ForeColor = System.Drawing.SystemColors.HighlightText;
+            this.chkSendReminder.Location = new System.Drawing.Point(482, 478);
+            this.chkSendReminder.Name = "chkSendReminder";
+            this.chkSendReminder.Size = new System.Drawing.Size(169, 21);
+            this.chkSendReminder.TabIndex = 28;
+            this.chkSendReminder.Text = "Fecha de Recordatorio";
+            this.chkSendReminder.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(89)))), ((int)(((byte)(91)))));
-            this.ClientSize = new System.Drawing.Size(774, 585);
+            this.ClientSize = new System.Drawing.Size(771, 614);
             this.Controls.Add(this.tabControlMain);
             this.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -899,12 +953,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.pbDownloadIcon)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
             this.tabControlMain.ResumeLayout(false);
-            this.tabPageDropzone.ResumeLayout(false);
-            this.tabPageDropzone.PerformLayout();
-            tabPageReembolsos.ResumeLayout(false);
-            tabPageReembolsos.PerformLayout();
-            this.pnlCompletivos.ResumeLayout(false);
-            this.pnlCompletivos.PerformLayout();
+            this.tabPageReembolsos.ResumeLayout(false);
+            this.tabPageReembolsos.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvReembolsoFiles)).EndInit();
@@ -913,6 +963,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.picDownloadIcon)).EndInit();
             this.tabPageOptions.ResumeLayout(false);
             this.tabPageOptions.PerformLayout();
+            this.tabPageDropzone.ResumeLayout(false);
+            this.tabPageDropzone.PerformLayout();
+            this.pnlCompletivos.ResumeLayout(false);
+            this.pnlCompletivos.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -989,6 +1043,12 @@
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.ComboBox cmbReembolsoAseguradora;
         private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.TabPage tabPageReembolsos;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.DateTimePicker dtpReminderTimeComp;
+        private System.Windows.Forms.DateTimePicker dtpReminderTime;
+        private System.Windows.Forms.CheckBox chkSendReminderComp;
+        private System.Windows.Forms.CheckBox chkSendReminder;
     }
 }
 
