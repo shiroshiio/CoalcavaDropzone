@@ -29,29 +29,21 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            this.btnSort = new System.Windows.Forms.Button();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.btnOpenDoc = new System.Windows.Forms.Button();
-            this.btnClear = new System.Windows.Forms.Button();
-            this.btnQuickGrab = new System.Windows.Forms.Button();
-            this.pnlDropzone = new System.Windows.Forms.Panel();
-            this.picPreview = new System.Windows.Forms.PictureBox();
-            this.pbDownloadIcon = new System.Windows.Forms.PictureBox();
-            this.lblFileName = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
-            this.txtClientSearch = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.cmbDepartment = new System.Windows.Forms.ComboBox();
-            this.cmbDocType = new System.Windows.Forms.ComboBox();
-            this.dtpDocDate = new System.Windows.Forms.DateTimePicker();
-            this.lblPreviewName = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
             this.tabControlMain = new System.Windows.Forms.TabControl();
             this.tabPageReembolsos = new System.Windows.Forms.TabPage();
+            this.pnlCompletivos = new System.Windows.Forms.Panel();
+            this.chkSendReminderComp = new System.Windows.Forms.CheckBox();
+            this.dtpReminderTimeComp = new System.Windows.Forms.DateTimePicker();
+            this.txtCompletivoNotas = new System.Windows.Forms.TextBox();
+            this.label16 = new System.Windows.Forms.Label();
+            this.txtTargetCaseId = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.txtReembolsoCedula = new System.Windows.Forms.TextBox();
             this.lstReembolsoClientSuggestions = new System.Windows.Forms.ListBox();
+            this.label19 = new System.Windows.Forms.Label();
+            this.chkSendReminder = new System.Windows.Forms.CheckBox();
+            this.dtpReminderTime = new System.Windows.Forms.DateTimePicker();
             this.cmbAfiliado = new System.Windows.Forms.ComboBox();
             this.txtReembolsoPoliza = new System.Windows.Forms.ComboBox();
             this.label18 = new System.Windows.Forms.Label();
@@ -59,7 +51,6 @@
             this.txtReembolsosNotasAdicionales = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
             this.btnProcessReembolso = new System.Windows.Forms.Button();
-            this.txtReembolsoCedula = new System.Windows.Forms.TextBox();
             this.lblPassportID = new System.Windows.Forms.Label();
             this.cmbReembolsoAseguradora = new System.Windows.Forms.ComboBox();
             this.label12 = new System.Windows.Forms.Label();
@@ -69,7 +60,7 @@
             this.label9 = new System.Windows.Forms.Label();
             this.txtReembolsoClientSearch = new System.Windows.Forms.TextBox();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.label19 = new System.Windows.Forms.Label();
+            this.btnToggleAuth = new System.Windows.Forms.Button();
             this.btnToggleMode = new System.Windows.Forms.Button();
             this.btnClearReembolso = new System.Windows.Forms.Button();
             this.btnRemoveSelectedFile = new System.Windows.Forms.Button();
@@ -94,262 +85,55 @@
             this.btnBrowseRoot = new System.Windows.Forms.Button();
             this.txtRootPath = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.tabPageDropzone = new System.Windows.Forms.TabPage();
-            this.lstClientSuggestions = new System.Windows.Forms.ListBox();
-            this.chkIncludeDay = new System.Windows.Forms.CheckBox();
-            this.pnlCompletivos = new System.Windows.Forms.Panel();
-            this.txtCompletivoNotas = new System.Windows.Forms.TextBox();
-            this.label16 = new System.Windows.Forms.Label();
-            this.txtTargetCaseId = new System.Windows.Forms.TextBox();
-            this.label13 = new System.Windows.Forms.Label();
-            this.dtpReminderTime = new System.Windows.Forms.DateTimePicker();
-            this.dtpReminderTimeComp = new System.Windows.Forms.DateTimePicker();
-            this.chkSendReminderComp = new System.Windows.Forms.CheckBox();
-            this.chkSendReminder = new System.Windows.Forms.CheckBox();
-            this.panel1.SuspendLayout();
-            this.pnlDropzone.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picPreview)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pbDownloadIcon)).BeginInit();
+            this.label1 = new System.Windows.Forms.Label();
+            this.pnlDropzone = new System.Windows.Forms.Panel();
+            this.lblFileName = new System.Windows.Forms.Label();
+            this.pbDownloadIcon = new System.Windows.Forms.PictureBox();
+            this.picPreview = new System.Windows.Forms.PictureBox();
+            this.btnQuickGrab = new System.Windows.Forms.Button();
+            this.btnClear = new System.Windows.Forms.Button();
+            this.btnOpenDoc = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.tabControlMain.SuspendLayout();
             this.tabPageReembolsos.SuspendLayout();
+            this.pnlCompletivos.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvReembolsoFiles)).BeginInit();
             this.pnlReembolsoDrop.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picDownloadIcon)).BeginInit();
             this.tabPageOptions.SuspendLayout();
-            this.tabPageDropzone.SuspendLayout();
-            this.pnlCompletivos.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbDownloadIcon)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picPreview)).BeginInit();
             this.SuspendLayout();
-            // 
-            // btnSort
-            // 
-            this.btnSort.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSort.Location = new System.Drawing.Point(339, 469);
-            this.btnSort.Name = "btnSort";
-            this.btnSort.Size = new System.Drawing.Size(169, 47);
-            this.btnSort.TabIndex = 1;
-            this.btnSort.Text = "Guardar Documento";
-            this.btnSort.UseVisualStyleBackColor = true;
-            this.btnSort.Click += new System.EventHandler(this.btnSort_Click);
-            // 
-            // panel1
-            // 
-            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(245)))), ((int)(((byte)(242)))));
-            this.panel1.Controls.Add(this.btnOpenDoc);
-            this.panel1.Controls.Add(this.btnClear);
-            this.panel1.Controls.Add(this.btnQuickGrab);
-            this.panel1.Controls.Add(this.pnlDropzone);
-            this.panel1.Controls.Add(this.label1);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.panel1.Location = new System.Drawing.Point(3, 3);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(312, 580);
-            this.panel1.TabIndex = 2;
-            // 
-            // btnOpenDoc
-            // 
-            this.btnOpenDoc.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnOpenDoc.Location = new System.Drawing.Point(13, 408);
-            this.btnOpenDoc.Name = "btnOpenDoc";
-            this.btnOpenDoc.Size = new System.Drawing.Size(158, 39);
-            this.btnOpenDoc.TabIndex = 5;
-            this.btnOpenDoc.Text = "Ver Documento";
-            this.btnOpenDoc.UseVisualStyleBackColor = true;
-            this.btnOpenDoc.Click += new System.EventHandler(this.btnOpenDoc_Click);
-            // 
-            // btnClear
-            // 
-            this.btnClear.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnClear.Location = new System.Drawing.Point(94, 350);
-            this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(76, 52);
-            this.btnClear.TabIndex = 4;
-            this.btnClear.Text = "Nuevo";
-            this.btnClear.UseVisualStyleBackColor = true;
-            this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
-            // 
-            // btnQuickGrab
-            // 
-            this.btnQuickGrab.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnQuickGrab.Location = new System.Drawing.Point(13, 350);
-            this.btnQuickGrab.Name = "btnQuickGrab";
-            this.btnQuickGrab.Size = new System.Drawing.Size(76, 52);
-            this.btnQuickGrab.TabIndex = 3;
-            this.btnQuickGrab.Text = "Reciente";
-            this.btnQuickGrab.UseVisualStyleBackColor = true;
-            this.btnQuickGrab.Click += new System.EventHandler(this.btnQuickGrab_Click_1);
-            // 
-            // pnlDropzone
-            // 
-            this.pnlDropzone.AllowDrop = true;
-            this.pnlDropzone.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.pnlDropzone.Controls.Add(this.picPreview);
-            this.pnlDropzone.Controls.Add(this.pbDownloadIcon);
-            this.pnlDropzone.Controls.Add(this.lblFileName);
-            this.pnlDropzone.Location = new System.Drawing.Point(13, 68);
-            this.pnlDropzone.Name = "pnlDropzone";
-            this.pnlDropzone.Size = new System.Drawing.Size(282, 275);
-            this.pnlDropzone.TabIndex = 1;
-            // 
-            // picPreview
-            // 
-            this.picPreview.Location = new System.Drawing.Point(0, 0);
-            this.picPreview.Name = "picPreview";
-            this.picPreview.Size = new System.Drawing.Size(282, 245);
-            this.picPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.picPreview.TabIndex = 2;
-            this.picPreview.TabStop = false;
-            // 
-            // pbDownloadIcon
-            // 
-            this.pbDownloadIcon.Image = global::CoalcavaDropzone.Properties.Resources._1410633_200;
-            this.pbDownloadIcon.Location = new System.Drawing.Point(66, 33);
-            this.pbDownloadIcon.Name = "pbDownloadIcon";
-            this.pbDownloadIcon.Size = new System.Drawing.Size(146, 192);
-            this.pbDownloadIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pbDownloadIcon.TabIndex = 1;
-            this.pbDownloadIcon.TabStop = false;
-            // 
-            // lblFileName
-            // 
-            this.lblFileName.AutoSize = true;
-            this.lblFileName.Location = new System.Drawing.Point(22, 248);
-            this.lblFileName.Name = "lblFileName";
-            this.lblFileName.Size = new System.Drawing.Size(227, 17);
-            this.lblFileName.TabIndex = 2;
-            this.lblFileName.Text = "Arrastra un archivo o haz clic aquí.";
-            this.lblFileName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Nirmala UI", 20.2F, System.Drawing.FontStyle.Bold);
-            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
-            this.label1.Location = new System.Drawing.Point(14, 5);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(177, 46);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Dropzone";
             // 
             // fileSystemWatcher1
             // 
             this.fileSystemWatcher1.EnableRaisingEvents = true;
             this.fileSystemWatcher1.SynchronizingObject = this;
             // 
-            // txtClientSearch
-            // 
-            this.txtClientSearch.Font = new System.Drawing.Font("Malgun Gothic", 9.8F, System.Drawing.FontStyle.Bold);
-            this.txtClientSearch.Location = new System.Drawing.Point(339, 25);
-            this.txtClientSearch.Name = "txtClientSearch";
-            this.txtClientSearch.Size = new System.Drawing.Size(249, 29);
-            this.txtClientSearch.TabIndex = 3;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label2.Location = new System.Drawing.Point(336, 7);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(51, 17);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "Cliente";
-            // 
-            // cmbDepartment
-            // 
-            this.cmbDepartment.Font = new System.Drawing.Font("Malgun Gothic", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cmbDepartment.FormattingEnabled = true;
-            this.cmbDepartment.Location = new System.Drawing.Point(339, 172);
-            this.cmbDepartment.Name = "cmbDepartment";
-            this.cmbDepartment.Size = new System.Drawing.Size(249, 31);
-            this.cmbDepartment.TabIndex = 5;
-            this.cmbDepartment.SelectedIndexChanged += new System.EventHandler(this.cmbDepartment_SelectedIndexChanged);
-            // 
-            // cmbDocType
-            // 
-            this.cmbDocType.Font = new System.Drawing.Font("Malgun Gothic", 9.8F);
-            this.cmbDocType.FormattingEnabled = true;
-            this.cmbDocType.Location = new System.Drawing.Point(339, 236);
-            this.cmbDocType.Name = "cmbDocType";
-            this.cmbDocType.Size = new System.Drawing.Size(249, 29);
-            this.cmbDocType.TabIndex = 6;
-            // 
-            // dtpDocDate
-            // 
-            this.dtpDocDate.Font = new System.Drawing.Font("Malgun Gothic", 8.8F);
-            this.dtpDocDate.Location = new System.Drawing.Point(339, 296);
-            this.dtpDocDate.Name = "dtpDocDate";
-            this.dtpDocDate.Size = new System.Drawing.Size(249, 27);
-            this.dtpDocDate.TabIndex = 7;
-            // 
-            // lblPreviewName
-            // 
-            this.lblPreviewName.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblPreviewName.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.lblPreviewName.Location = new System.Drawing.Point(336, 396);
-            this.lblPreviewName.Name = "lblPreviewName";
-            this.lblPreviewName.Size = new System.Drawing.Size(385, 65);
-            this.lblPreviewName.TabIndex = 8;
-            this.lblPreviewName.Text = "---------------------------------------------------------------------------------" +
-    "-----------------------";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label3.Location = new System.Drawing.Point(336, 216);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(113, 17);
-            this.label3.TabIndex = 9;
-            this.label3.Text = "Tipo Documento";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label4.Location = new System.Drawing.Point(336, 152);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(97, 17);
-            this.label4.TabIndex = 10;
-            this.label4.Text = "Departamento";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label5.Location = new System.Drawing.Point(336, 276);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(43, 17);
-            this.label5.TabIndex = 11;
-            this.label5.Text = "Fecha";
-            // 
             // tabControlMain
             // 
             this.tabControlMain.Controls.Add(this.tabPageReembolsos);
             this.tabControlMain.Controls.Add(this.tabPageOptions);
-            this.tabControlMain.Controls.Add(this.tabPageDropzone);
             this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Left;
             this.tabControlMain.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tabControlMain.ItemSize = new System.Drawing.Size(150, 20);
             this.tabControlMain.Location = new System.Drawing.Point(0, 0);
             this.tabControlMain.Name = "tabControlMain";
             this.tabControlMain.SelectedIndex = 0;
-            this.tabControlMain.Size = new System.Drawing.Size(765, 614);
+            this.tabControlMain.Size = new System.Drawing.Size(765, 652);
             this.tabControlMain.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.tabControlMain.TabIndex = 6;
             // 
             // tabPageReembolsos
             // 
             this.tabPageReembolsos.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(89)))), ((int)(((byte)(91)))));
-            this.tabPageReembolsos.Controls.Add(this.label19);
             this.tabPageReembolsos.Controls.Add(this.pnlCompletivos);
+            this.tabPageReembolsos.Controls.Add(this.txtReembolsoCedula);
+            this.tabPageReembolsos.Controls.Add(this.lstReembolsoClientSuggestions);
+            this.tabPageReembolsos.Controls.Add(this.label19);
             this.tabPageReembolsos.Controls.Add(this.chkSendReminder);
             this.tabPageReembolsos.Controls.Add(this.dtpReminderTime);
-            this.tabPageReembolsos.Controls.Add(this.lstReembolsoClientSuggestions);
             this.tabPageReembolsos.Controls.Add(this.cmbAfiliado);
             this.tabPageReembolsos.Controls.Add(this.txtReembolsoPoliza);
             this.tabPageReembolsos.Controls.Add(this.label18);
@@ -357,7 +141,6 @@
             this.tabPageReembolsos.Controls.Add(this.txtReembolsosNotasAdicionales);
             this.tabPageReembolsos.Controls.Add(this.label8);
             this.tabPageReembolsos.Controls.Add(this.btnProcessReembolso);
-            this.tabPageReembolsos.Controls.Add(this.txtReembolsoCedula);
             this.tabPageReembolsos.Controls.Add(this.lblPassportID);
             this.tabPageReembolsos.Controls.Add(this.cmbReembolsoAseguradora);
             this.tabPageReembolsos.Controls.Add(this.label12);
@@ -371,10 +154,84 @@
             this.tabPageReembolsos.Location = new System.Drawing.Point(4, 24);
             this.tabPageReembolsos.Name = "tabPageReembolsos";
             this.tabPageReembolsos.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageReembolsos.Size = new System.Drawing.Size(757, 586);
+            this.tabPageReembolsos.Size = new System.Drawing.Size(757, 624);
             this.tabPageReembolsos.TabIndex = 2;
             this.tabPageReembolsos.Text = "Reembolsos";
-            this.tabPageReembolsos.Click += new System.EventHandler(this.tabPageReembolsos_Click);
+            // 
+            // pnlCompletivos
+            // 
+            this.pnlCompletivos.Controls.Add(this.chkSendReminderComp);
+            this.pnlCompletivos.Controls.Add(this.dtpReminderTimeComp);
+            this.pnlCompletivos.Controls.Add(this.txtCompletivoNotas);
+            this.pnlCompletivos.Controls.Add(this.label16);
+            this.pnlCompletivos.Controls.Add(this.txtTargetCaseId);
+            this.pnlCompletivos.Controls.Add(this.label13);
+            this.pnlCompletivos.Location = new System.Drawing.Point(469, 0);
+            this.pnlCompletivos.Name = "pnlCompletivos";
+            this.pnlCompletivos.Size = new System.Drawing.Size(288, 526);
+            this.pnlCompletivos.TabIndex = 7;
+            // 
+            // chkSendReminderComp
+            // 
+            this.chkSendReminderComp.AutoSize = true;
+            this.chkSendReminderComp.ForeColor = System.Drawing.SystemColors.HighlightText;
+            this.chkSendReminderComp.Location = new System.Drawing.Point(13, 208);
+            this.chkSendReminderComp.Name = "chkSendReminderComp";
+            this.chkSendReminderComp.Size = new System.Drawing.Size(169, 21);
+            this.chkSendReminderComp.TabIndex = 27;
+            this.chkSendReminderComp.Text = "Fecha de Recordatorio";
+            this.chkSendReminderComp.UseVisualStyleBackColor = true;
+            // 
+            // dtpReminderTimeComp
+            // 
+            this.dtpReminderTimeComp.Location = new System.Drawing.Point(13, 231);
+            this.dtpReminderTimeComp.Name = "dtpReminderTimeComp";
+            this.dtpReminderTimeComp.Size = new System.Drawing.Size(245, 25);
+            this.dtpReminderTimeComp.TabIndex = 26;
+            // 
+            // txtCompletivoNotas
+            // 
+            this.txtCompletivoNotas.Location = new System.Drawing.Point(13, 90);
+            this.txtCompletivoNotas.Multiline = true;
+            this.txtCompletivoNotas.Name = "txtCompletivoNotas";
+            this.txtCompletivoNotas.Size = new System.Drawing.Size(245, 111);
+            this.txtCompletivoNotas.TabIndex = 21;
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label16.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.label16.Location = new System.Drawing.Point(10, 70);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(44, 17);
+            this.label16.TabIndex = 20;
+            this.label16.Text = "Notas";
+            // 
+            // txtTargetCaseId
+            // 
+            this.txtTargetCaseId.Location = new System.Drawing.Point(13, 33);
+            this.txtTargetCaseId.Name = "txtTargetCaseId";
+            this.txtTargetCaseId.Size = new System.Drawing.Size(245, 25);
+            this.txtTargetCaseId.TabIndex = 20;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label13.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.label13.Location = new System.Drawing.Point(10, 12);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(76, 17);
+            this.label13.TabIndex = 20;
+            this.label13.Text = "ID de Caso";
+            // 
+            // txtReembolsoCedula
+            // 
+            this.txtReembolsoCedula.Location = new System.Drawing.Point(482, 195);
+            this.txtReembolsoCedula.Name = "txtReembolsoCedula";
+            this.txtReembolsoCedula.Size = new System.Drawing.Size(245, 25);
+            this.txtReembolsoCedula.TabIndex = 29;
             // 
             // lstReembolsoClientSuggestions
             // 
@@ -386,6 +243,34 @@
             this.lstReembolsoClientSuggestions.Size = new System.Drawing.Size(245, 144);
             this.lstReembolsoClientSuggestions.TabIndex = 16;
             this.lstReembolsoClientSuggestions.Visible = false;
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Font = new System.Drawing.Font("Malgun Gothic", 4.8F, System.Drawing.FontStyle.Bold);
+            this.label19.Location = new System.Drawing.Point(467, 604);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(40, 11);
+            this.label19.TabIndex = 6;
+            this.label19.Text = "ver. 0.2.0";
+            // 
+            // chkSendReminder
+            // 
+            this.chkSendReminder.AutoSize = true;
+            this.chkSendReminder.ForeColor = System.Drawing.SystemColors.HighlightText;
+            this.chkSendReminder.Location = new System.Drawing.Point(482, 478);
+            this.chkSendReminder.Name = "chkSendReminder";
+            this.chkSendReminder.Size = new System.Drawing.Size(169, 21);
+            this.chkSendReminder.TabIndex = 28;
+            this.chkSendReminder.Text = "Fecha de Recordatorio";
+            this.chkSendReminder.UseVisualStyleBackColor = true;
+            // 
+            // dtpReminderTime
+            // 
+            this.dtpReminderTime.Location = new System.Drawing.Point(482, 501);
+            this.dtpReminderTime.Name = "dtpReminderTime";
+            this.dtpReminderTime.Size = new System.Drawing.Size(245, 25);
+            this.dtpReminderTime.TabIndex = 24;
             // 
             // cmbAfiliado
             // 
@@ -443,20 +328,12 @@
             // 
             // btnProcessReembolso
             // 
-            this.btnProcessReembolso.Location = new System.Drawing.Point(650, 532);
+            this.btnProcessReembolso.Location = new System.Drawing.Point(652, 570);
             this.btnProcessReembolso.Name = "btnProcessReembolso";
             this.btnProcessReembolso.Size = new System.Drawing.Size(99, 48);
             this.btnProcessReembolso.TabIndex = 3;
             this.btnProcessReembolso.Text = "Guardar";
             this.btnProcessReembolso.UseVisualStyleBackColor = true;
-            // 
-            // txtReembolsoCedula
-            // 
-            this.txtReembolsoCedula.Location = new System.Drawing.Point(482, 195);
-            this.txtReembolsoCedula.Name = "txtReembolsoCedula";
-            this.txtReembolsoCedula.Size = new System.Drawing.Size(245, 25);
-            this.txtReembolsoCedula.TabIndex = 13;
-            this.txtReembolsoCedula.TextChanged += new System.EventHandler(this.txtReembolsoCedula_TextChanged_1);
             // 
             // lblPassportID
             // 
@@ -465,9 +342,9 @@
             this.lblPassportID.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.lblPassportID.Location = new System.Drawing.Point(479, 175);
             this.lblPassportID.Name = "lblPassportID";
-            this.lblPassportID.Size = new System.Drawing.Size(125, 17);
+            this.lblPassportID.Size = new System.Drawing.Size(83, 17);
             this.lblPassportID.TabIndex = 12;
-            this.lblPassportID.Text = "Cédula | Pasaporte";
+            this.lblPassportID.Text = "No. Afiliado";
             // 
             // cmbReembolsoAseguradora
             // 
@@ -538,6 +415,7 @@
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(245)))), ((int)(((byte)(242)))));
+            this.panel2.Controls.Add(this.btnToggleAuth);
             this.panel2.Controls.Add(this.btnToggleMode);
             this.panel2.Controls.Add(this.btnClearReembolso);
             this.panel2.Controls.Add(this.btnRemoveSelectedFile);
@@ -547,22 +425,21 @@
             this.panel2.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel2.Location = new System.Drawing.Point(3, 3);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(464, 580);
+            this.panel2.Size = new System.Drawing.Size(464, 618);
             this.panel2.TabIndex = 0;
             // 
-            // label19
+            // btnToggleAuth
             // 
-            this.label19.AutoSize = true;
-            this.label19.Font = new System.Drawing.Font("Malgun Gothic", 4.8F, System.Drawing.FontStyle.Bold);
-            this.label19.Location = new System.Drawing.Point(467, 572);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(40, 11);
-            this.label19.TabIndex = 6;
-            this.label19.Text = "ver. 0.1.3";
+            this.btnToggleAuth.Location = new System.Drawing.Point(319, 536);
+            this.btnToggleAuth.Name = "btnToggleAuth";
+            this.btnToggleAuth.Size = new System.Drawing.Size(122, 35);
+            this.btnToggleAuth.TabIndex = 6;
+            this.btnToggleAuth.Text = "Autorización";
+            this.btnToggleAuth.UseVisualStyleBackColor = true;
             // 
             // btnToggleMode
             // 
-            this.btnToggleMode.Location = new System.Drawing.Point(118, 536);
+            this.btnToggleMode.Location = new System.Drawing.Point(319, 577);
             this.btnToggleMode.Name = "btnToggleMode";
             this.btnToggleMode.Size = new System.Drawing.Size(122, 35);
             this.btnToggleMode.TabIndex = 5;
@@ -581,7 +458,7 @@
             // 
             // btnRemoveSelectedFile
             // 
-            this.btnRemoveSelectedFile.Location = new System.Drawing.Point(256, 536);
+            this.btnRemoveSelectedFile.Location = new System.Drawing.Point(118, 536);
             this.btnRemoveSelectedFile.Name = "btnRemoveSelectedFile";
             this.btnRemoveSelectedFile.Size = new System.Drawing.Size(195, 35);
             this.btnRemoveSelectedFile.TabIndex = 3;
@@ -604,7 +481,6 @@
             this.dgvReembolsoFiles.RowTemplate.Height = 24;
             this.dgvReembolsoFiles.Size = new System.Drawing.Size(432, 289);
             this.dgvReembolsoFiles.TabIndex = 2;
-            this.dgvReembolsoFiles.CurrentCellDirtyStateChanged += new System.EventHandler(this.TxtClientSearch_TextChanged);
             // 
             // Nombre
             // 
@@ -684,7 +560,7 @@
             this.tabPageOptions.Location = new System.Drawing.Point(4, 24);
             this.tabPageOptions.Name = "tabPageOptions";
             this.tabPageOptions.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageOptions.Size = new System.Drawing.Size(757, 586);
+            this.tabPageOptions.Size = new System.Drawing.Size(757, 649);
             this.tabPageOptions.TabIndex = 1;
             this.tabPageOptions.Text = "Opciones";
             this.tabPageOptions.UseVisualStyleBackColor = true;
@@ -710,9 +586,9 @@
             this.label15.AutoSize = true;
             this.label15.Location = new System.Drawing.Point(12, 150);
             this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(222, 17);
+            this.label15.Size = new System.Drawing.Size(223, 17);
             this.label15.TabIndex = 10;
-            this.label15.Text = "Folder de Reembolsos DROPZONE";
+            this.label15.Text = "Folder de Recepción [Reembolsos]";
             // 
             // btnBrowseReembolsoRoot
             // 
@@ -798,146 +674,89 @@
             this.label6.TabIndex = 1;
             this.label6.Text = "Configuración";
             // 
-            // tabPageDropzone
+            // label1
             // 
-            this.tabPageDropzone.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(89)))), ((int)(((byte)(91)))));
-            this.tabPageDropzone.Controls.Add(this.lstClientSuggestions);
-            this.tabPageDropzone.Controls.Add(this.chkIncludeDay);
-            this.tabPageDropzone.Controls.Add(this.panel1);
-            this.tabPageDropzone.Controls.Add(this.label5);
-            this.tabPageDropzone.Controls.Add(this.txtClientSearch);
-            this.tabPageDropzone.Controls.Add(this.label4);
-            this.tabPageDropzone.Controls.Add(this.btnSort);
-            this.tabPageDropzone.Controls.Add(this.label3);
-            this.tabPageDropzone.Controls.Add(this.label2);
-            this.tabPageDropzone.Controls.Add(this.lblPreviewName);
-            this.tabPageDropzone.Controls.Add(this.cmbDepartment);
-            this.tabPageDropzone.Controls.Add(this.dtpDocDate);
-            this.tabPageDropzone.Controls.Add(this.cmbDocType);
-            this.tabPageDropzone.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabPageDropzone.Location = new System.Drawing.Point(4, 24);
-            this.tabPageDropzone.Margin = new System.Windows.Forms.Padding(8);
-            this.tabPageDropzone.Name = "tabPageDropzone";
-            this.tabPageDropzone.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageDropzone.Size = new System.Drawing.Size(757, 586);
-            this.tabPageDropzone.TabIndex = 0;
-            this.tabPageDropzone.Text = "Dropzone";
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Nirmala UI", 20.2F, System.Drawing.FontStyle.Bold);
+            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            this.label1.Location = new System.Drawing.Point(14, 5);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(177, 46);
+            this.label1.TabIndex = 0;
             // 
-            // lstClientSuggestions
+            // pnlDropzone
             // 
-            this.lstClientSuggestions.Font = new System.Drawing.Font("Malgun Gothic", 8.8F);
-            this.lstClientSuggestions.FormattingEnabled = true;
-            this.lstClientSuggestions.ItemHeight = 20;
-            this.lstClientSuggestions.Location = new System.Drawing.Point(339, 49);
-            this.lstClientSuggestions.Name = "lstClientSuggestions";
-            this.lstClientSuggestions.Size = new System.Drawing.Size(249, 144);
-            this.lstClientSuggestions.TabIndex = 13;
-            this.lstClientSuggestions.Visible = false;
+            this.pnlDropzone.AllowDrop = true;
+            this.pnlDropzone.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.pnlDropzone.Location = new System.Drawing.Point(13, 68);
+            this.pnlDropzone.Name = "pnlDropzone";
+            this.pnlDropzone.Size = new System.Drawing.Size(282, 275);
+            this.pnlDropzone.TabIndex = 1;
             // 
-            // chkIncludeDay
+            // lblFileName
             // 
-            this.chkIncludeDay.AutoSize = true;
-            this.chkIncludeDay.Font = new System.Drawing.Font("Malgun Gothic", 6.5F, System.Drawing.FontStyle.Bold);
-            this.chkIncludeDay.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.chkIncludeDay.Location = new System.Drawing.Point(339, 331);
-            this.chkIncludeDay.Name = "chkIncludeDay";
-            this.chkIncludeDay.Size = new System.Drawing.Size(240, 17);
-            this.chkIncludeDay.TabIndex = 12;
-            this.chkIncludeDay.Text = "Incluir día en el nombre del documento";
-            this.chkIncludeDay.UseVisualStyleBackColor = true;
+            this.lblFileName.AutoSize = true;
+            this.lblFileName.Location = new System.Drawing.Point(22, 248);
+            this.lblFileName.Name = "lblFileName";
+            this.lblFileName.Size = new System.Drawing.Size(227, 17);
+            this.lblFileName.TabIndex = 2;
+            this.lblFileName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // pnlCompletivos
+            // pbDownloadIcon
             // 
-            this.pnlCompletivos.Controls.Add(this.chkSendReminderComp);
-            this.pnlCompletivos.Controls.Add(this.dtpReminderTimeComp);
-            this.pnlCompletivos.Controls.Add(this.txtCompletivoNotas);
-            this.pnlCompletivos.Controls.Add(this.label16);
-            this.pnlCompletivos.Controls.Add(this.txtTargetCaseId);
-            this.pnlCompletivos.Controls.Add(this.label13);
-            this.pnlCompletivos.Location = new System.Drawing.Point(469, 0);
-            this.pnlCompletivos.Name = "pnlCompletivos";
-            this.pnlCompletivos.Size = new System.Drawing.Size(288, 530);
-            this.pnlCompletivos.TabIndex = 7;
+            this.pbDownloadIcon.Image = global::CoalcavaDropzone.Properties.Resources._1410633_200;
+            this.pbDownloadIcon.Location = new System.Drawing.Point(66, 33);
+            this.pbDownloadIcon.Name = "pbDownloadIcon";
+            this.pbDownloadIcon.Size = new System.Drawing.Size(146, 192);
+            this.pbDownloadIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pbDownloadIcon.TabIndex = 1;
+            this.pbDownloadIcon.TabStop = false;
             // 
-            // txtCompletivoNotas
+            // picPreview
             // 
-            this.txtCompletivoNotas.Location = new System.Drawing.Point(13, 90);
-            this.txtCompletivoNotas.Multiline = true;
-            this.txtCompletivoNotas.Name = "txtCompletivoNotas";
-            this.txtCompletivoNotas.Size = new System.Drawing.Size(245, 111);
-            this.txtCompletivoNotas.TabIndex = 21;
+            this.picPreview.Location = new System.Drawing.Point(0, 0);
+            this.picPreview.Name = "picPreview";
+            this.picPreview.Size = new System.Drawing.Size(282, 245);
+            this.picPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.picPreview.TabIndex = 2;
+            this.picPreview.TabStop = false;
             // 
-            // label16
+            // btnQuickGrab
             // 
-            this.label16.AutoSize = true;
-            this.label16.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label16.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label16.Location = new System.Drawing.Point(10, 70);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(44, 17);
-            this.label16.TabIndex = 20;
-            this.label16.Text = "Notas";
+            this.btnQuickGrab.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnQuickGrab.Location = new System.Drawing.Point(13, 350);
+            this.btnQuickGrab.Name = "btnQuickGrab";
+            this.btnQuickGrab.Size = new System.Drawing.Size(76, 52);
+            this.btnQuickGrab.TabIndex = 3;
+            this.btnQuickGrab.Text = "Reciente";
+            this.btnQuickGrab.UseVisualStyleBackColor = true;
             // 
-            // txtTargetCaseId
+            // btnClear
             // 
-            this.txtTargetCaseId.Location = new System.Drawing.Point(13, 33);
-            this.txtTargetCaseId.Name = "txtTargetCaseId";
-            this.txtTargetCaseId.Size = new System.Drawing.Size(245, 25);
-            this.txtTargetCaseId.TabIndex = 20;
+            this.btnClear.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnClear.Location = new System.Drawing.Point(94, 350);
+            this.btnClear.Name = "btnClear";
+            this.btnClear.Size = new System.Drawing.Size(76, 52);
+            this.btnClear.TabIndex = 4;
+            this.btnClear.Text = "Nuevo";
+            this.btnClear.UseVisualStyleBackColor = true;
             // 
-            // label13
+            // btnOpenDoc
             // 
-            this.label13.AutoSize = true;
-            this.label13.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label13.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label13.Location = new System.Drawing.Point(10, 12);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(76, 17);
-            this.label13.TabIndex = 20;
-            this.label13.Text = "ID de Caso";
-            // 
-            // dtpReminderTime
-            // 
-            this.dtpReminderTime.Location = new System.Drawing.Point(482, 501);
-            this.dtpReminderTime.Name = "dtpReminderTime";
-            this.dtpReminderTime.Size = new System.Drawing.Size(245, 25);
-            this.dtpReminderTime.TabIndex = 24;
-            // 
-            // dtpReminderTimeComp
-            // 
-            this.dtpReminderTimeComp.Location = new System.Drawing.Point(13, 231);
-            this.dtpReminderTimeComp.Name = "dtpReminderTimeComp";
-            this.dtpReminderTimeComp.Size = new System.Drawing.Size(245, 25);
-            this.dtpReminderTimeComp.TabIndex = 26;
-            // 
-            // chkSendReminderComp
-            // 
-            this.chkSendReminderComp.AutoSize = true;
-            this.chkSendReminderComp.ForeColor = System.Drawing.SystemColors.HighlightText;
-            this.chkSendReminderComp.Location = new System.Drawing.Point(13, 208);
-            this.chkSendReminderComp.Name = "chkSendReminderComp";
-            this.chkSendReminderComp.Size = new System.Drawing.Size(169, 21);
-            this.chkSendReminderComp.TabIndex = 27;
-            this.chkSendReminderComp.Text = "Fecha de Recordatorio";
-            this.chkSendReminderComp.UseVisualStyleBackColor = true;
-            // 
-            // chkSendReminder
-            // 
-            this.chkSendReminder.AutoSize = true;
-            this.chkSendReminder.ForeColor = System.Drawing.SystemColors.HighlightText;
-            this.chkSendReminder.Location = new System.Drawing.Point(482, 478);
-            this.chkSendReminder.Name = "chkSendReminder";
-            this.chkSendReminder.Size = new System.Drawing.Size(169, 21);
-            this.chkSendReminder.TabIndex = 28;
-            this.chkSendReminder.Text = "Fecha de Recordatorio";
-            this.chkSendReminder.UseVisualStyleBackColor = true;
+            this.btnOpenDoc.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnOpenDoc.Location = new System.Drawing.Point(13, 408);
+            this.btnOpenDoc.Name = "btnOpenDoc";
+            this.btnOpenDoc.Size = new System.Drawing.Size(158, 39);
+            this.btnOpenDoc.TabIndex = 5;
+            this.btnOpenDoc.Text = "Ver Documento";
+            this.btnOpenDoc.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(89)))), ((int)(((byte)(91)))));
-            this.ClientSize = new System.Drawing.Size(771, 614);
+            this.ClientSize = new System.Drawing.Size(771, 652);
             this.Controls.Add(this.tabControlMain);
             this.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -945,16 +764,12 @@
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "COALCAVA Dropzone";
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
-            this.pnlDropzone.ResumeLayout(false);
-            this.pnlDropzone.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picPreview)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pbDownloadIcon)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
             this.tabControlMain.ResumeLayout(false);
             this.tabPageReembolsos.ResumeLayout(false);
             this.tabPageReembolsos.PerformLayout();
+            this.pnlCompletivos.ResumeLayout(false);
+            this.pnlCompletivos.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvReembolsoFiles)).EndInit();
@@ -963,43 +778,20 @@
             ((System.ComponentModel.ISupportInitialize)(this.picDownloadIcon)).EndInit();
             this.tabPageOptions.ResumeLayout(false);
             this.tabPageOptions.PerformLayout();
-            this.tabPageDropzone.ResumeLayout(false);
-            this.tabPageDropzone.PerformLayout();
-            this.pnlCompletivos.ResumeLayout(false);
-            this.pnlCompletivos.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbDownloadIcon)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picPreview)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
-        private System.Windows.Forms.Button btnSort;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Panel pnlDropzone;
-        private System.Windows.Forms.Label label1;
         private System.IO.FileSystemWatcher fileSystemWatcher1;
-        private System.Windows.Forms.Button btnQuickGrab;
-        private System.Windows.Forms.Label lblFileName;
-        private System.Windows.Forms.PictureBox picPreview;
-        private System.Windows.Forms.Button btnClear;
-        private System.Windows.Forms.Button btnOpenDoc;
-        private System.Windows.Forms.Label lblPreviewName;
-        private System.Windows.Forms.DateTimePicker dtpDocDate;
-        private System.Windows.Forms.ComboBox cmbDocType;
-        private System.Windows.Forms.ComboBox cmbDepartment;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox txtClientSearch;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TabControl tabControlMain;
-        private System.Windows.Forms.TabPage tabPageDropzone;
         private System.Windows.Forms.TabPage tabPageOptions;
         private System.Windows.Forms.Button btnSaveSettings;
         private System.Windows.Forms.Button btnBrowseRoot;
         private System.Windows.Forms.TextBox txtRootPath;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.CheckBox chkIncludeDay;
-        private System.Windows.Forms.ListBox lstClientSuggestions;
         private System.Windows.Forms.CheckBox chkOpenOnStartup;
         private System.Windows.Forms.CheckBox chkMuteSound;
         private System.Windows.Forms.Panel panel2;
@@ -1011,7 +803,6 @@
         private System.Windows.Forms.DataGridViewComboBoxColumn Tipo;
         private System.Windows.Forms.DataGridViewTextBoxColumn Tamaño;
         private System.Windows.Forms.Label lblReembolsoDropPrompt;
-        private System.Windows.Forms.TextBox txtReembolsoCedula;
         private System.Windows.Forms.Label lblPassportID;
         private System.Windows.Forms.TextBox txtReembolsoMonto;
         private System.Windows.Forms.Label label11;
@@ -1020,7 +811,6 @@
         private System.Windows.Forms.Button btnProcessReembolso;
         private System.Windows.Forms.Button btnRemoveSelectedFile;
         private System.Windows.Forms.Button btnClearReembolso;
-        private System.Windows.Forms.PictureBox pbDownloadIcon;
         private System.Windows.Forms.ListBox lstReembolsoClientSuggestions;
         private System.Windows.Forms.PictureBox picDownloadIcon;
         private System.Windows.Forms.TextBox txtReembolsosNotasAdicionales;
@@ -1049,6 +839,16 @@
         private System.Windows.Forms.DateTimePicker dtpReminderTime;
         private System.Windows.Forms.CheckBox chkSendReminderComp;
         private System.Windows.Forms.CheckBox chkSendReminder;
+        private System.Windows.Forms.TextBox txtReembolsoCedula;
+        private System.Windows.Forms.Button btnToggleAuth;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Panel pnlDropzone;
+        private System.Windows.Forms.Label lblFileName;
+        private System.Windows.Forms.PictureBox pbDownloadIcon;
+        private System.Windows.Forms.PictureBox picPreview;
+        private System.Windows.Forms.Button btnQuickGrab;
+        private System.Windows.Forms.Button btnClear;
+        private System.Windows.Forms.Button btnOpenDoc;
     }
 }
 

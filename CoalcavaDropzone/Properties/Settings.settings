@@ -3,16 +3,16 @@
   <Profiles />
   <Settings>
     <Setting Name="ClientRootPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Users\Public\OneDrive - COALCAVA\Clientes\</Value>
+      <Value Profile="(Default)">Seleccionar ruta</Value>
     </Setting>
     <Setting Name="IsMuted" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="OpenOnStartup" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="ReembolsoRootPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Users\Public\OneDrive - COALCAVA\DROPZONE_FLOW\</Value>
+      <Value Profile="(Default)">Seleccionar ruta</Value>
     </Setting>
     <Setting Name="SelectedAppUser" Type="System.String" Scope="User">
       <Value Profile="(Default)" />

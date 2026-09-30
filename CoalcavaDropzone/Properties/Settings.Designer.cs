@@ -25,7 +25,7 @@ namespace CoalcavaDropzone.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\Public\\OneDrive - COALCAVA\\Clientes\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Seleccionar ruta")]
         public string ClientRootPath {
             get {
                 return ((string)(this["ClientRootPath"]));
@@ -49,7 +49,7 @@ namespace CoalcavaDropzone.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool OpenOnStartup {
             get {
                 return ((bool)(this["OpenOnStartup"]));
@@ -61,7 +61,7 @@ namespace CoalcavaDropzone.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\Public\\OneDrive - COALCAVA\\DROPZONE_FLOW\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Seleccionar ruta")]
         public string ReembolsoRootPath {
             get {
                 return ((string)(this["ReembolsoRootPath"]));
