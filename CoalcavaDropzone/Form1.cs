@@ -104,19 +104,7 @@ namespace CoalcavaDropzone
         {
             this.DoubleBuffered = true;
 
-            // Ocultar pestaña Dropzone anterior si todavía existe en el diseñador
-            if (tabControlMain != null && tabPageDropzone != null)
-            {
-                if (tabControlMain.TabPages.Contains(tabPageDropzone))
-                {
-                    tabControlMain.TabPages.Remove(tabPageDropzone);
-                }
-
-                if (tabPageReembolsos != null)
-                {
-                    tabControlMain.SelectedTab = tabPageReembolsos;
-                }
-            }
+        
 
             try
             {
@@ -492,6 +480,19 @@ namespace CoalcavaDropzone
                     btnToggleMode.Visible = false;
                 }
 
+                // Limpiar y deshabilitar Monto y Moneda
+                if (txtReembolsoMonto != null)
+                {
+                    txtReembolsoMonto.Text = string.Empty;
+                    txtReembolsoMonto.Enabled = false;
+                }
+
+                if (cmbCurrency != null)
+                {
+                    cmbCurrency.SelectedIndex = -1;
+                    cmbCurrency.Enabled = false;
+                }
+
                 if (btnToggleAuth != null)
                 {
                     btnToggleAuth.Text = "Reembolso";
@@ -511,6 +512,22 @@ namespace CoalcavaDropzone
                     btnToggleMode.Enabled = true;
                     btnToggleMode.Visible = true;
                     btnToggleMode.Text = "Completivo";
+                }
+
+                // Rehabilitar y restaurar Monto y Moneda
+                if (txtReembolsoMonto != null)
+                {
+                    txtReembolsoMonto.Enabled = true;
+                    ResetPlaceholder(txtReembolsoMonto, PlaceholderMonto);
+                }
+
+                if (cmbCurrency != null)
+                {
+                    cmbCurrency.Enabled = true;
+                    if (cmbCurrency.Items.Count > 0)
+                    {
+                        cmbCurrency.SelectedIndex = 0; // DOP por defecto
+                    }
                 }
 
                 if (btnToggleAuth != null)

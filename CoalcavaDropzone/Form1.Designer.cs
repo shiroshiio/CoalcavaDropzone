@@ -131,7 +131,8 @@
             this.tabPageReembolsos.Controls.Add(this.pnlCompletivos);
             this.tabPageReembolsos.Controls.Add(this.txtReembolsoCedula);
             this.tabPageReembolsos.Controls.Add(this.lstReembolsoClientSuggestions);
-            this.tabPageReembolsos.Controls.Add(this.label19);
+            this.tabPageReembolsos.Controls.Add(this.label12);
+            this.tabPageReembolsos.Controls.Add(this.cmbReembolsoAseguradora);
             this.tabPageReembolsos.Controls.Add(this.chkSendReminder);
             this.tabPageReembolsos.Controls.Add(this.dtpReminderTime);
             this.tabPageReembolsos.Controls.Add(this.cmbAfiliado);
@@ -142,8 +143,6 @@
             this.tabPageReembolsos.Controls.Add(this.label8);
             this.tabPageReembolsos.Controls.Add(this.btnProcessReembolso);
             this.tabPageReembolsos.Controls.Add(this.lblPassportID);
-            this.tabPageReembolsos.Controls.Add(this.cmbReembolsoAseguradora);
-            this.tabPageReembolsos.Controls.Add(this.label12);
             this.tabPageReembolsos.Controls.Add(this.txtReembolsoMonto);
             this.tabPageReembolsos.Controls.Add(this.label11);
             this.tabPageReembolsos.Controls.Add(this.label10);
@@ -238,7 +237,7 @@
             this.lstReembolsoClientSuggestions.Font = new System.Drawing.Font("Malgun Gothic", 8.8F);
             this.lstReembolsoClientSuggestions.FormattingEnabled = true;
             this.lstReembolsoClientSuggestions.ItemHeight = 20;
-            this.lstReembolsoClientSuggestions.Location = new System.Drawing.Point(482, 52);
+            this.lstReembolsoClientSuggestions.Location = new System.Drawing.Point(482, 51);
             this.lstReembolsoClientSuggestions.Name = "lstReembolsoClientSuggestions";
             this.lstReembolsoClientSuggestions.Size = new System.Drawing.Size(245, 144);
             this.lstReembolsoClientSuggestions.TabIndex = 16;
@@ -248,11 +247,11 @@
             // 
             this.label19.AutoSize = true;
             this.label19.Font = new System.Drawing.Font("Malgun Gothic", 4.8F, System.Drawing.FontStyle.Bold);
-            this.label19.Location = new System.Drawing.Point(467, 604);
+            this.label19.Location = new System.Drawing.Point(3, 605);
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(40, 11);
             this.label19.TabIndex = 6;
-            this.label19.Text = "ver. 0.2.0";
+            this.label19.Text = "ver. 0.2.1";
             // 
             // chkSendReminder
             // 
@@ -302,7 +301,7 @@
             // cmbCurrency
             // 
             this.cmbCurrency.FormattingEnabled = true;
-            this.cmbCurrency.Location = new System.Drawing.Point(650, 255);
+            this.cmbCurrency.Location = new System.Drawing.Point(650, 314);
             this.cmbCurrency.Name = "cmbCurrency";
             this.cmbCurrency.Size = new System.Drawing.Size(77, 25);
             this.cmbCurrency.TabIndex = 19;
@@ -349,7 +348,7 @@
             // cmbReembolsoAseguradora
             // 
             this.cmbReembolsoAseguradora.FormattingEnabled = true;
-            this.cmbReembolsoAseguradora.Location = new System.Drawing.Point(482, 308);
+            this.cmbReembolsoAseguradora.Location = new System.Drawing.Point(482, 255);
             this.cmbReembolsoAseguradora.Name = "cmbReembolsoAseguradora";
             this.cmbReembolsoAseguradora.Size = new System.Drawing.Size(245, 25);
             this.cmbReembolsoAseguradora.TabIndex = 11;
@@ -359,7 +358,7 @@
             this.label12.AutoSize = true;
             this.label12.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label12.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label12.Location = new System.Drawing.Point(479, 288);
+            this.label12.Location = new System.Drawing.Point(479, 235);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(86, 17);
             this.label12.TabIndex = 10;
@@ -367,7 +366,7 @@
             // 
             // txtReembolsoMonto
             // 
-            this.txtReembolsoMonto.Location = new System.Drawing.Point(482, 255);
+            this.txtReembolsoMonto.Location = new System.Drawing.Point(482, 314);
             this.txtReembolsoMonto.Name = "txtReembolsoMonto";
             this.txtReembolsoMonto.Size = new System.Drawing.Size(168, 25);
             this.txtReembolsoMonto.TabIndex = 9;
@@ -377,7 +376,7 @@
             this.label11.AutoSize = true;
             this.label11.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label11.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label11.Location = new System.Drawing.Point(479, 235);
+            this.label11.Location = new System.Drawing.Point(479, 294);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(50, 17);
             this.label11.TabIndex = 8;
@@ -419,6 +418,7 @@
             this.panel2.Controls.Add(this.btnToggleMode);
             this.panel2.Controls.Add(this.btnClearReembolso);
             this.panel2.Controls.Add(this.btnRemoveSelectedFile);
+            this.panel2.Controls.Add(this.label19);
             this.panel2.Controls.Add(this.dgvReembolsoFiles);
             this.panel2.Controls.Add(this.label7);
             this.panel2.Controls.Add(this.pnlReembolsoDrop);
@@ -756,7 +756,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(89)))), ((int)(((byte)(91)))));
-            this.ClientSize = new System.Drawing.Size(771, 652);
+            this.ClientSize = new System.Drawing.Size(768, 652);
             this.Controls.Add(this.tabControlMain);
             this.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
