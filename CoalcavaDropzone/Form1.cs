@@ -104,8 +104,6 @@ namespace CoalcavaDropzone
         {
             this.DoubleBuffered = true;
 
-        
-
             try
             {
                 if (!string.IsNullOrWhiteSpace(Properties.Settings.Default.ClientRootPath))
@@ -1425,6 +1423,30 @@ namespace CoalcavaDropzone
                         }
                     }
 
+                    // Forzar a los visores de PDF a regenerar la apariencia visual (/AP) de campos interactivos
+                    // a partir del valor de texto subyacente (/V) al hacer clic fuera (blur)
+                    try
+                    {
+                        if (outputDoc.AcroForm != null)
+                        {
+                            outputDoc.AcroForm.Elements.SetBoolean("/NeedAppearances", true);
+                        }
+                        else
+                        {
+                            // Asegurar la presencia del diccionario en el Catalog en caso de que esté ausente
+                            if (!outputDoc.Internals.Catalog.Elements.ContainsKey("/AcroForm"))
+                            {
+                                outputDoc.Internals.Catalog.Elements.Add("/AcroForm", new PdfDictionary(outputDoc));
+                            }
+                            PdfDictionary acroForm = outputDoc.Internals.Catalog.Elements.GetDictionary("/AcroForm");
+                            acroForm.Elements.SetBoolean("/NeedAppearances", true);
+                        }
+                    }
+                    catch (Exception exAcro)
+                    {
+                        Debug.WriteLine($"Aviso al configurar NeedAppearances: {exAcro.Message}");
+                    }
+
                     outputDoc.Save(finalPdfLocalPath);
                 }
 
@@ -1650,7 +1672,5 @@ namespace CoalcavaDropzone
         }
 
         #endregion
-
-        
     }
 }

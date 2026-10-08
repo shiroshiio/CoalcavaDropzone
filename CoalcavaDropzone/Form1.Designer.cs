@@ -41,7 +41,8 @@
             this.label13 = new System.Windows.Forms.Label();
             this.txtReembolsoCedula = new System.Windows.Forms.TextBox();
             this.lstReembolsoClientSuggestions = new System.Windows.Forms.ListBox();
-            this.label19 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.cmbReembolsoAseguradora = new System.Windows.Forms.ComboBox();
             this.chkSendReminder = new System.Windows.Forms.CheckBox();
             this.dtpReminderTime = new System.Windows.Forms.DateTimePicker();
             this.cmbAfiliado = new System.Windows.Forms.ComboBox();
@@ -52,8 +53,6 @@
             this.label8 = new System.Windows.Forms.Label();
             this.btnProcessReembolso = new System.Windows.Forms.Button();
             this.lblPassportID = new System.Windows.Forms.Label();
-            this.cmbReembolsoAseguradora = new System.Windows.Forms.ComboBox();
-            this.label12 = new System.Windows.Forms.Label();
             this.txtReembolsoMonto = new System.Windows.Forms.TextBox();
             this.label11 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
@@ -64,6 +63,7 @@
             this.btnToggleMode = new System.Windows.Forms.Button();
             this.btnClearReembolso = new System.Windows.Forms.Button();
             this.btnRemoveSelectedFile = new System.Windows.Forms.Button();
+            this.label19 = new System.Windows.Forms.Label();
             this.dgvReembolsoFiles = new System.Windows.Forms.DataGridView();
             this.Nombre = new System.Windows.Forms.DataGridViewLinkColumn();
             this.Tipo = new System.Windows.Forms.DataGridViewComboBoxColumn();
@@ -243,15 +243,24 @@
             this.lstReembolsoClientSuggestions.TabIndex = 16;
             this.lstReembolsoClientSuggestions.Visible = false;
             // 
-            // label19
+            // label12
             // 
-            this.label19.AutoSize = true;
-            this.label19.Font = new System.Drawing.Font("Malgun Gothic", 4.8F, System.Drawing.FontStyle.Bold);
-            this.label19.Location = new System.Drawing.Point(3, 605);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(40, 11);
-            this.label19.TabIndex = 6;
-            this.label19.Text = "ver. 0.2.1";
+            this.label12.AutoSize = true;
+            this.label12.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.label12.Location = new System.Drawing.Point(479, 235);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(86, 17);
+            this.label12.TabIndex = 10;
+            this.label12.Text = "Aseguradora";
+            // 
+            // cmbReembolsoAseguradora
+            // 
+            this.cmbReembolsoAseguradora.FormattingEnabled = true;
+            this.cmbReembolsoAseguradora.Location = new System.Drawing.Point(482, 255);
+            this.cmbReembolsoAseguradora.Name = "cmbReembolsoAseguradora";
+            this.cmbReembolsoAseguradora.Size = new System.Drawing.Size(245, 25);
+            this.cmbReembolsoAseguradora.TabIndex = 11;
             // 
             // chkSendReminder
             // 
@@ -344,25 +353,6 @@
             this.lblPassportID.Size = new System.Drawing.Size(83, 17);
             this.lblPassportID.TabIndex = 12;
             this.lblPassportID.Text = "No. Afiliado";
-            // 
-            // cmbReembolsoAseguradora
-            // 
-            this.cmbReembolsoAseguradora.FormattingEnabled = true;
-            this.cmbReembolsoAseguradora.Location = new System.Drawing.Point(482, 255);
-            this.cmbReembolsoAseguradora.Name = "cmbReembolsoAseguradora";
-            this.cmbReembolsoAseguradora.Size = new System.Drawing.Size(245, 25);
-            this.cmbReembolsoAseguradora.TabIndex = 11;
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label12.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label12.Location = new System.Drawing.Point(479, 235);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(86, 17);
-            this.label12.TabIndex = 10;
-            this.label12.Text = "Aseguradora";
             // 
             // txtReembolsoMonto
             // 
@@ -466,6 +456,16 @@
             this.btnRemoveSelectedFile.UseVisualStyleBackColor = true;
             this.btnRemoveSelectedFile.Click += new System.EventHandler(this.BtnRemoveSelectedFile_Click);
             // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Font = new System.Drawing.Font("Malgun Gothic", 4.8F, System.Drawing.FontStyle.Bold);
+            this.label19.Location = new System.Drawing.Point(3, 605);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(40, 11);
+            this.label19.TabIndex = 6;
+            this.label19.Text = "ver. 0.2.2";
+            // 
             // dgvReembolsoFiles
             // 
             this.dgvReembolsoFiles.AllowUserToAddRows = false;
@@ -560,7 +560,7 @@
             this.tabPageOptions.Location = new System.Drawing.Point(4, 24);
             this.tabPageOptions.Name = "tabPageOptions";
             this.tabPageOptions.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageOptions.Size = new System.Drawing.Size(757, 649);
+            this.tabPageOptions.Size = new System.Drawing.Size(757, 624);
             this.tabPageOptions.TabIndex = 1;
             this.tabPageOptions.Text = "Opciones";
             this.tabPageOptions.UseVisualStyleBackColor = true;
