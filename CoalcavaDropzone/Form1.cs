@@ -56,7 +56,7 @@ namespace CoalcavaDropzone
             public string FullPath { get; set; }
             public string FileName => Path.GetFileName(FullPath);
             public string DocumentType { get; set; }
-            public long FileSizeBytes => new FileInfo(FullPath).Length;
+            public long FileSizeBytes => File.Exists(FullPath) ? new FileInfo(FullPath).Length : 0;
             public string FileSizeFormatted => $"{(FileSizeBytes / 1024.0 / 1024.0):F2} MB";
         }
 
@@ -140,7 +140,6 @@ namespace CoalcavaDropzone
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
-            // Pegar archivos directamente en la cola de Reembolso con Ctrl + V
             if (e.Control && e.KeyCode == Keys.V)
             {
                 if (Clipboard.ContainsFileDropList())
@@ -402,7 +401,6 @@ namespace CoalcavaDropzone
                 lblPassportID.Cursor = Cursors.Default;
             }
 
-            // Recordatorios Reembolsos / Autorizaciones
             if (dtpReminderTime != null)
             {
                 dtpReminderTime.Format = DateTimePickerFormat.Custom;
@@ -426,7 +424,6 @@ namespace CoalcavaDropzone
                 };
             }
 
-            // Recordatorios Completivos
             if (dtpReminderTimeComp != null)
             {
                 dtpReminderTimeComp.Format = DateTimePickerFormat.Custom;
@@ -457,13 +454,8 @@ namespace CoalcavaDropzone
 
             if (isAuthMode)
             {
-                // Cambiar etiqueta a Autorizaciones
-                if (label7 != null)
-                {
-                    label7.Text = "Autorizaciones";
-                }
+                if (label7 != null) label7.Text = "Autorizaciones";
 
-                // Desactivar y ocultar modo Completivos si estaba activo
                 if (isCompletivoMode)
                 {
                     isCompletivoMode = false;
@@ -471,14 +463,12 @@ namespace CoalcavaDropzone
                     if (btnProcessReembolso != null) btnProcessReembolso.Text = "Procesar";
                 }
 
-                // Deshabilitar botón de Completivos
                 if (btnToggleMode != null)
                 {
                     btnToggleMode.Enabled = false;
                     btnToggleMode.Visible = false;
                 }
 
-                // Limpiar y deshabilitar Monto y Moneda
                 if (txtReembolsoMonto != null)
                 {
                     txtReembolsoMonto.Text = string.Empty;
@@ -491,20 +481,12 @@ namespace CoalcavaDropzone
                     cmbCurrency.Enabled = false;
                 }
 
-                if (btnToggleAuth != null)
-                {
-                    btnToggleAuth.Text = "Reembolso";
-                }
+                if (btnToggleAuth != null) btnToggleAuth.Text = "Reembolso";
             }
             else
             {
-                // Restaurar etiqueta a Reembolsos
-                if (label7 != null)
-                {
-                    label7.Text = "Reembolsos";
-                }
+                if (label7 != null) label7.Text = "Reembolsos";
 
-                // Restaurar botón de Completivos
                 if (btnToggleMode != null)
                 {
                     btnToggleMode.Enabled = true;
@@ -512,7 +494,6 @@ namespace CoalcavaDropzone
                     btnToggleMode.Text = "Completivo";
                 }
 
-                // Rehabilitar y restaurar Monto y Moneda
                 if (txtReembolsoMonto != null)
                 {
                     txtReembolsoMonto.Enabled = true;
@@ -522,16 +503,10 @@ namespace CoalcavaDropzone
                 if (cmbCurrency != null)
                 {
                     cmbCurrency.Enabled = true;
-                    if (cmbCurrency.Items.Count > 0)
-                    {
-                        cmbCurrency.SelectedIndex = 0; // DOP por defecto
-                    }
+                    if (cmbCurrency.Items.Count > 0) cmbCurrency.SelectedIndex = 0;
                 }
 
-                if (btnToggleAuth != null)
-                {
-                    btnToggleAuth.Text = "Autorización";
-                }
+                if (btnToggleAuth != null) btnToggleAuth.Text = "Autorización";
             }
         }
 
@@ -555,10 +530,8 @@ namespace CoalcavaDropzone
             Control ctrl = sender as Control;
             if (char.IsControl(e.KeyChar)) return;
 
-            // Permitir dígitos y suma con '+'
             if (char.IsDigit(e.KeyChar) || e.KeyChar == '+') return;
 
-            // Permitir punto decimal si el término actual no tiene uno
             if (e.KeyChar == '.' && ctrl != null)
             {
                 string currentText = ctrl.Text;
@@ -578,7 +551,6 @@ namespace CoalcavaDropzone
             string raw = GetCleanText(txtReembolsoMonto);
             if (string.IsNullOrWhiteSpace(raw)) return;
 
-            // Si contiene '+', sumar todos los sumandos válidos
             if (raw.Contains("+"))
             {
                 string[] terms = raw.Split(new char[] { '+' }, StringSplitOptions.RemoveEmptyEntries);
@@ -638,20 +610,14 @@ namespace CoalcavaDropzone
 
                 txtReembolsoPoliza.SelectedIndexChanged += (s, e) =>
                 {
-                    if (txtReembolsoPoliza.SelectedIndex >= 0)
-                    {
-                        txtReembolsoPoliza.ForeColor = Color.Black;
-                    }
+                    if (txtReembolsoPoliza.SelectedIndex >= 0) txtReembolsoPoliza.ForeColor = Color.Black;
                     PopulateAffiliatesForPolicy();
                 };
 
                 txtReembolsoPoliza.TextChanged += (s, e) =>
                 {
                     string val = txtReembolsoPoliza.Text.Trim();
-                    if (!string.IsNullOrWhiteSpace(val) && val != PlaceholderPoliza)
-                    {
-                        txtReembolsoPoliza.ForeColor = Color.Black;
-                    }
+                    if (!string.IsNullOrWhiteSpace(val) && val != PlaceholderPoliza) txtReembolsoPoliza.ForeColor = Color.Black;
                     PopulateAffiliatesForPolicy();
                 };
             }
@@ -665,10 +631,7 @@ namespace CoalcavaDropzone
                 cmbAfiliado.TextChanged += (s, e) => AutoFillCedulaFromAffiliate();
             }
 
-            if (txtReembolsoCedula != null)
-            {
-                ApplyPlaceholder(txtReembolsoCedula, PlaceholderCedula);
-            }
+            if (txtReembolsoCedula != null) ApplyPlaceholder(txtReembolsoCedula, PlaceholderCedula);
 
             txtReembolsoClientSearch.AutoCompleteMode = AutoCompleteMode.None;
             ApplyPlaceholder(txtReembolsoClientSearch, PlaceholderText);
@@ -711,18 +674,10 @@ namespace CoalcavaDropzone
             lstReembolsoClientSuggestions.Click += LstReembolsoClientSuggestions_Click;
             lstReembolsoClientSuggestions.KeyDown += LstReembolsoClientSuggestions_KeyDown;
 
-            // Dependencias en cascada: Cliente -> Poliza -> Afiliado -> Cédula/ID
             txtReembolsoClientSearch.TextChanged += (s, e) => PopulatePoliciesForClient();
 
-            if (pnlCompletivos != null)
-            {
-                pnlCompletivos.Visible = false;
-            }
-
-            if (btnProcessReembolso != null)
-            {
-                btnProcessReembolso.BringToFront();
-            }
+            if (pnlCompletivos != null) pnlCompletivos.Visible = false;
+            if (btnProcessReembolso != null) btnProcessReembolso.BringToFront();
         }
 
         private void PopulatePoliciesForClient()
@@ -732,10 +687,7 @@ namespace CoalcavaDropzone
             string client = GetCleanText(txtReembolsoClientSearch);
             txtReembolsoPoliza.Items.Clear();
 
-            if (string.IsNullOrWhiteSpace(client) || !Directory.Exists(clientRootPath))
-            {
-                return;
-            }
+            if (string.IsNullOrWhiteSpace(client) || !Directory.Exists(clientRootPath)) return;
 
             string clientPath = Path.Combine(clientRootPath, client);
             if (!Directory.Exists(clientPath)) return;
@@ -766,10 +718,7 @@ namespace CoalcavaDropzone
 
             cmbAfiliado.Items.Clear();
 
-            if (string.IsNullOrWhiteSpace(client) || string.IsNullOrWhiteSpace(policy) || !Directory.Exists(clientRootPath))
-            {
-                return;
-            }
+            if (string.IsNullOrWhiteSpace(client) || string.IsNullOrWhiteSpace(policy) || !Directory.Exists(clientRootPath)) return;
 
             string policyPath = Path.Combine(clientRootPath, client, policy);
             if (!Directory.Exists(policyPath)) return;
@@ -798,10 +747,7 @@ namespace CoalcavaDropzone
             string policy = GetCleanText(txtReembolsoPoliza);
             string affiliate = GetCleanText(cmbAfiliado);
 
-            if (string.IsNullOrWhiteSpace(client) || string.IsNullOrWhiteSpace(policy) || string.IsNullOrWhiteSpace(affiliate))
-            {
-                return;
-            }
+            if (string.IsNullOrWhiteSpace(client) || string.IsNullOrWhiteSpace(policy) || string.IsNullOrWhiteSpace(affiliate)) return;
 
             string affiliatePath = Path.Combine(clientRootPath, client, policy, affiliate);
             if (!Directory.Exists(affiliatePath)) return;
@@ -812,7 +758,7 @@ namespace CoalcavaDropzone
                 string rawName = Path.GetFileNameWithoutExtension(idFile);
                 if (rawName.Length > 3)
                 {
-                    string idNumber = rawName.Substring(3).Trim(); // Elimina prefijo "ID_"
+                    string idNumber = rawName.Substring(3).Trim();
                     if (!string.IsNullOrWhiteSpace(idNumber))
                     {
                         txtReembolsoCedula.Text = idNumber;
@@ -827,7 +773,6 @@ namespace CoalcavaDropzone
 
         private void BtnToggleMode_Click(object sender, EventArgs e)
         {
-            // Completivos solo está disponible si NO está activo el modo Autorizaciones
             if (isAuthMode) return;
 
             isCompletivoMode = !isCompletivoMode;
@@ -846,17 +791,11 @@ namespace CoalcavaDropzone
                     btnProcessReembolso.BringToFront();
                 }
 
-                if (btnToggleMode != null)
-                {
-                    btnToggleMode.Text = "Reembolso";
-                }
+                if (btnToggleMode != null) btnToggleMode.Text = "Reembolso";
             }
             else
             {
-                if (pnlCompletivos != null)
-                {
-                    pnlCompletivos.Visible = false;
-                }
+                if (pnlCompletivos != null) pnlCompletivos.Visible = false;
 
                 if (btnProcessReembolso != null)
                 {
@@ -864,10 +803,7 @@ namespace CoalcavaDropzone
                     btnProcessReembolso.BringToFront();
                 }
 
-                if (btnToggleMode != null)
-                {
-                    btnToggleMode.Text = "Completivo";
-                }
+                if (btnToggleMode != null) btnToggleMode.Text = "Completivo";
             }
         }
 
@@ -1108,10 +1044,7 @@ namespace CoalcavaDropzone
             ResetPlaceholder(txtReembolsosNotasAdicionales, PlaceholderNotas);
             ResetPlaceholder(txtReembolsoClientSearch, PlaceholderText);
 
-            if (txtReembolsoPoliza != null)
-            {
-                txtReembolsoPoliza.Items.Clear();
-            }
+            if (txtReembolsoPoliza != null) txtReembolsoPoliza.Items.Clear();
 
             if (cmbAfiliado != null)
             {
@@ -1132,10 +1065,7 @@ namespace CoalcavaDropzone
                 cmbCurrency.SelectedIndex = 0;
             }
 
-            if (lblPassportID != null)
-            {
-                lblPassportID.Text = "No. Afiliado";
-            }
+            if (lblPassportID != null) lblPassportID.Text = "No. Afiliado";
 
             if (lblReembolsoDropPrompt != null)
             {
@@ -1233,7 +1163,73 @@ namespace CoalcavaDropzone
             }
         }
 
-        // Ejecución Principal: Merge + Metadata + JSON Trigger
+        // Validación estricta y pre-vuelo antes de consolidar
+        private bool ValidateItemsForMerge(out string validationErrorMessage)
+        {
+            validationErrorMessage = string.Empty;
+            string[] imageExtensions = { ".png", ".jpg", ".jpeg", ".bmp" };
+
+            foreach (var item in reembolsoItems)
+            {
+                if (!File.Exists(item.FullPath))
+                {
+                    validationErrorMessage = $"El archivo ya no existe en el disco:\n{item.FileName}";
+                    return false;
+                }
+
+                FileInfo fi = new FileInfo(item.FullPath);
+                if (fi.Length == 0)
+                {
+                    validationErrorMessage = $"El archivo está vacío (0 bytes) y no se puede procesar:\n{item.FileName}";
+                    return false;
+                }
+
+                string ext = fi.Extension.ToLower();
+
+                if (ext == ".pdf")
+                {
+                    try
+                    {
+                        using (PdfSharp.Pdf.PdfDocument probe = PdfReader.Open(item.FullPath, PdfDocumentOpenMode.Import))
+                        {
+                            if (probe.PageCount == 0)
+                            {
+                                validationErrorMessage = $"El archivo PDF no contiene páginas válidas:\n{item.FileName}";
+                                return false;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        validationErrorMessage = $"Hay archivos dañados o protegidos contra lectura:\n{item.FileName}";
+                        return false;
+                    }
+                }
+                else if (imageExtensions.Contains(ext))
+                {
+                    try
+                    {
+                        using (Image probeImg = Image.FromFile(item.FullPath))
+                        {
+                            if (probeImg.Width == 0 || probeImg.Height == 0)
+                            {
+                                validationErrorMessage = $"Hay imagenes con dimensiones inválidas:\n{item.FileName}";
+                                return false;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        validationErrorMessage = $"Hay archivos de imagen que no se pudieron leer o están dañados:\n{item.FileName}\n\nDetalle: {ex.Message}";
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        // Ejecución Principal: Pre-Flight Check + Atomic Merge + Metadata + Trigger
         private void BtnProcessReembolso_Click(object sender, EventArgs e)
         {
             string appUser = GetConfiguredAppUser();
@@ -1256,8 +1252,15 @@ namespace CoalcavaDropzone
                 return;
             }
 
-            string userInitials = GetUserInitials(appUser);
+            // 1. Verificación previa de integridad de archivos
+            if (!ValidateItemsForMerge(out string validationError))
+            {
+                PlaySound(SystemSounds.Hand);
+                MessageBox.Show(validationError, "Archivo No Válido o Dañado", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
+            string userInitials = GetUserInitials(appUser);
             string finalPdfName;
             string finalJsonName;
             object plannerPayload;
@@ -1337,7 +1340,6 @@ namespace CoalcavaDropzone
 
                 EnsureDirectoryHierarchy(clientName, policyNumber, affiliate, affiliateIdNumber);
 
-                // Determinar el prefijo según el modo (AUT para Autorizaciones, REE para Reembolsos)
                 string modePrefix = isAuthMode ? "AUT" : "REE";
                 caseId = GenerateCaseId(userInitials, modePrefix);
 
@@ -1371,6 +1373,9 @@ namespace CoalcavaDropzone
                 };
             }
 
+            // Usar una ruta temporal aislada para construir el PDF
+            // Esto evita que archivos corruptos o incompletos toquen la carpeta DROPZONE_FLOW
+            string stagingPdfTempPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.tmp");
             string finalPdfLocalPath = Path.Combine(dropzoneFlowPath, finalPdfName);
             string finalJsonLocalPath = Path.Combine(dropzoneFlowPath, finalJsonName);
 
@@ -1381,15 +1386,13 @@ namespace CoalcavaDropzone
                     Directory.CreateDirectory(dropzoneFlowPath);
                 }
 
-                // 1. Compilación Limpia: Transferencia directa sin marcas ni encabezados
+                // 2. Compilación en área de preparación local
                 using (PdfSharp.Pdf.PdfDocument outputDoc = new PdfSharp.Pdf.PdfDocument())
                 {
                     string[] imageExtensions = { ".png", ".jpg", ".jpeg", ".bmp" };
 
                     foreach (var item in reembolsoItems)
                     {
-                        if (!File.Exists(item.FullPath)) continue;
-
                         string ext = Path.GetExtension(item.FullPath).ToLower();
 
                         if (ext == ".pdf")
@@ -1406,7 +1409,6 @@ namespace CoalcavaDropzone
                         }
                         else if (imageExtensions.Contains(ext))
                         {
-                            // Carga en memoria segura para PDFsharp 6.x
                             byte[] imageBytes = File.ReadAllBytes(item.FullPath);
                             using (MemoryStream ms = new MemoryStream(imageBytes))
                             using (XImage img = XImage.FromStream(ms))
@@ -1423,8 +1425,12 @@ namespace CoalcavaDropzone
                         }
                     }
 
-                    // Forzar a los visores de PDF a regenerar la apariencia visual (/AP) de campos interactivos
-                    // a partir del valor de texto subyacente (/V) al hacer clic fuera (blur)
+                    if (outputDoc.PageCount == 0)
+                    {
+                        throw new InvalidOperationException("El documento consolidado no contiene páginas.");
+                    }
+
+                    // Asegurar soporte de renderizado visual para campos editables
                     try
                     {
                         if (outputDoc.AcroForm != null)
@@ -1433,7 +1439,6 @@ namespace CoalcavaDropzone
                         }
                         else
                         {
-                            // Asegurar la presencia del diccionario en el Catalog en caso de que esté ausente
                             if (!outputDoc.Internals.Catalog.Elements.ContainsKey("/AcroForm"))
                             {
                                 outputDoc.Internals.Catalog.Elements.Add("/AcroForm", new PdfDictionary(outputDoc));
@@ -1444,17 +1449,21 @@ namespace CoalcavaDropzone
                     }
                     catch (Exception exAcro)
                     {
-                        Debug.WriteLine($"Aviso al configurar NeedAppearances: {exAcro.Message}");
+                        Debug.WriteLine($"Aviso AcroForm: {exAcro.Message}");
                     }
 
-                    outputDoc.Save(finalPdfLocalPath);
+                    outputDoc.Save(stagingPdfTempPath);
                 }
 
-                // 2. Generación del Schema JSON
+                // 3. Promoción atómica a DROPZONE_FLOW
+                // Solo si el PDF se guardó exitosamente y sin excepciones, movemos el PDF y escribimos el JSON
+                if (File.Exists(finalPdfLocalPath)) File.Delete(finalPdfLocalPath);
+                File.Move(stagingPdfTempPath, finalPdfLocalPath);
+
                 string jsonContent = JsonSerializer.Serialize(plannerPayload, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(finalJsonLocalPath, jsonContent);
 
-                // 3. Eliminación automática de archivos originales procesados
+                // 4. Eliminación de archivos originales
                 foreach (var item in reembolsoItems)
                 {
                     try
@@ -1485,8 +1494,17 @@ namespace CoalcavaDropzone
             }
             catch (Exception ex)
             {
+                // Limpieza de staging en caso de fallo intermedio
+                try
+                {
+                    if (File.Exists(stagingPdfTempPath)) File.Delete(stagingPdfTempPath);
+                    if (File.Exists(finalPdfLocalPath)) File.Delete(finalPdfLocalPath);
+                    if (File.Exists(finalJsonLocalPath)) File.Delete(finalJsonLocalPath);
+                }
+                catch { }
+
                 PlaySound(SystemSounds.Hand);
-                MessageBox.Show($"Ocurrió un error al procesar el caso:\n{ex.Message}", "Error Crítico", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Ocurrió un error al procesar el caso:\n{ex.Message}\n\nNo se subió ningún archivo corrupto a la carpeta Dropzone.", "Error de Procesamiento", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -1632,7 +1650,6 @@ namespace CoalcavaDropzone
             LoadClientFolders();
             MessageBox.Show("Configuración guardada correctamente.", "Opciones", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-            // Redirigir a la pestaña Reembolsos
             if (tabControlMain != null && tabPageReembolsos != null)
             {
                 tabControlMain.SelectedTab = tabPageReembolsos;

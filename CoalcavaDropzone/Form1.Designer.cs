@@ -464,7 +464,7 @@
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(40, 11);
             this.label19.TabIndex = 6;
-            this.label19.Text = "ver. 0.2.2";
+            this.label19.Text = "ver. 0.2.3";
             // 
             // dgvReembolsoFiles
             // 
