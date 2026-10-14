@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Media;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -840,11 +841,15 @@ namespace CoalcavaDropzone
         private string GenerateCaseId(string userInitials, string modePrefix)
         {
             string initials = string.IsNullOrWhiteSpace(userInitials) ? "XX" : userInitials.Trim().ToUpper();
-            long ticks = DateTime.UtcNow.Ticks;
-            string timePart = Convert.ToString(ticks, 16).ToUpper();
-            if (timePart.Length > 6) timePart = timePart.Substring(timePart.Length - 6);
-            string rand = Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper();
-            return $"{modePrefix}-{initials}-{timePart}{rand}";
+
+            byte[] bytes = new byte[6];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(bytes);
+            }
+
+            string randPart = BitConverter.ToString(bytes).Replace("-", "");
+            return $"{modePrefix}-{initials}-{randPart}";
         }
 
         private void PnlReembolsoDrop_DragEnter(object sender, DragEventArgs e)
