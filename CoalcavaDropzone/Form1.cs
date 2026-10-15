@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using PdfSharp.Drawing;
@@ -101,7 +102,7 @@ namespace CoalcavaDropzone
             catch { }
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private async void Form1_Load(object sender, EventArgs e)
         {
             this.DoubleBuffered = true;
 
@@ -137,6 +138,40 @@ namespace CoalcavaDropzone
 
             InitializeReembolsosTab();
             SetupSettingsTab();
+
+            // Intento silencioso de inicio de sesión al arrancar
+            await CheckSilentSignInAsync();
+        }
+
+        private async Task CheckSilentSignInAsync()
+        {
+            bool signedIn = await AuthService.TrySilentSignInAsync();
+            UpdateAuthUI();
+
+            if (signedIn && !string.IsNullOrWhiteSpace(AuthService.CurrentDisplayName))
+            {
+                if (txtAppUser != null && string.IsNullOrWhiteSpace(GetCleanText(txtAppUser)))
+                {
+                    txtAppUser.Text = AuthService.CurrentDisplayName;
+                    txtAppUser.ForeColor = Color.Black;
+                }
+            }
+        }
+
+        private void UpdateAuthUI()
+        {
+            if (btnAuthAction != null)
+            {
+                btnAuthAction.Text = AuthService.IsSignedIn ? "Cerrar Sesión" : "Iniciar Sesión";
+            }
+
+            if (lblAuthStatus != null)
+            {
+                lblAuthStatus.Text = AuthService.IsSignedIn
+                    ? $"Sesión activa: {AuthService.CurrentDisplayName} ({AuthService.CurrentUserEmail})"
+                    : "No hay sesión iniciada de Microsoft.";
+                lblAuthStatus.ForeColor = AuthService.IsSignedIn ? Color.DarkGreen : Color.DarkRed;
+            }
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
@@ -410,10 +445,24 @@ namespace CoalcavaDropzone
                 dtpReminderTime.Enabled = false;
             }
 
+            // Validar inicio de sesión para recordatorios de Reembolso
             if (chkSendReminder != null)
             {
                 chkSendReminder.CheckedChanged += (s, e) =>
                 {
+                    if (chkSendReminder.Checked && !AuthService.IsSignedIn)
+                    {
+                        PlaySound(SystemSounds.Exclamation);
+                        MessageBox.Show(
+                            "Debe iniciar sesión con su cuenta corporativa de Microsoft en la pestaña Opciones para programar recordatorios de Microsoft To-Do.",
+                            "Inicio de Sesión Requerido",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning
+                        );
+                        chkSendReminder.Checked = false;
+                        return;
+                    }
+
                     if (dtpReminderTime != null)
                     {
                         dtpReminderTime.Enabled = chkSendReminder.Checked;
@@ -433,10 +482,24 @@ namespace CoalcavaDropzone
                 dtpReminderTimeComp.Enabled = false;
             }
 
+            // Validar inicio de sesión para recordatorios de Completivos
             if (chkSendReminderComp != null)
             {
                 chkSendReminderComp.CheckedChanged += (s, e) =>
                 {
+                    if (chkSendReminderComp.Checked && !AuthService.IsSignedIn)
+                    {
+                        PlaySound(SystemSounds.Exclamation);
+                        MessageBox.Show(
+                            "Debe iniciar sesión con su cuenta corporativa de Microsoft en la pestaña Opciones para programar recordatorios de Microsoft To-Do.",
+                            "Inicio de Sesión Requerido",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning
+                        );
+                        chkSendReminderComp.Checked = false;
+                        return;
+                    }
+
                     if (dtpReminderTimeComp != null)
                     {
                         dtpReminderTimeComp.Enabled = chkSendReminderComp.Checked;
@@ -810,6 +873,11 @@ namespace CoalcavaDropzone
 
         private string GetConfiguredAppUser()
         {
+            if (AuthService.IsSignedIn && !string.IsNullOrWhiteSpace(AuthService.CurrentDisplayName))
+            {
+                return AuthService.CurrentDisplayName;
+            }
+
             string settingUser = Properties.Settings.Default.SelectedAppUser?.Trim() ?? string.Empty;
             if (!string.IsNullOrWhiteSpace(settingUser) && settingUser != PlaceholderAppUser)
             {
@@ -829,13 +897,28 @@ namespace CoalcavaDropzone
         {
             if (string.IsNullOrWhiteSpace(appUser)) return "XX";
 
-            var parts = appUser.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            // Split by spaces and remove any empty entries (safely ignores double spaces)
+            var parts = appUser.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (parts.Length == 0) return "XX";
+
+            // Single name scenario (e.g., "Cher" or "Admin" or "A")
             if (parts.Length == 1)
             {
-                return parts[0].Length >= 2 ? parts[0].Substring(0, 2).ToUpper() : parts[0].ToUpper();
+                string single = parts[0].Trim();
+                if (single.Length >= 2)
+                {
+                    return single.Substring(0, 2).ToUpper();
+                }
+                // If the name is literally 1 character, pad with 'X' (e.g. "A" -> "AX")
+                return $"{single.ToUpper()}X";
             }
 
-            return $"{parts[0][0]}{parts[parts.Length - 1][0]}".ToUpper();
+            // Two or more names (e.g., "John  Appleseed" -> parts[0]="John", parts[1]="Appleseed" -> "JA")
+            char firstInitial = parts[0][0];
+            char lastInitial = parts[parts.Length - 1][0];
+
+            return $"{firstInitial}{lastInitial}".ToUpper();
         }
 
         private string GenerateCaseId(string userInitials, string modePrefix)
@@ -1168,7 +1251,6 @@ namespace CoalcavaDropzone
             }
         }
 
-        // Validación estricta y pre-vuelo antes de consolidar
         private bool ValidateItemsForMerge(out string validationErrorMessage)
         {
             validationErrorMessage = string.Empty;
@@ -1204,7 +1286,7 @@ namespace CoalcavaDropzone
                             }
                         }
                     }
-                    catch (Exception ex)
+                    catch
                     {
                         validationErrorMessage = $"Hay archivos dañados o protegidos contra lectura:\n{item.FileName}";
                         return false;
@@ -1234,14 +1316,13 @@ namespace CoalcavaDropzone
             return true;
         }
 
-        // Ejecución Principal: Pre-Flight Check + Atomic Merge + Metadata + Trigger
         private void BtnProcessReembolso_Click(object sender, EventArgs e)
         {
             string appUser = GetConfiguredAppUser();
             if (string.IsNullOrWhiteSpace(appUser))
             {
                 PlaySound(SystemSounds.Exclamation);
-                MessageBox.Show("Debe definir y configurar un Usuario (AppUser) en la pestaña de Opciones antes de procesar cualquier caso.", "Usuario Requerido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Debe definir y configurar un Usuario (AppUser) o iniciar sesión con Microsoft en la pestaña de Opciones antes de procesar cualquier caso.", "Usuario Requerido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 if (tabControlMain != null && tabPageOptions != null)
                 {
                     tabControlMain.SelectedTab = tabPageOptions;
@@ -1266,6 +1347,7 @@ namespace CoalcavaDropzone
             }
 
             string userInitials = GetUserInitials(appUser);
+            string userEmail = AuthService.IsSignedIn ? AuthService.CurrentUserEmail : string.Empty;
             string finalPdfName;
             string finalJsonName;
             object plannerPayload;
@@ -1306,6 +1388,7 @@ namespace CoalcavaDropzone
                     SourceFilesCount = reembolsoItems.Count,
                     AdditionalNotes = string.IsNullOrWhiteSpace(completivoNotes) ? "Sin notas adicionales." : completivoNotes,
                     ReminderDate = compReminderString,
+                    UserEmail = userEmail,
                     GeneratedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                     PdfFileName = finalPdfName
                 };
@@ -1371,6 +1454,7 @@ namespace CoalcavaDropzone
                     Currency = currency,
                     AdditionalNotes = string.IsNullOrWhiteSpace(notes) ? "Sin notas adicionales." : notes,
                     ReminderDate = reminderString,
+                    UserEmail = userEmail,
                     DocumentTypes = presentDocTypes,
                     SourceFilesCount = reembolsoItems.Count,
                     GeneratedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
@@ -1378,8 +1462,6 @@ namespace CoalcavaDropzone
                 };
             }
 
-            // Usar una ruta temporal aislada para construir el PDF
-            // Esto evita que archivos corruptos o incompletos toquen la carpeta DROPZONE_FLOW
             string stagingPdfTempPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.tmp");
             string finalPdfLocalPath = Path.Combine(dropzoneFlowPath, finalPdfName);
             string finalJsonLocalPath = Path.Combine(dropzoneFlowPath, finalJsonName);
@@ -1435,7 +1517,6 @@ namespace CoalcavaDropzone
                         throw new InvalidOperationException("El documento consolidado no contiene páginas.");
                     }
 
-                    // Asegurar soporte de renderizado visual para campos editables
                     try
                     {
                         if (outputDoc.AcroForm != null)
@@ -1461,7 +1542,6 @@ namespace CoalcavaDropzone
                 }
 
                 // 3. Promoción atómica a DROPZONE_FLOW
-                // Solo si el PDF se guardó exitosamente y sin excepciones, movemos el PDF y escribimos el JSON
                 if (File.Exists(finalPdfLocalPath)) File.Delete(finalPdfLocalPath);
                 File.Move(stagingPdfTempPath, finalPdfLocalPath);
 
@@ -1499,7 +1579,6 @@ namespace CoalcavaDropzone
             }
             catch (Exception ex)
             {
-                // Limpieza de staging en caso de fallo intermedio
                 try
                 {
                     if (File.Exists(stagingPdfTempPath)) File.Delete(stagingPdfTempPath);
@@ -1580,6 +1659,55 @@ namespace CoalcavaDropzone
                     txtAppUser.Text = savedUser;
                     txtAppUser.ForeColor = Color.Black;
                 }
+            }
+
+            // Conectar el botón de Iniciar / Cerrar Sesión en Opciones
+            if (btnAuthAction != null)
+            {
+                btnAuthAction.Click -= BtnAuthAction_Click;
+                btnAuthAction.Click += BtnAuthAction_Click;
+            }
+
+            UpdateAuthUI();
+        }
+
+        private async void BtnAuthAction_Click(object sender, EventArgs e)
+        {
+            if (btnAuthAction != null) btnAuthAction.Enabled = false;
+
+            try
+            {
+                if (AuthService.IsSignedIn)
+                {
+                    await AuthService.SignOutAsync();
+                    UpdateAuthUI();
+                    MessageBox.Show("Sesión cerrada correctamente.", "Microsoft 365", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    bool ok = await AuthService.SignInInteractiveAsync(this.Handle);
+                    if (ok)
+                    {
+                        UpdateAuthUI();
+
+                        if (txtAppUser != null)
+                        {
+                            txtAppUser.Text = AuthService.CurrentDisplayName;
+                            txtAppUser.ForeColor = Color.Black;
+                        }
+
+                        MessageBox.Show($"Bienvenido(a), {AuthService.CurrentDisplayName}.\nSesión iniciada exitosamente.", "Microsoft 365", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                PlaySound(SystemSounds.Hand);
+                MessageBox.Show(ex.Message, "Error de Autenticación", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                if (btnAuthAction != null) btnAuthAction.Enabled = true;
             }
         }
 

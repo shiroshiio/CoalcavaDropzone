@@ -93,6 +93,8 @@
             this.btnQuickGrab = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
             this.btnOpenDoc = new System.Windows.Forms.Button();
+            this.btnAuthAction = new System.Windows.Forms.Button();
+            this.lblAuthStatus = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.tabControlMain.SuspendLayout();
             this.tabPageReembolsos.SuspendLayout();
@@ -464,7 +466,7 @@
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(40, 11);
             this.label19.TabIndex = 6;
-            this.label19.Text = "ver. 0.2.3";
+            this.label19.Text = "ver. 0.3.0";
             // 
             // dgvReembolsoFiles
             // 
@@ -545,6 +547,8 @@
             // 
             // tabPageOptions
             // 
+            this.tabPageOptions.Controls.Add(this.lblAuthStatus);
+            this.tabPageOptions.Controls.Add(this.btnAuthAction);
             this.tabPageOptions.Controls.Add(this.txtAppUser);
             this.tabPageOptions.Controls.Add(this.label17);
             this.tabPageOptions.Controls.Add(this.label15);
@@ -751,6 +755,26 @@
             this.btnOpenDoc.Text = "Ver Documento";
             this.btnOpenDoc.UseVisualStyleBackColor = true;
             // 
+            // btnAuthAction
+            // 
+            this.btnAuthAction.Location = new System.Drawing.Point(422, 236);
+            this.btnAuthAction.Name = "btnAuthAction";
+            this.btnAuthAction.Size = new System.Drawing.Size(200, 25);
+            this.btnAuthAction.TabIndex = 14;
+            this.btnAuthAction.Text = "Iniciar Sesión con Microsoft";
+            this.btnAuthAction.UseVisualStyleBackColor = true;
+            // 
+            // lblAuthStatus
+            // 
+            this.lblAuthStatus.AutoSize = true;
+            this.lblAuthStatus.Dock = System.Windows.Forms.DockStyle.Right;
+            this.lblAuthStatus.Location = new System.Drawing.Point(665, 3);
+            this.lblAuthStatus.Name = "lblAuthStatus";
+            this.lblAuthStatus.Size = new System.Drawing.Size(89, 17);
+            this.lblAuthStatus.TabIndex = 15;
+            this.lblAuthStatus.Text = "Sesion activa";
+            this.lblAuthStatus.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -849,6 +873,8 @@
         private System.Windows.Forms.Button btnQuickGrab;
         private System.Windows.Forms.Button btnClear;
         private System.Windows.Forms.Button btnOpenDoc;
+        private System.Windows.Forms.Button btnAuthAction;
+        private System.Windows.Forms.Label lblAuthStatus;
     }
 }
 
