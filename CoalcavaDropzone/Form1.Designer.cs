@@ -73,11 +73,10 @@
             this.picDownloadIcon = new System.Windows.Forms.PictureBox();
             this.lblReembolsoDropPrompt = new System.Windows.Forms.Label();
             this.tabPageOptions = new System.Windows.Forms.TabPage();
+            this.lblAuthStatus = new System.Windows.Forms.Label();
+            this.btnAuthAction = new System.Windows.Forms.Button();
             this.txtAppUser = new System.Windows.Forms.TextBox();
             this.label17 = new System.Windows.Forms.Label();
-            this.label15 = new System.Windows.Forms.Label();
-            this.btnBrowseReembolsoRoot = new System.Windows.Forms.Button();
-            this.txtReembolsoRootPath = new System.Windows.Forms.TextBox();
             this.label14 = new System.Windows.Forms.Label();
             this.chkOpenOnStartup = new System.Windows.Forms.CheckBox();
             this.chkMuteSound = new System.Windows.Forms.CheckBox();
@@ -93,8 +92,6 @@
             this.btnQuickGrab = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
             this.btnOpenDoc = new System.Windows.Forms.Button();
-            this.btnAuthAction = new System.Windows.Forms.Button();
-            this.lblAuthStatus = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.tabControlMain.SuspendLayout();
             this.tabPageReembolsos.SuspendLayout();
@@ -466,7 +463,7 @@
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(40, 11);
             this.label19.TabIndex = 6;
-            this.label19.Text = "ver. 0.3.0";
+            this.label19.Text = "ver. 1.0.0";
             // 
             // dgvReembolsoFiles
             // 
@@ -551,9 +548,6 @@
             this.tabPageOptions.Controls.Add(this.btnAuthAction);
             this.tabPageOptions.Controls.Add(this.txtAppUser);
             this.tabPageOptions.Controls.Add(this.label17);
-            this.tabPageOptions.Controls.Add(this.label15);
-            this.tabPageOptions.Controls.Add(this.btnBrowseReembolsoRoot);
-            this.tabPageOptions.Controls.Add(this.txtReembolsoRootPath);
             this.tabPageOptions.Controls.Add(this.label14);
             this.tabPageOptions.Controls.Add(this.chkOpenOnStartup);
             this.tabPageOptions.Controls.Add(this.chkMuteSound);
@@ -569,9 +563,29 @@
             this.tabPageOptions.Text = "Opciones";
             this.tabPageOptions.UseVisualStyleBackColor = true;
             // 
+            // lblAuthStatus
+            // 
+            this.lblAuthStatus.AutoSize = true;
+            this.lblAuthStatus.Dock = System.Windows.Forms.DockStyle.Right;
+            this.lblAuthStatus.Location = new System.Drawing.Point(665, 3);
+            this.lblAuthStatus.Name = "lblAuthStatus";
+            this.lblAuthStatus.Size = new System.Drawing.Size(89, 17);
+            this.lblAuthStatus.TabIndex = 15;
+            this.lblAuthStatus.Text = "Sesion activa";
+            this.lblAuthStatus.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // btnAuthAction
+            // 
+            this.btnAuthAction.Location = new System.Drawing.Point(422, 162);
+            this.btnAuthAction.Name = "btnAuthAction";
+            this.btnAuthAction.Size = new System.Drawing.Size(200, 25);
+            this.btnAuthAction.TabIndex = 14;
+            this.btnAuthAction.Text = "Iniciar Sesión con Microsoft";
+            this.btnAuthAction.UseVisualStyleBackColor = true;
+            // 
             // txtAppUser
             // 
-            this.txtAppUser.Location = new System.Drawing.Point(15, 236);
+            this.txtAppUser.Location = new System.Drawing.Point(15, 162);
             this.txtAppUser.Name = "txtAppUser";
             this.txtAppUser.Size = new System.Drawing.Size(401, 25);
             this.txtAppUser.TabIndex = 13;
@@ -579,37 +593,11 @@
             // label17
             // 
             this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(12, 215);
+            this.label17.Location = new System.Drawing.Point(12, 141);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(100, 17);
             this.label17.TabIndex = 12;
             this.label17.Text = "Usuario Activo";
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(12, 150);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(223, 17);
-            this.label15.TabIndex = 10;
-            this.label15.Text = "Folder de Recepción [Reembolsos]";
-            // 
-            // btnBrowseReembolsoRoot
-            // 
-            this.btnBrowseReembolsoRoot.Location = new System.Drawing.Point(422, 170);
-            this.btnBrowseReembolsoRoot.Name = "btnBrowseReembolsoRoot";
-            this.btnBrowseReembolsoRoot.Size = new System.Drawing.Size(120, 25);
-            this.btnBrowseReembolsoRoot.TabIndex = 9;
-            this.btnBrowseReembolsoRoot.Text = "Buscar Ruta";
-            this.btnBrowseReembolsoRoot.UseVisualStyleBackColor = true;
-            // 
-            // txtReembolsoRootPath
-            // 
-            this.txtReembolsoRootPath.Location = new System.Drawing.Point(15, 170);
-            this.txtReembolsoRootPath.Name = "txtReembolsoRootPath";
-            this.txtReembolsoRootPath.ReadOnly = true;
-            this.txtReembolsoRootPath.Size = new System.Drawing.Size(401, 25);
-            this.txtReembolsoRootPath.TabIndex = 8;
             // 
             // label14
             // 
@@ -623,7 +611,7 @@
             // chkOpenOnStartup
             // 
             this.chkOpenOnStartup.AutoSize = true;
-            this.chkOpenOnStartup.Location = new System.Drawing.Point(15, 312);
+            this.chkOpenOnStartup.Location = new System.Drawing.Point(15, 238);
             this.chkOpenOnStartup.Name = "chkOpenOnStartup";
             this.chkOpenOnStartup.Size = new System.Drawing.Size(270, 21);
             this.chkOpenOnStartup.TabIndex = 6;
@@ -633,7 +621,7 @@
             // chkMuteSound
             // 
             this.chkMuteSound.AutoSize = true;
-            this.chkMuteSound.Location = new System.Drawing.Point(15, 285);
+            this.chkMuteSound.Location = new System.Drawing.Point(15, 211);
             this.chkMuteSound.Name = "chkMuteSound";
             this.chkMuteSound.Size = new System.Drawing.Size(195, 21);
             this.chkMuteSound.TabIndex = 5;
@@ -755,26 +743,6 @@
             this.btnOpenDoc.Text = "Ver Documento";
             this.btnOpenDoc.UseVisualStyleBackColor = true;
             // 
-            // btnAuthAction
-            // 
-            this.btnAuthAction.Location = new System.Drawing.Point(422, 236);
-            this.btnAuthAction.Name = "btnAuthAction";
-            this.btnAuthAction.Size = new System.Drawing.Size(200, 25);
-            this.btnAuthAction.TabIndex = 14;
-            this.btnAuthAction.Text = "Iniciar Sesión con Microsoft";
-            this.btnAuthAction.UseVisualStyleBackColor = true;
-            // 
-            // lblAuthStatus
-            // 
-            this.lblAuthStatus.AutoSize = true;
-            this.lblAuthStatus.Dock = System.Windows.Forms.DockStyle.Right;
-            this.lblAuthStatus.Location = new System.Drawing.Point(665, 3);
-            this.lblAuthStatus.Name = "lblAuthStatus";
-            this.lblAuthStatus.Size = new System.Drawing.Size(89, 17);
-            this.lblAuthStatus.TabIndex = 15;
-            this.lblAuthStatus.Text = "Sesion activa";
-            this.lblAuthStatus.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -839,9 +807,6 @@
         private System.Windows.Forms.PictureBox picDownloadIcon;
         private System.Windows.Forms.TextBox txtReembolsosNotasAdicionales;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Label label15;
-        private System.Windows.Forms.Button btnBrowseReembolsoRoot;
-        private System.Windows.Forms.TextBox txtReembolsoRootPath;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.ComboBox cmbCurrency;
         private System.Windows.Forms.Panel pnlCompletivos;

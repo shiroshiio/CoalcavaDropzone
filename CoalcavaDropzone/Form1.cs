@@ -34,7 +34,6 @@ namespace CoalcavaDropzone
 
         // Rutas y configuración general
         private string clientRootPath = @"C:\Users\Public\OneDrive - COALCAVA\Clientes\";
-        private string dropzoneFlowPath = @"C:\Users\Public\OneDrive - COALCAVA\Recepcion Reembolsos\";
 
         // SharePoint Configuration
         private readonly string tenantId = "47d4e187-f644-4ecf-8b7d-e4456388865f";
@@ -127,20 +126,13 @@ namespace CoalcavaDropzone
             {
                 if (!string.IsNullOrWhiteSpace(Properties.Settings.Default.ClientRootPath))
                     clientRootPath = Properties.Settings.Default.ClientRootPath;
-
-                if (!string.IsNullOrWhiteSpace(Properties.Settings.Default.ReembolsoRootPath))
-                    dropzoneFlowPath = Properties.Settings.Default.ReembolsoRootPath;
             }
             catch { }
 
             clientRootPath = clientRootPath.Replace('/', '\\');
             if (!clientRootPath.EndsWith(@"\")) clientRootPath += @"\";
 
-            dropzoneFlowPath = dropzoneFlowPath.Replace('/', '\\');
-            if (!dropzoneFlowPath.EndsWith(@"\")) dropzoneFlowPath += @"\";
-
             if (txtRootPath != null) txtRootPath.Text = clientRootPath;
-            if (txtReembolsoRootPath != null) txtReembolsoRootPath.Text = dropzoneFlowPath;
 
             InitializeReembolsosTab();
             SetupSettingsTab();
@@ -204,7 +196,7 @@ namespace CoalcavaDropzone
                 {
                     if (item.Fields != null && item.Fields.AdditionalData != null)
                     {
-                        string[] possibleFields = { "IDdeCaso", "ID_x0020_de_x0020_Caso", "No_x002e_Caso", "NoCaso" };
+                        string[] possibleFields = { "IDdeCaso", "ID_x0020_de_x0020_Caso"};
 
                         foreach (var field in possibleFields)
                         {
@@ -1265,11 +1257,6 @@ namespace CoalcavaDropzone
 
         private void SetupSettingsTab()
         {
-            if (btnBrowseReembolsoRoot != null)
-            {
-                btnBrowseReembolsoRoot.Click -= btnBrowseReembolsoRoot_Click;
-                btnBrowseReembolsoRoot.Click += btnBrowseReembolsoRoot_Click;
-            }
             if (btnBrowseRoot != null)
             {
                 btnBrowseRoot.Click -= btnBrowseRoot_Click_1;
@@ -1341,34 +1328,17 @@ namespace CoalcavaDropzone
             }
         }
 
-        private void btnBrowseReembolsoRoot_Click(object sender, EventArgs e)
-        {
-            using (FolderBrowserDialog folderDialog = new FolderBrowserDialog())
-            {
-                folderDialog.Description = "Seleccione la carpeta DROPZONE receptora para los flujos de Reembolso";
-                folderDialog.SelectedPath = Directory.Exists(dropzoneFlowPath) ? dropzoneFlowPath : @"C:\";
-                if (folderDialog.ShowDialog() == DialogResult.OK)
-                {
-                    if (txtReembolsoRootPath != null) txtReembolsoRootPath.Text = folderDialog.SelectedPath.Replace('/', '\\');
-                }
-            }
-        }
-
         private void btnSaveSettings_Click_1(object sender, EventArgs e)
         {
             string newClientPath = txtRootPath != null ? txtRootPath.Text.Trim().Replace('/', '\\') : clientRootPath;
-            string newReembolsoPath = txtReembolsoRootPath != null ? txtReembolsoRootPath.Text.Trim().Replace('/', '\\') : dropzoneFlowPath;
 
             if (!ValidateOrCreateDirectory(ref newClientPath, "Clientes")) return;
-            if (!ValidateOrCreateDirectory(ref newReembolsoPath, "Reembolsos Flow")) return;
 
             clientRootPath = newClientPath;
-            dropzoneFlowPath = newReembolsoPath;
 
             try
             {
                 Properties.Settings.Default.ClientRootPath = clientRootPath;
-                Properties.Settings.Default.ReembolsoRootPath = dropzoneFlowPath;
 
                 if (txtAppUser != null) Properties.Settings.Default.SelectedAppUser = GetCleanText(txtAppUser);
                 if (chkMuteSound != null) Properties.Settings.Default.IsMuted = chkMuteSound.Checked;
