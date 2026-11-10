@@ -204,7 +204,6 @@ namespace CoalcavaDropzone
                 {
                     if (item.Fields != null && item.Fields.AdditionalData != null)
                     {
-                        // Check all possible internal name variants for ID de Caso / No. Caso
                         string[] possibleFields = { "IDdeCaso", "ID_x0020_de_x0020_Caso", "No_x002e_Caso", "NoCaso" };
 
                         foreach (var field in possibleFields)
@@ -261,7 +260,15 @@ namespace CoalcavaDropzone
             }
         }
 
-        private async Task UploadToSharePointAsync(string listName, Dictionary<string, object> itemFields, string pdfPath, string finalFileName, bool isCompletivo, string targetCaseId)
+        private async Task UploadToSharePointAsync(
+            string listName,
+            Dictionary<string, object> itemFields,
+            string pdfPath,
+            string finalFileName,
+            bool isCompletivo,
+            string targetCaseId,
+            DateTime? reminderDateTime = null,
+            string policyNumber = null)
         {
             var graphClient = GetGraphClient();
 
@@ -303,9 +310,9 @@ namespace CoalcavaDropzone
 
                 var updateFields = new Dictionary<string, object> { { "Notas", appendedNotes } };
 
-                if (itemFields.ContainsKey("FechaPr_x00f3_ximoSeguimiento"))
+                if (itemFields.ContainsKey("Fecha_x0020_Seguimiento"))
                 {
-                    updateFields.Add("FechaPr_x00f3_ximoSeguimiento", itemFields["FechaPr_x00f3_ximoSeguimiento"]);
+                    updateFields.Add("Fecha_x0020_Seguimiento", itemFields["Fecha_x0020_Seguimiento"]);
                 }
 
                 var updateItem = new ListItem
@@ -354,16 +361,32 @@ namespace CoalcavaDropzone
                 }
             }
 
-            // 4. Create Microsoft To Do Reminder Task if enabled
-            if (itemFields.ContainsKey("__ReminderDateTime") && itemFields["__ReminderDateTime"] is DateTime reminderDt)
+            // 4. Create Microsoft To Do Reminder Task
+            if (reminderDateTime.HasValue)
             {
-                string caseLabel = isCompletivoMode ? $"Completivo para {targetCaseId}" : (itemFields.ContainsKey("Title") ? itemFields["Title"].ToString() : targetCaseId);
-                string title = $"Seguimiento: {caseLabel} ({listName})";
-                string body = isCompletivoMode
-                    ? $"Documentos completivos agregados al caso {targetCaseId}.\nNotas: {(itemFields.ContainsKey("Notas") ? itemFields["Notas"].ToString() : "")}"
-                    : $"Seguimiento programado para expediente {finalFileName}.\nNotas: {(itemFields.ContainsKey("Notas") ? itemFields["Notas"].ToString() : "")}";
+                string caseId = isCompletivo
+                    ? targetCaseId
+                    : (itemFields.ContainsKey("IDdeCaso") ? itemFields["IDdeCaso"].ToString() : finalFileName);
 
-                await CreateToDoReminderTaskAsync(graphClient, title, body, reminderDt);
+                string afiliado = itemFields.ContainsKey("Afiliado")
+                    ? itemFields["Afiliado"].ToString()
+                    : (itemFields.ContainsKey("Title") ? itemFields["Title"].ToString() : "N/A");
+
+                string poliza = !string.IsNullOrWhiteSpace(policyNumber) ? policyNumber : "N/A";
+
+                string notas = itemFields.ContainsKey("Notas") && !string.IsNullOrWhiteSpace(itemFields["Notas"]?.ToString())
+                    ? itemFields["Notas"].ToString()
+                    : "Sin notas adicionales.";
+
+                string title = $"Seguimiento: {afiliado} - {caseId}";
+
+                var bodyBuilder = new System.Text.StringBuilder();
+                bodyBuilder.AppendLine($"ID del Caso: {caseId}");
+                bodyBuilder.AppendLine($"Póliza: {poliza}");
+                bodyBuilder.AppendLine($"Afiliado: {afiliado}");
+                bodyBuilder.Append($"Notas: {notas}");
+
+                await CreateToDoReminderTaskAsync(graphClient, title, bodyBuilder.ToString(), reminderDateTime.Value);
             }
         }
 
@@ -557,7 +580,7 @@ namespace CoalcavaDropzone
                 txtReembolsoMonto.KeyDown += TxtReembolsoMonto_KeyDown;
             }
 
-            // Bindings de recordatorios Reembolsos
+            // Bindings de recordatorios Reembolsos / Autorizaciones
             if (dtpReminderTime != null)
             {
                 dtpReminderTime.Format = DateTimePickerFormat.Custom;
@@ -739,32 +762,35 @@ namespace CoalcavaDropzone
 
         private void BtnToggleMode_Click(object sender, EventArgs e)
         {
-            if (isAuthMode) return;
             isCompletivoMode = !isCompletivoMode;
 
             if (pnlCompletivos != null) pnlCompletivos.Visible = isCompletivoMode;
             if (btnProcessReembolso != null) btnProcessReembolso.Text = isCompletivoMode ? "Procesar Completivo" : "Procesar";
-            if (btnToggleMode != null) btnToggleMode.Text = isCompletivoMode ? "Reembolso" : "Completivo";
+
+            if (btnToggleMode != null)
+            {
+                string activeType = isAuthMode ? "Autorización" : "Reembolso";
+                btnToggleMode.Text = isCompletivoMode ? activeType : "Completivo";
+            }
         }
 
         private void BtnToggleAuth_Click(object sender, EventArgs e)
         {
             isAuthMode = !isAuthMode;
 
-            if (isAuthMode)
+            if (label7 != null)
+                label7.Text = isAuthMode ? "Autorizaciones" : "Reembolsos";
+
+            if (btnToggleAuth != null)
+                btnToggleAuth.Text = isAuthMode ? "Reembolso" : "Autorización";
+
+            // Permite que el botón de completivo siga siempre visible y habilitado
+            if (btnToggleMode != null)
             {
-                if (label7 != null) label7.Text = "Autorizaciones";
-                isCompletivoMode = false;
-                if (pnlCompletivos != null) pnlCompletivos.Visible = false;
-                if (btnProcessReembolso != null) btnProcessReembolso.Text = "Procesar";
-                if (btnToggleMode != null) { btnToggleMode.Enabled = false; btnToggleMode.Visible = false; }
-                if (btnToggleAuth != null) btnToggleAuth.Text = "Reembolso";
-            }
-            else
-            {
-                if (label7 != null) label7.Text = "Reembolsos";
-                if (btnToggleMode != null) { btnToggleMode.Enabled = true; btnToggleMode.Visible = true; btnToggleMode.Text = "Completivo"; }
-                if (btnToggleAuth != null) btnToggleAuth.Text = "Autorización";
+                btnToggleMode.Enabled = true;
+                btnToggleMode.Visible = true;
+                string activeType = isAuthMode ? "Autorización" : "Reembolso";
+                btnToggleMode.Text = isCompletivoMode ? activeType : "Completivo";
             }
         }
 
@@ -826,9 +852,9 @@ namespace CoalcavaDropzone
             if (lower.Contains("indica") || lower.Contains("receta")) return "Indicación Médica";
             if (lower.Contains("hist") || lower.Contains("clinic")) return "Historia Clínica";
             if (lower.Contains("estudio") || lower.Contains("lab")) return "Resultados de Estudios";
-            if (lower.Contains("ced") || lower.Contains("id")) return "Cédula / Documento de Identidad";
+            if (lower.Contains("ced") || lower.Contains("id") || lower.Contains("afiliado")) return "Cédula / Documento de Identidad";
             if (lower.Contains("form") || lower.Contains("solicitud")) return "Formulario de Solicitud";
-            return "Otros";
+            return "Cédula / Documento de Identidad";
         }
 
         private void RefreshReembolsosGrid()
@@ -1032,11 +1058,9 @@ namespace CoalcavaDropzone
                 decimal numericAmount = 0.00m;
                 decimal.TryParse(GetCleanText(txtReembolsoMonto), NumberStyles.Any, CultureInfo.InvariantCulture, out numericAmount);
 
-                List<string> presentDocTypes = reembolsoItems.Select(x => x.DocumentType).Distinct().ToList();
-                string docTypesString = string.Join(", ", presentDocTypes);
-
                 string targetListName;
                 Dictionary<string, object> spFields = new Dictionary<string, object>();
+                DateTime? reminderDt = null;
 
                 if (isCompletivoMode)
                 {
@@ -1063,11 +1087,15 @@ namespace CoalcavaDropzone
                     string completivoNote = string.IsNullOrWhiteSpace(GetCleanText(txtCompletivoNotas)) ? "Sin notas adicionales." : GetCleanText(txtCompletivoNotas);
                     spFields.Add("Notas", completivoNote);
 
+                    // Campos para armar el título y cuerpo del recordatorio de To-Do
+                    string cleanAffiliate = string.IsNullOrWhiteSpace(affiliate) ? clientName : affiliate;
+                    spFields.Add("Afiliado", cleanAffiliate);
+
                     // Recordatorio para Completivo
                     if (chkSendReminderComp != null && chkSendReminderComp.Checked && dtpReminderTimeComp != null)
                     {
-                        spFields.Add("FechaPr_x00f3_ximoSeguimiento", dtpReminderTimeComp.Value.ToString("s", CultureInfo.InvariantCulture));
-                        spFields.Add("__ReminderDateTime", dtpReminderTimeComp.Value);
+                        spFields.Add("Fecha_x0020_Seguimiento", dtpReminderTimeComp.Value.ToString("s", CultureInfo.InvariantCulture));
+                        reminderDt = dtpReminderTimeComp.Value;
                     }
                 }
                 else
@@ -1078,42 +1106,41 @@ namespace CoalcavaDropzone
 
                     EnsureDirectoryHierarchy(clientName, policyNumber, affiliate, affiliateIdNumber);
 
+                    string cleanAffiliate = string.IsNullOrWhiteSpace(affiliate) ? clientName : affiliate;
+                    string cleanAffiliateId = string.IsNullOrWhiteSpace(affiliateIdNumber) ? "No indicado" : affiliateIdNumber;
+
                     spFields.Add("Title", clientName);
-                    spFields.Add("Afiliado", string.IsNullOrWhiteSpace(affiliate) ? clientName : affiliate);
+                    spFields.Add("Afiliado", cleanAffiliate);
                     spFields.Add("Aseguradora", insurer);
                     spFields.Add("Notas", string.IsNullOrWhiteSpace(notes) ? "Sin notas adicionales." : notes);
                     spFields.Add("FechadeIngreso", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-
-                    string cleanAffiliateId = string.IsNullOrWhiteSpace(affiliateIdNumber) ? "No indicado" : affiliateIdNumber;
+                    spFields.Add("IDdeCaso", caseId);
 
                     if (isAuthMode)
                     {
-                        // Nombre interno específico para Autorizaciones
                         spFields.Add("N_x00fa_merodeAfiliado", cleanAffiliateId);
                         spFields.Add("Poliza", policyNumber);
                         spFields.Add("No_x002e_Caso", caseId);
-                        spFields.Add("IDdeCaso", caseId);
 
-                        // Recordatorio To Do para Autorizaciones
+                        // Recordatorio para Autorizaciones
                         if (chkSendReminder != null && chkSendReminder.Checked && dtpReminderTime != null)
                         {
-                            spFields.Add("__ReminderDateTime", dtpReminderTime.Value);
+                            spFields.Add("Fecha_x0020_Seguimiento", dtpReminderTime.Value.ToString("s", CultureInfo.InvariantCulture));
+                            reminderDt = dtpReminderTime.Value;
                         }
                     }
                     else
                     {
-                        // Nombre interno específico para Reembolsos
                         spFields.Add("DocumentoID", cleanAffiliateId);
                         spFields.Add("P_x00f3_liza", policyNumber);
                         spFields.Add("Monto", numericAmount);
                         spFields.Add("Moneda", currency);
-                        spFields.Add("IDdeCaso", caseId);
 
-                        // Recordatorio SharePoint List y To Do para Reembolsos
+                        // Recordatorio para Reembolsos
                         if (chkSendReminder != null && chkSendReminder.Checked && dtpReminderTime != null)
                         {
-                            spFields.Add("FechaPr_x00f3_ximoSeguimiento", dtpReminderTime.Value.ToString("s", CultureInfo.InvariantCulture));
-                            spFields.Add("__ReminderDateTime", dtpReminderTime.Value);
+                            spFields.Add("Fecha_x0020_Seguimiento", dtpReminderTime.Value.ToString("s", CultureInfo.InvariantCulture));
+                            reminderDt = dtpReminderTime.Value;
                         }
                     }
                 }
@@ -1151,7 +1178,15 @@ namespace CoalcavaDropzone
 
                 // 3. Carga directa a SharePoint mediante Microsoft Graph API
                 string targetCaseIdArg = isCompletivoMode ? GetCleanText(txtTargetCaseId) : null;
-                await UploadToSharePointAsync(targetListName, spFields, stagingPdfTempPath, finalPdfName, isCompletivoMode, targetCaseIdArg);
+                await UploadToSharePointAsync(
+                    targetListName,
+                    spFields,
+                    stagingPdfTempPath,
+                    finalPdfName,
+                    isCompletivoMode,
+                    targetCaseIdArg,
+                    reminderDt,
+                    policyNumber);
 
                 // 4. Eliminación de archivos temporales y de origen locales
                 foreach (var item in reembolsoItems)
