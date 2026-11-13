@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
@@ -17,7 +18,7 @@ using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
-using Azure.Identity;
+using Azure.Core;
 
 namespace CoalcavaDropzone
 {
@@ -35,25 +36,25 @@ namespace CoalcavaDropzone
         // Rutas y configuración general
         private string clientRootPath = @"C:\Users\Public\OneDrive - COALCAVA\Clientes\";
 
+        // Separador único para carpeta de Póliza ~ Aseguradora
+        private const string PolicyInsurerSeparator = " ~ ";
+
         // SharePoint Configuration
         private readonly string tenantId = "47d4e187-f644-4ecf-8b7d-e4456388865f";
         private readonly string clientId = "ce2d41ed-73df-43da-ae41-fbfa9914df9e";
         private readonly string sharePointSiteId = "coalcava.sharepoint.com,96ae7750-2f9b-4430-895d-461cac1fb449,6a0d36fb-6fab-487d-9353-71e43239c7ba";
 
         private List<string> cachedClientList = new List<string>();
+        private List<ClientRecordItem> allClientRecords = new List<ClientRecordItem>();
 
-        private InteractiveBrowserCredential sharedCredential;
+        private TokenCredential sharedCredential;
         private GraphServiceClient sharedGraphClient;
 
         private GraphServiceClient GetGraphClient()
         {
             if (sharedGraphClient == null)
             {
-                sharedCredential = new InteractiveBrowserCredential(new InteractiveBrowserCredentialOptions
-                {
-                    TenantId = tenantId,
-                    ClientId = clientId
-                });
+                sharedCredential = new AuthServiceCredential();
                 sharedGraphClient = new GraphServiceClient(sharedCredential, new[] { "Sites.ReadWrite.All", "Tasks.ReadWrite" });
             }
             return sharedGraphClient;
@@ -68,6 +69,7 @@ namespace CoalcavaDropzone
         private const string PlaceholderTargetCaseId = "REE-XX-000000";
         private const string PlaceholderCompletivoNotas = "Detalles o justificación de los documentos completivos agregados...";
         private const string PlaceholderAppUser = "John Appleseed";
+        private const string PlaceholderSearchRegistros = "Buscar por cliente, póliza, aseguradora, afiliado o cédula...";
 
         private readonly Color NormalDropzoneColor = Color.FromArgb(248, 248, 246);
         private readonly Color HoverDropzoneColor = Color.FromArgb(254, 243, 235);
@@ -75,6 +77,8 @@ namespace CoalcavaDropzone
         // Estado del modo
         private bool isCompletivoMode = false;
         private bool isAuthMode = false;
+        private bool isRegistrosEditMode = false;
+        private bool isSuppressingCascadeEvents = false;
 
         public class ReembolsoFileItem
         {
@@ -85,7 +89,30 @@ namespace CoalcavaDropzone
             public string FileSizeFormatted => $"{(FileSizeBytes / 1024.0 / 1024.0):F2} MB";
         }
 
+        public class ClientRecordItem
+        {
+            public string OriginalClient { get; set; }
+            public string OriginalPolicyFolder { get; set; }
+            public string OriginalAffiliate { get; set; }
+            public string OriginalIdNumber { get; set; }
+
+            public string Client { get; set; }
+            public string Policy { get; set; }
+            public string Insurer { get; set; }
+            public string Affiliate { get; set; }
+            public string IdNumber { get; set; }
+        }
+
         private List<ReembolsoFileItem> reembolsoItems = new List<ReembolsoFileItem>();
+
+        private readonly string[] insurerOptions = new string[]
+        {
+            "Sura", "Humano", "Universal", "La Colonial", "Mapfre", "Mapfre BHD",
+            "SeNaSa", "Cigna", "Bupa", "BMI", "One Alliance", "Aetna",
+            "American Fidelity International", "Yunen", "Seguros Pepin",
+            "WorldWide Medical", "Primera", "Aurora", "APS", "COOPSEGUROS",
+            "Crecer", "La Monumental", "Seguros Reservas", "Otra Aseguradora"
+        };
 
         private readonly string[] docTypeOptions = new string[]
         {
@@ -134,6 +161,7 @@ namespace CoalcavaDropzone
 
             if (txtRootPath != null) txtRootPath.Text = clientRootPath;
 
+            SetupRegistrosTab();
             InitializeReembolsosTab();
             SetupSettingsTab();
 
@@ -196,7 +224,7 @@ namespace CoalcavaDropzone
                 {
                     if (item.Fields != null && item.Fields.AdditionalData != null)
                     {
-                        string[] possibleFields = { "IDdeCaso", "ID_x0020_de_x0020_Caso"};
+                        string[] possibleFields = { "IDdeCaso", "ID_x0020_de_x0020_Caso" };
 
                         foreach (var field in possibleFields)
                         {
@@ -332,8 +360,8 @@ namespace CoalcavaDropzone
             string tenantDomain = "coalcava.sharepoint.com";
             string siteName = "COALCAVA787";
 
-            var spTokenContext = new Azure.Core.TokenRequestContext(new[] { $"https://{tenantDomain}/.default" });
-            var spToken = await sharedCredential.GetTokenAsync(spTokenContext);
+            var spTokenContext = new TokenRequestContext(new[] { $"https://{tenantDomain}/.default" });
+            var spToken = await sharedCredential.GetTokenAsync(spTokenContext, CancellationToken.None);
 
             using (var httpClient = new System.Net.Http.HttpClient())
             {
@@ -384,7 +412,89 @@ namespace CoalcavaDropzone
 
         #endregion
 
-        #region Helpers Generales
+        #region Helpers Generales & Parsers de Directorio
+
+        private (string PolicyNumber, string Insurer) ParsePolicyFolderName(string folderName)
+        {
+            if (string.IsNullOrWhiteSpace(folderName))
+                return (string.Empty, string.Empty);
+
+            int sepIndex = folderName.IndexOf(PolicyInsurerSeparator, StringComparison.Ordinal);
+            if (sepIndex >= 0)
+            {
+                string pol = folderName.Substring(0, sepIndex).Trim();
+                string ins = folderName.Substring(sepIndex + PolicyInsurerSeparator.Length).Trim();
+                return (pol, ins);
+            }
+
+            return (folderName.Trim(), string.Empty);
+        }
+
+        private string BuildPolicyFolderName(string policyNumber, string insurer)
+        {
+            string cleanPolicy = SanitizeFolderName(policyNumber);
+            string cleanInsurer = SanitizeFolderName(insurer);
+
+            if (string.IsNullOrWhiteSpace(cleanInsurer))
+                return cleanPolicy;
+
+            return $"{cleanPolicy}{PolicyInsurerSeparator}{cleanInsurer}";
+        }
+
+        private string SanitizeFolderName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return string.Empty;
+            return string.Concat(name.Split(Path.GetInvalidFileNameChars())).Trim();
+        }
+
+        private string FindPolicyDirectoryPath(string clientDir, string policyNumber)
+        {
+            if (!Directory.Exists(clientDir) || string.IsNullOrWhiteSpace(policyNumber))
+                return null;
+
+            foreach (var dir in Directory.GetDirectories(clientDir))
+            {
+                string dirName = new DirectoryInfo(dir).Name;
+                var parsed = ParsePolicyFolderName(dirName);
+                if (parsed.PolicyNumber.Equals(policyNumber.Trim(), StringComparison.OrdinalIgnoreCase))
+                {
+                    return dir;
+                }
+            }
+            return null;
+        }
+
+        private void MoveOrMergeDirectory(string sourceDir, string targetDir)
+        {
+            if (!Directory.Exists(sourceDir) || string.Equals(sourceDir, targetDir, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            if (!Directory.Exists(targetDir))
+            {
+                Directory.Move(sourceDir, targetDir);
+                return;
+            }
+
+            foreach (string file in Directory.GetFiles(sourceDir))
+            {
+                string destFile = Path.Combine(targetDir, Path.GetFileName(file));
+                if (!File.Exists(destFile))
+                {
+                    File.Move(file, destFile);
+                }
+            }
+
+            foreach (string subDir in Directory.GetDirectories(sourceDir))
+            {
+                string destSubDir = Path.Combine(targetDir, new DirectoryInfo(subDir).Name);
+                MoveOrMergeDirectory(subDir, destSubDir);
+            }
+
+            if (!Directory.EnumerateFileSystemEntries(sourceDir).Any())
+            {
+                Directory.Delete(sourceDir, false);
+            }
+        }
 
         private void PlaySound(SystemSound sound)
         {
@@ -471,6 +581,7 @@ namespace CoalcavaDropzone
                     cachedClientList.Add(new DirectoryInfo(dir).Name);
                 }
             }
+            RefreshRegistrosData();
         }
 
         #endregion
@@ -552,11 +663,31 @@ namespace CoalcavaDropzone
             dgvReembolsoFiles.CellValueChanged += DgvReembolsoFiles_CellValueChanged;
             dgvReembolsoFiles.CurrentCellDirtyStateChanged += DgvReembolsoFiles_CurrentCellDirtyStateChanged;
 
-            if (btnRemoveSelectedFile != null) btnRemoveSelectedFile.Click += BtnRemoveSelectedFile_Click;
-            if (btnClearReembolso != null) btnClearReembolso.Click += BtnClearReembolso_Click;
-            if (btnProcessReembolso != null) btnProcessReembolso.Click += BtnProcessReembolso_Click;
-            if (btnToggleMode != null) btnToggleMode.Click += BtnToggleMode_Click;
-            if (btnToggleAuth != null) btnToggleAuth.Click += BtnToggleAuth_Click;
+            if (btnRemoveSelectedFile != null)
+            {
+                btnRemoveSelectedFile.Click -= BtnRemoveSelectedFile_Click;
+                btnRemoveSelectedFile.Click += BtnRemoveSelectedFile_Click;
+            }
+            if (btnClearReembolso != null)
+            {
+                btnClearReembolso.Click -= BtnClearReembolso_Click;
+                btnClearReembolso.Click += BtnClearReembolso_Click;
+            }
+            if (btnProcessReembolso != null)
+            {
+                btnProcessReembolso.Click -= BtnProcessReembolso_Click;
+                btnProcessReembolso.Click += BtnProcessReembolso_Click;
+            }
+            if (btnToggleMode != null)
+            {
+                btnToggleMode.Click -= BtnToggleMode_Click;
+                btnToggleMode.Click += BtnToggleMode_Click;
+            }
+            if (btnToggleAuth != null)
+            {
+                btnToggleAuth.Click -= BtnToggleAuth_Click;
+                btnToggleAuth.Click += BtnToggleAuth_Click;
+            }
 
             if (cmbCurrency != null)
             {
@@ -638,13 +769,7 @@ namespace CoalcavaDropzone
             if (cmbReembolsoAseguradora != null)
             {
                 cmbReembolsoAseguradora.Items.Clear();
-                cmbReembolsoAseguradora.Items.AddRange(new string[] {
-                    "Sura", "Humano", "Universal", "La Colonial", "Mapfre", "Mapfre BHD",
-                    "SeNaSa", "Cigna", "Bupa", "BMI", "One Alliance", "Aetna",
-                    "American Fidelity International", "Yunen", "Seguros Pepin",
-                    "WorldWide Medical", "Primera", "Aurora", "APS", "COOPSEGUROS",
-                    "Crecer", "La Monumental", "Seguros Reservas", "Otra Aseguradora"
-                });
+                cmbReembolsoAseguradora.Items.AddRange(insurerOptions);
                 cmbReembolsoAseguradora.DropDownStyle = ComboBoxStyle.DropDown;
                 if (cmbReembolsoAseguradora.Items.Count > 0) cmbReembolsoAseguradora.SelectedIndex = 0;
             }
@@ -652,15 +777,33 @@ namespace CoalcavaDropzone
             if (txtReembolsoPoliza != null)
             {
                 txtReembolsoPoliza.DropDownStyle = ComboBoxStyle.DropDown;
-                txtReembolsoPoliza.SelectedIndexChanged += (s, e) => { PopulateAffiliatesForPolicy(); };
-                txtReembolsoPoliza.TextChanged += (s, e) => { PopulateAffiliatesForPolicy(); };
+                txtReembolsoPoliza.SelectedIndexChanged += (s, e) =>
+                {
+                    if (isSuppressingCascadeEvents) return;
+                    AutoFillInsurerFromPolicy();
+                    PopulateAffiliatesForPolicy();
+                };
+                txtReembolsoPoliza.TextChanged += (s, e) =>
+                {
+                    if (isSuppressingCascadeEvents) return;
+                    AutoFillInsurerFromPolicy();
+                    PopulateAffiliatesForPolicy();
+                };
             }
 
             if (cmbAfiliado != null)
             {
                 cmbAfiliado.DropDownStyle = ComboBoxStyle.DropDown;
-                cmbAfiliado.SelectedIndexChanged += (s, e) => AutoFillCedulaFromAffiliate();
-                cmbAfiliado.TextChanged += (s, e) => AutoFillCedulaFromAffiliate();
+                cmbAfiliado.SelectedIndexChanged += (s, e) =>
+                {
+                    if (isSuppressingCascadeEvents) return;
+                    AutoFillCedulaFromAffiliate();
+                };
+                cmbAfiliado.TextChanged += (s, e) =>
+                {
+                    if (isSuppressingCascadeEvents) return;
+                    AutoFillCedulaFromAffiliate();
+                };
             }
 
             ApplyPlaceholder(txtReembolsoCedula, PlaceholderCedula);
@@ -675,7 +818,11 @@ namespace CoalcavaDropzone
             {
                 txtReembolsoClientSearch.TextChanged += TxtReembolsoClientSearch_TextChanged;
                 txtReembolsoClientSearch.KeyDown += TxtReembolsoClientSearch_KeyDown;
-                txtReembolsoClientSearch.TextChanged += (s, e) => PopulatePoliciesForClient();
+                txtReembolsoClientSearch.TextChanged += (s, e) =>
+                {
+                    if (isSuppressingCascadeEvents) return;
+                    PopulatePoliciesForClient();
+                };
             }
             if (lstReembolsoClientSuggestions != null)
             {
@@ -690,21 +837,99 @@ namespace CoalcavaDropzone
         {
             if (txtReembolsoPoliza == null) return;
             string client = GetCleanText(txtReembolsoClientSearch);
+
             txtReembolsoPoliza.Items.Clear();
-            if (string.IsNullOrWhiteSpace(client) || !Directory.Exists(clientRootPath)) return;
+            if (cmbAfiliado != null)
+            {
+                cmbAfiliado.Items.Clear();
+                cmbAfiliado.Text = string.Empty;
+            }
+            ResetPlaceholder(txtReembolsoCedula, PlaceholderCedula);
+
+            if (string.IsNullOrWhiteSpace(client) || !Directory.Exists(clientRootPath))
+            {
+                ResetPlaceholder(txtReembolsoPoliza, PlaceholderPoliza);
+                return;
+            }
 
             string clientPath = Path.Combine(clientRootPath, client);
-            if (!Directory.Exists(clientPath)) return;
+            if (!Directory.Exists(clientPath))
+            {
+                ResetPlaceholder(txtReembolsoPoliza, PlaceholderPoliza);
+                return;
+            }
 
-            var policies = Directory.GetDirectories(clientPath).Select(d => new DirectoryInfo(d).Name).ToArray();
-            txtReembolsoPoliza.Items.AddRange(policies);
+            var policyNumbers = Directory.GetDirectories(clientPath)
+                .Select(d => ParsePolicyFolderName(new DirectoryInfo(d).Name).PolicyNumber)
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Distinct()
+                .ToArray();
 
-            if (policies.Length > 0 && string.IsNullOrWhiteSpace(GetCleanText(txtReembolsoPoliza)))
+            txtReembolsoPoliza.Items.AddRange(policyNumbers);
+
+            if (policyNumbers.Length > 0)
             {
                 txtReembolsoPoliza.SelectedIndex = 0;
                 txtReembolsoPoliza.ForeColor = Color.Black;
+                AutoFillInsurerFromPolicy();
+                PopulateAffiliatesForPolicy();
             }
-            else PopulateAffiliatesForPolicy();
+            else
+            {
+                ResetPlaceholder(txtReembolsoPoliza, PlaceholderPoliza);
+            }
+        }
+
+        private void AutoFillInsurerFromPolicy()
+        {
+            if (cmbReembolsoAseguradora == null) return;
+            string client = GetCleanText(txtReembolsoClientSearch);
+            string policy = GetCleanText(txtReembolsoPoliza);
+
+            if (string.IsNullOrWhiteSpace(client) || string.IsNullOrWhiteSpace(policy)) return;
+
+            string clientPath = Path.Combine(clientRootPath, client);
+            string actualPolicyDir = FindPolicyDirectoryPath(clientPath, policy);
+            if (actualPolicyDir == null) return;
+
+            string folderName = new DirectoryInfo(actualPolicyDir).Name;
+            var parsed = ParsePolicyFolderName(folderName);
+
+            if (!string.IsNullOrWhiteSpace(parsed.Insurer))
+            {
+                SetInsurerComboValue(parsed.Insurer);
+            }
+        }
+
+        private void SetInsurerComboValue(string insurerName)
+        {
+            if (cmbReembolsoAseguradora == null) return;
+
+            if (string.IsNullOrWhiteSpace(insurerName))
+            {
+                if (cmbReembolsoAseguradora.Items.Count > 0)
+                    cmbReembolsoAseguradora.SelectedIndex = 0;
+                return;
+            }
+
+            int matchIdx = -1;
+            for (int i = 0; i < cmbReembolsoAseguradora.Items.Count; i++)
+            {
+                if (string.Equals(cmbReembolsoAseguradora.Items[i].ToString(), insurerName, StringComparison.OrdinalIgnoreCase))
+                {
+                    matchIdx = i;
+                    break;
+                }
+            }
+
+            if (matchIdx >= 0)
+            {
+                cmbReembolsoAseguradora.SelectedIndex = matchIdx;
+            }
+            else
+            {
+                cmbReembolsoAseguradora.Text = insurerName;
+            }
         }
 
         private void PopulateAffiliatesForPolicy()
@@ -713,17 +938,34 @@ namespace CoalcavaDropzone
             string client = GetCleanText(txtReembolsoClientSearch);
             string policy = GetCleanText(txtReembolsoPoliza);
             cmbAfiliado.Items.Clear();
+            cmbAfiliado.Text = string.Empty;
 
-            if (string.IsNullOrWhiteSpace(client) || string.IsNullOrWhiteSpace(policy)) return;
+            if (string.IsNullOrWhiteSpace(client) || string.IsNullOrWhiteSpace(policy))
+            {
+                ResetPlaceholder(txtReembolsoCedula, PlaceholderCedula);
+                return;
+            }
 
-            string policyPath = Path.Combine(clientRootPath, client, policy);
-            if (!Directory.Exists(policyPath)) return;
+            string clientPath = Path.Combine(clientRootPath, client);
+            string policyPath = FindPolicyDirectoryPath(clientPath, policy);
+            if (policyPath == null || !Directory.Exists(policyPath))
+            {
+                ResetPlaceholder(txtReembolsoCedula, PlaceholderCedula);
+                return;
+            }
 
             var affiliates = Directory.GetDirectories(policyPath).Select(d => new DirectoryInfo(d).Name).ToArray();
             cmbAfiliado.Items.AddRange(affiliates);
 
-            if (cmbAfiliado.Items.Count > 0) cmbAfiliado.SelectedIndex = 0;
-            else AutoFillCedulaFromAffiliate();
+            if (cmbAfiliado.Items.Count > 0)
+            {
+                cmbAfiliado.SelectedIndex = 0;
+                AutoFillCedulaFromAffiliate();
+            }
+            else
+            {
+                ResetPlaceholder(txtReembolsoCedula, PlaceholderCedula);
+            }
         }
 
         private void AutoFillCedulaFromAffiliate()
@@ -733,10 +975,26 @@ namespace CoalcavaDropzone
             string policy = GetCleanText(txtReembolsoPoliza);
             string affiliate = GetCleanText(cmbAfiliado);
 
-            if (string.IsNullOrWhiteSpace(client) || string.IsNullOrWhiteSpace(policy) || string.IsNullOrWhiteSpace(affiliate)) return;
+            if (string.IsNullOrWhiteSpace(client) || string.IsNullOrWhiteSpace(policy) || string.IsNullOrWhiteSpace(affiliate))
+            {
+                ResetPlaceholder(txtReembolsoCedula, PlaceholderCedula);
+                return;
+            }
 
-            string affiliatePath = Path.Combine(clientRootPath, client, policy, affiliate);
-            if (!Directory.Exists(affiliatePath)) return;
+            string clientPath = Path.Combine(clientRootPath, client);
+            string policyPath = FindPolicyDirectoryPath(clientPath, policy);
+            if (policyPath == null)
+            {
+                ResetPlaceholder(txtReembolsoCedula, PlaceholderCedula);
+                return;
+            }
+
+            string affiliatePath = Path.Combine(policyPath, affiliate);
+            if (!Directory.Exists(affiliatePath))
+            {
+                ResetPlaceholder(txtReembolsoCedula, PlaceholderCedula);
+                return;
+            }
 
             var idFile = Directory.GetFiles(affiliatePath, "ID_*.txt").FirstOrDefault();
             if (idFile != null)
@@ -757,7 +1015,7 @@ namespace CoalcavaDropzone
             isCompletivoMode = !isCompletivoMode;
 
             if (pnlCompletivos != null) pnlCompletivos.Visible = isCompletivoMode;
-            if (btnProcessReembolso != null) btnProcessReembolso.Text = isCompletivoMode ? "Procesar Completivo" : "Procesar";
+            if (btnProcessReembolso != null) btnProcessReembolso.Text = "Procesar";
 
             if (btnToggleMode != null)
             {
@@ -776,7 +1034,6 @@ namespace CoalcavaDropzone
             if (btnToggleAuth != null)
                 btnToggleAuth.Text = isAuthMode ? "Reembolso" : "Autorización";
 
-            // Permite que el botón de completivo siga siempre visible y habilitado
             if (btnToggleMode != null)
             {
                 btnToggleMode.Enabled = true;
@@ -860,7 +1117,7 @@ namespace CoalcavaDropzone
                 dgvReembolsoFiles.Rows[rowIndex].Cells["colSize"].Value = item.FileSizeFormatted;
                 dgvReembolsoFiles.Rows[rowIndex].Tag = item;
             }
-            if (lblReembolsoDropPrompt != null) lblReembolsoDropPrompt.Text = reembolsoItems.Count > 0 ? $"{reembolsoItems.Count} documento(s) listos para consolidar." : "Arrastra todos los archivos PDF del caso aquí";
+            if (lblReembolsoDropPrompt != null) lblReembolsoDropPrompt.Text = reembolsoItems.Count > 0 ? $"{reembolsoItems.Count} documento(s) listos para consolidar." : "Arrastra un archivo o haz clic aquí.";
         }
 
         private void DgvReembolsoFiles_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -882,12 +1139,37 @@ namespace CoalcavaDropzone
 
         private void ClearReembolsosForm()
         {
-            reembolsoItems.Clear(); dgvReembolsoFiles.Rows.Clear();
-            ResetPlaceholder(txtReembolsoPoliza, PlaceholderPoliza);
+            reembolsoItems.Clear();
+            dgvReembolsoFiles.Rows.Clear();
+
+            if (lblReembolsoDropPrompt != null)
+                lblReembolsoDropPrompt.Text = "Arrastra todos los archivos PDF del caso aquí";
+
+            if (lstReembolsoClientSuggestions != null)
+                lstReembolsoClientSuggestions.Visible = false;
+
+            ResetPlaceholder(txtReembolsoClientSearch, PlaceholderText);
+
+            if (txtReembolsoPoliza != null)
+            {
+                txtReembolsoPoliza.Items.Clear();
+                ResetPlaceholder(txtReembolsoPoliza, PlaceholderPoliza);
+            }
+
+            if (cmbAfiliado != null)
+            {
+                cmbAfiliado.Items.Clear();
+                cmbAfiliado.Text = string.Empty;
+            }
+
+            if (cmbReembolsoAseguradora != null && cmbReembolsoAseguradora.Items.Count > 0)
+            {
+                cmbReembolsoAseguradora.SelectedIndex = 0;
+            }
+
             ResetPlaceholder(txtReembolsoCedula, PlaceholderCedula);
             ResetPlaceholder(txtReembolsoMonto, PlaceholderMonto);
             ResetPlaceholder(txtReembolsosNotasAdicionales, PlaceholderNotas);
-            ResetPlaceholder(txtReembolsoClientSearch, PlaceholderText);
             ResetPlaceholder(txtTargetCaseId, PlaceholderTargetCaseId);
             ResetPlaceholder(txtCompletivoNotas, PlaceholderCompletivoNotas);
 
@@ -908,6 +1190,8 @@ namespace CoalcavaDropzone
 
         private void TxtReembolsoClientSearch_TextChanged(object sender, EventArgs e)
         {
+            if (isSuppressingCascadeEvents) return;
+
             string query = txtReembolsoClientSearch.Text.Trim();
             if (string.IsNullOrWhiteSpace(query) || query == PlaceholderText)
             {
@@ -1044,7 +1328,7 @@ namespace CoalcavaDropzone
                 string policyNumber = GetCleanText(txtReembolsoPoliza);
                 string affiliate = GetCleanText(cmbAfiliado);
                 string affiliateIdNumber = GetCleanText(txtReembolsoCedula);
-                string insurer = cmbReembolsoAseguradora.SelectedItem?.ToString() ?? "Aseguradora";
+                string insurer = cmbReembolsoAseguradora?.SelectedItem?.ToString() ?? cmbReembolsoAseguradora?.Text?.Trim() ?? "Aseguradora";
                 string currency = cmbCurrency?.SelectedItem?.ToString() ?? "DOP";
                 string notes = GetCleanText(txtReembolsosNotasAdicionales);
                 decimal numericAmount = 0.00m;
@@ -1079,11 +1363,9 @@ namespace CoalcavaDropzone
                     string completivoNote = string.IsNullOrWhiteSpace(GetCleanText(txtCompletivoNotas)) ? "Sin notas adicionales." : GetCleanText(txtCompletivoNotas);
                     spFields.Add("Notas", completivoNote);
 
-                    // Campos para armar el título y cuerpo del recordatorio de To-Do
                     string cleanAffiliate = string.IsNullOrWhiteSpace(affiliate) ? clientName : affiliate;
                     spFields.Add("Afiliado", cleanAffiliate);
 
-                    // Recordatorio para Completivo
                     if (chkSendReminderComp != null && chkSendReminderComp.Checked && dtpReminderTimeComp != null)
                     {
                         spFields.Add("Fecha_x0020_Seguimiento", dtpReminderTimeComp.Value.ToString("s", CultureInfo.InvariantCulture));
@@ -1096,7 +1378,7 @@ namespace CoalcavaDropzone
                     caseId = GenerateCaseId(userInitials, modePrefix);
                     finalPdfName = $"{caseId}.pdf";
 
-                    EnsureDirectoryHierarchy(clientName, policyNumber, affiliate, affiliateIdNumber);
+                    EnsureDirectoryHierarchy(clientName, policyNumber, affiliate, affiliateIdNumber, insurer);
 
                     string cleanAffiliate = string.IsNullOrWhiteSpace(affiliate) ? clientName : affiliate;
                     string cleanAffiliateId = string.IsNullOrWhiteSpace(affiliateIdNumber) ? "No indicado" : affiliateIdNumber;
@@ -1114,7 +1396,6 @@ namespace CoalcavaDropzone
                         spFields.Add("Poliza", policyNumber);
                         spFields.Add("No_x002e_Caso", caseId);
 
-                        // Recordatorio para Autorizaciones
                         if (chkSendReminder != null && chkSendReminder.Checked && dtpReminderTime != null)
                         {
                             spFields.Add("Fecha_x0020_Seguimiento", dtpReminderTime.Value.ToString("s", CultureInfo.InvariantCulture));
@@ -1128,7 +1409,6 @@ namespace CoalcavaDropzone
                         spFields.Add("Monto", numericAmount);
                         spFields.Add("Moneda", currency);
 
-                        // Recordatorio para Reembolsos
                         if (chkSendReminder != null && chkSendReminder.Checked && dtpReminderTime != null)
                         {
                             spFields.Add("Fecha_x0020_Seguimiento", dtpReminderTime.Value.ToString("s", CultureInfo.InvariantCulture));
@@ -1197,6 +1477,7 @@ namespace CoalcavaDropzone
                     MessageBoxIcon.Information
                 );
 
+                // Re-indexar automáticamente el caché local y la pestaña Registros
                 LoadClientFolders();
                 ClearReembolsosForm();
             }
@@ -1211,27 +1492,52 @@ namespace CoalcavaDropzone
             }
         }
 
-        private void EnsureDirectoryHierarchy(string client, string policy, string affiliate, string affiliateIdNumber = "")
+        private void EnsureDirectoryHierarchy(string client, string policy, string affiliate, string affiliateIdNumber = "", string insurer = "")
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(client) || !Directory.Exists(clientRootPath)) return;
-                string clientDir = Path.Combine(clientRootPath, client);
+                string safeClient = SanitizeFolderName(client);
+                string clientDir = Path.Combine(clientRootPath, safeClient);
                 if (!Directory.Exists(clientDir)) Directory.CreateDirectory(clientDir);
 
                 if (!string.IsNullOrWhiteSpace(policy))
                 {
-                    string policyDir = Path.Combine(clientDir, policy);
-                    if (!Directory.Exists(policyDir)) Directory.CreateDirectory(policyDir);
+                    string existingPolicyDir = FindPolicyDirectoryPath(clientDir, policy);
+                    string targetPolicyFolderName = BuildPolicyFolderName(policy, insurer);
+                    string policyDir;
+
+                    if (existingPolicyDir != null)
+                    {
+                        string currentDirName = new DirectoryInfo(existingPolicyDir).Name;
+                        var parsed = ParsePolicyFolderName(currentDirName);
+
+                        if (string.IsNullOrWhiteSpace(parsed.Insurer) && !string.IsNullOrWhiteSpace(insurer))
+                        {
+                            string renamedPath = Path.Combine(clientDir, targetPolicyFolderName);
+                            MoveOrMergeDirectory(existingPolicyDir, renamedPath);
+                            policyDir = renamedPath;
+                        }
+                        else
+                        {
+                            policyDir = existingPolicyDir;
+                        }
+                    }
+                    else
+                    {
+                        policyDir = Path.Combine(clientDir, targetPolicyFolderName);
+                        if (!Directory.Exists(policyDir)) Directory.CreateDirectory(policyDir);
+                    }
 
                     if (!string.IsNullOrWhiteSpace(affiliate))
                     {
-                        string affiliateDir = Path.Combine(policyDir, affiliate);
+                        string safeAffiliate = SanitizeFolderName(affiliate);
+                        string affiliateDir = Path.Combine(policyDir, safeAffiliate);
                         if (!Directory.Exists(affiliateDir)) Directory.CreateDirectory(affiliateDir);
 
                         if (!string.IsNullOrWhiteSpace(affiliateIdNumber) && affiliateIdNumber != PlaceholderCedula)
                         {
-                            string cleanDoc = string.Concat(affiliateIdNumber.Split(Path.GetInvalidFileNameChars())).Trim();
+                            string cleanDoc = SanitizeFolderName(affiliateIdNumber);
                             string targetIdFilePath = Path.Combine(affiliateDir, $"ID_{cleanDoc}.txt");
 
                             var oldFiles = Directory.GetFiles(affiliateDir, "ID_*.txt");
@@ -1249,6 +1555,719 @@ namespace CoalcavaDropzone
                 }
             }
             catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Error creando jerarquía: {ex.Message}"); }
+        }
+
+        #endregion
+
+        #region Pestaña Registros (Editor de Clientes, Pólizas, Aseguradoras y Afiliados)
+
+        private void UpdateRegistrosPathLabel(string subPath = "")
+        {
+            if (lblRegistrosCurrentPath == null) return;
+
+            string displayPath = string.IsNullOrWhiteSpace(subPath)
+                ? clientRootPath.TrimEnd('\\')
+                : subPath.TrimEnd('\\');
+
+            lblRegistrosCurrentPath.Text = $"Ruta: {displayPath}";
+        }
+
+        private void SetRegistrosEditMode(bool editing)
+        {
+            isRegistrosEditMode = editing;
+
+            if (dgvRegistros != null)
+            {
+                dgvRegistros.ReadOnly = !editing;
+                dgvRegistros.AllowUserToAddRows = editing;
+                dgvRegistros.AllowUserToDeleteRows = editing;
+            }
+
+            if (btnSaveRegistros != null)
+                btnSaveRegistros.Text = editing ? "Guardar" : "Editar";
+
+            if (btnCancelRegistros != null)
+                btnCancelRegistros.Visible = editing;
+
+            if (btnDeleteRegistro != null)
+                btnDeleteRegistro.Visible = editing;
+        }
+
+        private void SetupRegistrosTab()
+        {
+            if (dgvRegistros == null) return;
+
+            dgvRegistros.AutoGenerateColumns = false;
+            dgvRegistros.RowHeadersVisible = true;
+            dgvRegistros.SelectionMode = DataGridViewSelectionMode.CellSelect;
+            dgvRegistros.EditMode = DataGridViewEditMode.EditOnEnter;
+            dgvRegistros.Columns.Clear();
+
+            dgvRegistros.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Titular",
+                Name = "colRegClient",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 25
+            });
+
+            dgvRegistros.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "No. Póliza",
+                Name = "colRegPolicy",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 18
+            });
+
+            dgvRegistros.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Afiliado",
+                Name = "colRegAffiliate",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 22
+            });
+
+            dgvRegistros.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "No. Afiliado",
+                Name = "colRegIdNumber",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 15
+            });
+
+            DataGridViewComboBoxColumn colInsurer = new DataGridViewComboBoxColumn
+            {
+                HeaderText = "Aseguradora",
+                Name = "colRegInsurer",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 20,
+                FlatStyle = FlatStyle.Flat,
+                DisplayStyle = DataGridViewComboBoxDisplayStyle.ComboBox
+            };
+            colInsurer.Items.Add("");
+            colInsurer.Items.AddRange(insurerOptions);
+            dgvRegistros.Columns.Add(colInsurer);
+
+            dgvRegistros.DataError += (s, e) => { e.ThrowException = false; };
+            dgvRegistros.SelectionChanged -= DgvRegistros_SelectionChanged;
+            dgvRegistros.SelectionChanged += DgvRegistros_SelectionChanged;
+
+            dgvRegistros.CurrentCellDirtyStateChanged -= DgvRegistros_CurrentCellDirtyStateChanged;
+            dgvRegistros.CurrentCellDirtyStateChanged += DgvRegistros_CurrentCellDirtyStateChanged;
+            dgvRegistros.CellValueChanged -= DgvRegistros_CellValueChanged;
+            dgvRegistros.CellValueChanged += DgvRegistros_CellValueChanged;
+
+            if (txtSearchRegistros != null)
+            {
+                ApplyPlaceholder(txtSearchRegistros, PlaceholderSearchRegistros);
+                txtSearchRegistros.TextChanged -= TxtSearchRegistros_TextChanged;
+                txtSearchRegistros.TextChanged += TxtSearchRegistros_TextChanged;
+            }
+
+            if (btnSaveRegistros != null)
+            {
+                btnSaveRegistros.Click -= BtnSaveRegistros_Click;
+                btnSaveRegistros.Click += BtnSaveRegistros_Click;
+            }
+
+            if (btnCancelRegistros != null)
+            {
+                btnCancelRegistros.Click -= BtnCancelRegistros_Click;
+                btnCancelRegistros.Click += BtnCancelRegistros_Click;
+            }
+
+            if (btnDeleteRegistro != null)
+            {
+                btnDeleteRegistro.Click -= BtnDeleteRegistro_Click;
+                btnDeleteRegistro.Click += BtnDeleteRegistro_Click;
+            }
+
+            if (btnRefreshRegistros != null)
+            {
+                btnRefreshRegistros.Click -= BtnRefreshRegistros_Click;
+                btnRefreshRegistros.Click += BtnRefreshRegistros_Click;
+            }
+
+            if (btnUseRegistro != null)
+            {
+                btnUseRegistro.Click -= BtnUseRegistro_Click;
+                btnUseRegistro.Click += BtnUseRegistro_Click;
+            }
+
+            SetRegistrosEditMode(false);
+            UpdateRegistrosPathLabel();
+            RefreshRegistrosData();
+        }
+
+        private void BtnUseRegistro_Click(object sender, EventArgs e)
+        {
+            if (dgvRegistros == null || dgvRegistros.CurrentRow == null || dgvRegistros.CurrentRow.IsNewRow)
+            {
+                PlaySound(SystemSounds.Exclamation);
+                MessageBox.Show("Seleccione un registro válido de la tabla primero.", "Registros", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var row = dgvRegistros.CurrentRow;
+            string client = SanitizeFolderName(row.Cells["colRegClient"].Value?.ToString() ?? "");
+            string policy = SanitizeFolderName(row.Cells["colRegPolicy"].Value?.ToString() ?? "");
+            string insurer = row.Cells["colRegInsurer"].Value?.ToString()?.Trim() ?? "";
+            string affiliate = SanitizeFolderName(row.Cells["colRegAffiliate"].Value?.ToString() ?? "");
+            string idNumber = SanitizeFolderName(row.Cells["colRegIdNumber"].Value?.ToString() ?? "");
+
+            if (string.IsNullOrWhiteSpace(client))
+            {
+                PlaySound(SystemSounds.Exclamation);
+                MessageBox.Show("El registro seleccionado no contiene un nombre de Titular válido.", "Registros", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            isSuppressingCascadeEvents = true;
+            try
+            {
+                // 1. Llenar Titular / Cliente
+                if (txtReembolsoClientSearch != null)
+                {
+                    txtReembolsoClientSearch.Text = client;
+                    txtReembolsoClientSearch.ForeColor = Color.Black;
+                }
+                if (lstReembolsoClientSuggestions != null)
+                    lstReembolsoClientSuggestions.Visible = false;
+
+                // 2. Poblar y seleccionar Póliza
+                if (txtReembolsoPoliza != null)
+                {
+                    txtReembolsoPoliza.Items.Clear();
+                    string clientDir = Path.Combine(clientRootPath, client);
+                    if (Directory.Exists(clientDir))
+                    {
+                        var policyNumbers = Directory.GetDirectories(clientDir)
+                            .Select(d => ParsePolicyFolderName(new DirectoryInfo(d).Name).PolicyNumber)
+                            .Where(p => !string.IsNullOrWhiteSpace(p))
+                            .Distinct()
+                            .ToArray();
+                        txtReembolsoPoliza.Items.AddRange(policyNumbers);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(policy))
+                    {
+                        txtReembolsoPoliza.Text = policy;
+                        txtReembolsoPoliza.ForeColor = Color.Black;
+                    }
+                    else
+                    {
+                        ResetPlaceholder(txtReembolsoPoliza, PlaceholderPoliza);
+                    }
+                }
+
+                // 3. Seleccionar Aseguradora
+                SetInsurerComboValue(insurer);
+
+                // 4. Poblar y seleccionar Afiliado
+                if (cmbAfiliado != null)
+                {
+                    cmbAfiliado.Items.Clear();
+                    string clientDir = Path.Combine(clientRootPath, client);
+                    string policyDir = FindPolicyDirectoryPath(clientDir, policy);
+                    if (policyDir != null && Directory.Exists(policyDir))
+                    {
+                        var affiliates = Directory.GetDirectories(policyDir).Select(d => new DirectoryInfo(d).Name).ToArray();
+                        cmbAfiliado.Items.AddRange(affiliates);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(affiliate))
+                    {
+                        cmbAfiliado.Text = affiliate;
+                        cmbAfiliado.ForeColor = Color.Black;
+                    }
+                    else
+                    {
+                        cmbAfiliado.Text = string.Empty;
+                    }
+                }
+
+                // 5. Llenar No. Afiliado / Cédula
+                if (txtReembolsoCedula != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(idNumber))
+                    {
+                        txtReembolsoCedula.Text = idNumber;
+                        txtReembolsoCedula.ForeColor = Color.Black;
+                    }
+                    else
+                    {
+                        ResetPlaceholder(txtReembolsoCedula, PlaceholderCedula);
+                    }
+                }
+            }
+            finally
+            {
+                isSuppressingCascadeEvents = false;
+            }
+
+            // Cambiar automáticamente a la pestaña de Reembolsos / Autorizaciones
+            TabControl mainTabControl = FindParentTabControl(dgvRegistros);
+            if (mainTabControl != null && mainTabControl.TabPages.Count > 0)
+            {
+                mainTabControl.SelectedIndex = 0;
+            }
+
+            PlaySound(SystemSounds.Asterisk);
+        }
+
+        private TabControl FindParentTabControl(Control ctrl)
+        {
+            Control current = ctrl;
+            while (current != null)
+            {
+                if (current is TabControl tc) return tc;
+                current = current.Parent;
+            }
+            return null;
+        }
+
+        private void DgvRegistros_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            if (dgvRegistros != null && dgvRegistros.IsCurrentCellDirty && dgvRegistros.CurrentCell is DataGridViewComboBoxCell)
+            {
+                dgvRegistros.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
+        }
+
+        private bool isSyncingInsurerCells = false;
+        private void DgvRegistros_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (isSyncingInsurerCells || dgvRegistros == null || e.RowIndex < 0) return;
+
+            if (e.ColumnIndex == dgvRegistros.Columns["colRegInsurer"].Index)
+            {
+                var editedRow = dgvRegistros.Rows[e.RowIndex];
+                string client = SanitizeFolderName(editedRow.Cells["colRegClient"].Value?.ToString() ?? "");
+                string policy = SanitizeFolderName(editedRow.Cells["colRegPolicy"].Value?.ToString() ?? "");
+                string newInsurer = editedRow.Cells["colRegInsurer"].Value?.ToString() ?? "";
+
+                if (string.IsNullOrWhiteSpace(client) || string.IsNullOrWhiteSpace(policy)) return;
+
+                isSyncingInsurerCells = true;
+                try
+                {
+                    foreach (DataGridViewRow row in dgvRegistros.Rows)
+                    {
+                        if (row.IsNewRow || row.Index == e.RowIndex) continue;
+
+                        string rowClient = SanitizeFolderName(row.Cells["colRegClient"].Value?.ToString() ?? "");
+                        string rowPolicy = SanitizeFolderName(row.Cells["colRegPolicy"].Value?.ToString() ?? "");
+
+                        if (string.Equals(client, rowClient, StringComparison.OrdinalIgnoreCase) &&
+                            string.Equals(policy, rowPolicy, StringComparison.OrdinalIgnoreCase))
+                        {
+                            var insurerCell = row.Cells["colRegInsurer"] as DataGridViewComboBoxCell;
+                            if (insurerCell != null && !string.IsNullOrWhiteSpace(newInsurer) && !insurerCell.Items.Contains(newInsurer))
+                            {
+                                insurerCell.Items.Add(newInsurer);
+                            }
+                            row.Cells["colRegInsurer"].Value = newInsurer;
+                        }
+                    }
+                }
+                finally
+                {
+                    isSyncingInsurerCells = false;
+                }
+            }
+        }
+
+        private void BtnCancelRegistros_Click(object sender, EventArgs e)
+        {
+            if (dgvRegistros != null) dgvRegistros.CancelEdit();
+            SetRegistrosEditMode(false);
+            RefreshRegistrosData();
+        }
+
+        private void BtnDeleteRegistro_Click(object sender, EventArgs e)
+        {
+            if (!isRegistrosEditMode || dgvRegistros == null || dgvRegistros.CurrentRow == null || dgvRegistros.CurrentRow.IsNewRow)
+                return;
+
+            var row = dgvRegistros.CurrentRow;
+            var rec = row.Tag as ClientRecordItem;
+
+            if (rec == null)
+            {
+                dgvRegistros.Rows.Remove(row);
+                return;
+            }
+
+            string desc = $"{rec.Client}" +
+                (!string.IsNullOrWhiteSpace(rec.Policy) ? $" > {rec.Policy}" : "") +
+                (!string.IsNullOrWhiteSpace(rec.Affiliate) ? $" > {rec.Affiliate}" : "");
+
+            if (MessageBox.Show(
+                $"¿Está seguro de eliminar permanentemente este registro?\n\n{desc}",
+                "Confirmar Eliminación",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning) != DialogResult.Yes)
+            {
+                return;
+            }
+
+            try
+            {
+                string clientDir = Path.Combine(clientRootPath, rec.OriginalClient);
+
+                if (!string.IsNullOrWhiteSpace(rec.OriginalPolicyFolder))
+                {
+                    string policyDir = Path.Combine(clientDir, rec.OriginalPolicyFolder);
+
+                    if (!string.IsNullOrWhiteSpace(rec.OriginalAffiliate))
+                    {
+                        string affDir = Path.Combine(policyDir, rec.OriginalAffiliate);
+                        if (Directory.Exists(affDir))
+                            Directory.Delete(affDir, true);
+
+                        if (Directory.Exists(policyDir) && !Directory.EnumerateFileSystemEntries(policyDir).Any())
+                            Directory.Delete(policyDir, false);
+                    }
+                    else if (Directory.Exists(policyDir))
+                    {
+                        Directory.Delete(policyDir, true);
+                    }
+
+                    if (Directory.Exists(clientDir) && !Directory.EnumerateFileSystemEntries(clientDir).Any())
+                        Directory.Delete(clientDir, false);
+                }
+                else if (Directory.Exists(clientDir))
+                {
+                    Directory.Delete(clientDir, true);
+                }
+
+                LoadClientFolders();
+                PlaySound(SystemSounds.Asterisk);
+                MessageBox.Show("Registro eliminado correctamente.", "Registros", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                PlaySound(SystemSounds.Hand);
+                MessageBox.Show($"Error al eliminar la carpeta local:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void DgvRegistros_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dgvRegistros == null || dgvRegistros.CurrentRow == null || dgvRegistros.CurrentRow.IsNewRow)
+            {
+                UpdateRegistrosPathLabel();
+                return;
+            }
+
+            var row = dgvRegistros.CurrentRow;
+            string client = SanitizeFolderName(row.Cells["colRegClient"].Value?.ToString() ?? "");
+            string policy = SanitizeFolderName(row.Cells["colRegPolicy"].Value?.ToString() ?? "");
+            string insurer = SanitizeFolderName(row.Cells["colRegInsurer"].Value?.ToString() ?? "");
+            string affiliate = SanitizeFolderName(row.Cells["colRegAffiliate"].Value?.ToString() ?? "");
+
+            if (string.IsNullOrWhiteSpace(client))
+            {
+                UpdateRegistrosPathLabel();
+                return;
+            }
+
+            string targetPath = Path.Combine(clientRootPath, client);
+
+            if (!string.IsNullOrWhiteSpace(policy))
+            {
+                string policyFolder = BuildPolicyFolderName(policy, insurer);
+                targetPath = Path.Combine(targetPath, policyFolder);
+
+                if (!string.IsNullOrWhiteSpace(affiliate))
+                {
+                    targetPath = Path.Combine(targetPath, affiliate);
+                }
+            }
+
+            UpdateRegistrosPathLabel(targetPath);
+        }
+
+        private void BtnRefreshRegistros_Click(object sender, EventArgs e)
+        {
+            if (isRegistrosEditMode)
+                SetRegistrosEditMode(false);
+
+            LoadClientFolders();
+            PlaySound(SystemSounds.Asterisk);
+        }
+
+        private void RefreshRegistrosData()
+        {
+            if (dgvRegistros == null) return;
+
+            allClientRecords.Clear();
+
+            if (Directory.Exists(clientRootPath))
+            {
+                foreach (var clientDir in Directory.GetDirectories(clientRootPath))
+                {
+                    string clientName = new DirectoryInfo(clientDir).Name;
+                    var policyDirs = Directory.GetDirectories(clientDir);
+
+                    if (policyDirs.Length == 0)
+                    {
+                        allClientRecords.Add(new ClientRecordItem
+                        {
+                            OriginalClient = clientName,
+                            Client = clientName
+                        });
+                        continue;
+                    }
+
+                    foreach (var polDir in policyDirs)
+                    {
+                        string rawPolName = new DirectoryInfo(polDir).Name;
+                        var parsedPol = ParsePolicyFolderName(rawPolName);
+                        var affDirs = Directory.GetDirectories(polDir);
+
+                        if (affDirs.Length == 0)
+                        {
+                            allClientRecords.Add(new ClientRecordItem
+                            {
+                                OriginalClient = clientName,
+                                OriginalPolicyFolder = rawPolName,
+                                Client = clientName,
+                                Policy = parsedPol.PolicyNumber,
+                                Insurer = parsedPol.Insurer
+                            });
+                            continue;
+                        }
+
+                        foreach (var affDir in affDirs)
+                        {
+                            string affName = new DirectoryInfo(affDir).Name;
+                            string idNumber = string.Empty;
+
+                            var idFile = Directory.GetFiles(affDir, "ID_*.txt").FirstOrDefault();
+                            if (idFile != null)
+                            {
+                                string rawId = Path.GetFileNameWithoutExtension(idFile);
+                                if (rawId.Length > 3) idNumber = rawId.Substring(3).Trim();
+                            }
+
+                            allClientRecords.Add(new ClientRecordItem
+                            {
+                                OriginalClient = clientName,
+                                OriginalPolicyFolder = rawPolName,
+                                OriginalAffiliate = affName,
+                                OriginalIdNumber = idNumber,
+                                Client = clientName,
+                                Policy = parsedPol.PolicyNumber,
+                                Insurer = parsedPol.Insurer,
+                                Affiliate = affName,
+                                IdNumber = idNumber
+                            });
+                        }
+                    }
+                }
+            }
+
+            UpdateRegistrosPathLabel();
+            string currentFilter = txtSearchRegistros != null ? GetCleanText(txtSearchRegistros) : string.Empty;
+            PopulateRegistrosGrid(currentFilter);
+        }
+
+        private void TxtSearchRegistros_TextChanged(object sender, EventArgs e)
+        {
+            string query = GetCleanText(txtSearchRegistros);
+            PopulateRegistrosGrid(query);
+        }
+
+        private void PopulateRegistrosGrid(string searchFilter)
+        {
+            if (dgvRegistros == null || dgvRegistros.Columns.Count == 0) return;
+
+            dgvRegistros.Rows.Clear();
+
+            IEnumerable<ClientRecordItem> filtered = allClientRecords;
+            if (!string.IsNullOrWhiteSpace(searchFilter))
+            {
+                filtered = allClientRecords.Where(r =>
+                    (r.Client?.IndexOf(searchFilter, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (r.Policy?.IndexOf(searchFilter, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (r.Insurer?.IndexOf(searchFilter, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (r.Affiliate?.IndexOf(searchFilter, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (r.IdNumber?.IndexOf(searchFilter, StringComparison.OrdinalIgnoreCase) >= 0));
+            }
+
+            foreach (var rec in filtered)
+            {
+                int idx = dgvRegistros.Rows.Add();
+                var row = dgvRegistros.Rows[idx];
+                row.Cells["colRegClient"].Value = rec.Client;
+                row.Cells["colRegPolicy"].Value = rec.Policy;
+
+                var insurerCell = row.Cells["colRegInsurer"] as DataGridViewComboBoxCell;
+                if (insurerCell != null && !string.IsNullOrWhiteSpace(rec.Insurer) && !insurerCell.Items.Contains(rec.Insurer))
+                {
+                    insurerCell.Items.Add(rec.Insurer);
+                }
+                row.Cells["colRegInsurer"].Value = rec.Insurer ?? "";
+
+                row.Cells["colRegAffiliate"].Value = rec.Affiliate;
+                row.Cells["colRegIdNumber"].Value = rec.IdNumber;
+                row.Tag = rec;
+            }
+        }
+
+        private void BtnSaveRegistros_Click(object sender, EventArgs e)
+        {
+            if (dgvRegistros == null) return;
+
+            if (!isRegistrosEditMode)
+            {
+                SetRegistrosEditMode(true);
+                return;
+            }
+
+            dgvRegistros.EndEdit();
+
+            if (!Directory.Exists(clientRootPath))
+            {
+                MessageBox.Show("La carpeta raíz de Clientes no existe.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            int changesCount = 0;
+
+            try
+            {
+                var rowData = new List<(ClientRecordItem Orig, string NewClient, string NewPolicy, string NewInsurer, string NewAffiliate, string NewIdNumber)>();
+
+                foreach (DataGridViewRow row in dgvRegistros.Rows)
+                {
+                    if (row.IsNewRow) continue;
+
+                    string newClient = SanitizeFolderName(row.Cells["colRegClient"].Value?.ToString() ?? "");
+                    string newPolicy = SanitizeFolderName(row.Cells["colRegPolicy"].Value?.ToString() ?? "");
+                    string newInsurer = SanitizeFolderName(row.Cells["colRegInsurer"].Value?.ToString() ?? "");
+                    string newAffiliate = SanitizeFolderName(row.Cells["colRegAffiliate"].Value?.ToString() ?? "");
+                    string newIdNumber = SanitizeFolderName(row.Cells["colRegIdNumber"].Value?.ToString() ?? "");
+
+                    if (string.IsNullOrWhiteSpace(newClient)) continue;
+
+                    rowData.Add((row.Tag as ClientRecordItem, newClient, newPolicy, newInsurer, newAffiliate, newIdNumber));
+                }
+
+                // 1. Renombrar o fusionar carpetas de Cliente una sola vez por carpeta original
+                var processedClients = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var item in rowData.Where(x => x.Orig != null && !string.IsNullOrWhiteSpace(x.Orig.OriginalClient)))
+                {
+                    if (!processedClients.Add(item.Orig.OriginalClient)) continue;
+
+                    string oldClientDir = Path.Combine(clientRootPath, item.Orig.OriginalClient);
+                    string targetClientDir = Path.Combine(clientRootPath, item.NewClient);
+
+                    if (!string.Equals(item.Orig.OriginalClient, item.NewClient, StringComparison.OrdinalIgnoreCase) && Directory.Exists(oldClientDir))
+                    {
+                        MoveOrMergeDirectory(oldClientDir, targetClientDir);
+                        changesCount++;
+                    }
+                    else if (!Directory.Exists(targetClientDir))
+                    {
+                        Directory.CreateDirectory(targetClientDir);
+                        changesCount++;
+                    }
+                }
+
+                // 2. Renombrar o fusionar carpetas de Póliza ~ Aseguradora una sola vez por carpeta original
+                var processedPolicies = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var item in rowData.Where(x => x.Orig != null && !string.IsNullOrWhiteSpace(x.Orig.OriginalPolicyFolder) && !string.IsNullOrWhiteSpace(x.NewPolicy)))
+                {
+                    string policyKey = $"{item.NewClient}|{item.Orig.OriginalPolicyFolder}";
+                    if (!processedPolicies.Add(policyKey)) continue;
+
+                    string activeClientDir = Path.Combine(clientRootPath, item.NewClient);
+                    string oldPolicyDir = Path.Combine(activeClientDir, item.Orig.OriginalPolicyFolder);
+                    string targetPolicyFolderName = BuildPolicyFolderName(item.NewPolicy, item.NewInsurer);
+                    string targetPolicyDir = Path.Combine(activeClientDir, targetPolicyFolderName);
+
+                    if (!string.Equals(item.Orig.OriginalPolicyFolder, targetPolicyFolderName, StringComparison.OrdinalIgnoreCase) && Directory.Exists(oldPolicyDir))
+                    {
+                        MoveOrMergeDirectory(oldPolicyDir, targetPolicyDir);
+                        changesCount++;
+                    }
+                    else if (!Directory.Exists(targetPolicyDir))
+                    {
+                        Directory.CreateDirectory(targetPolicyDir);
+                        changesCount++;
+                    }
+                }
+
+                // 3. Procesar cada fila de Afiliado / ID y filas nuevas
+                foreach (var item in rowData)
+                {
+                    string activeClientDir = Path.Combine(clientRootPath, item.NewClient);
+                    if (!Directory.Exists(activeClientDir))
+                    {
+                        Directory.CreateDirectory(activeClientDir);
+                    }
+
+                    if (string.IsNullOrWhiteSpace(item.NewPolicy)) continue;
+
+                    string targetPolicyFolderName = BuildPolicyFolderName(item.NewPolicy, item.NewInsurer);
+                    string activePolicyDir = Path.Combine(activeClientDir, targetPolicyFolderName);
+                    if (!Directory.Exists(activePolicyDir))
+                    {
+                        Directory.CreateDirectory(activePolicyDir);
+                        changesCount++;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(item.NewAffiliate)) continue;
+
+                    string targetAffDir = Path.Combine(activePolicyDir, item.NewAffiliate);
+
+                    if (item.Orig != null && !string.IsNullOrWhiteSpace(item.Orig.OriginalAffiliate))
+                    {
+                        string oldAffDir = Path.Combine(activePolicyDir, item.Orig.OriginalAffiliate);
+                        if (!string.Equals(item.Orig.OriginalAffiliate, item.NewAffiliate, StringComparison.OrdinalIgnoreCase) && Directory.Exists(oldAffDir))
+                        {
+                            MoveOrMergeDirectory(oldAffDir, targetAffDir);
+                            changesCount++;
+                        }
+                        else if (!Directory.Exists(targetAffDir))
+                        {
+                            Directory.CreateDirectory(targetAffDir);
+                            changesCount++;
+                        }
+
+                        if (!string.Equals(item.Orig.OriginalIdNumber ?? "", item.NewIdNumber, StringComparison.OrdinalIgnoreCase))
+                        {
+                            foreach (var oldIdFile in Directory.GetFiles(targetAffDir, "ID_*.txt"))
+                            {
+                                try { File.Delete(oldIdFile); } catch { }
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(item.NewIdNumber))
+                            {
+                                File.WriteAllText(Path.Combine(targetAffDir, $"ID_{item.NewIdNumber}.txt"), item.NewIdNumber);
+                            }
+                            changesCount++;
+                        }
+                    }
+                    else
+                    {
+                        EnsureDirectoryHierarchy(item.NewClient, item.NewPolicy, item.NewAffiliate, item.NewIdNumber, item.NewInsurer);
+                        changesCount++;
+                    }
+                }
+
+                SetRegistrosEditMode(false);
+                LoadClientFolders();
+                PlaySound(SystemSounds.Asterisk);
+                MessageBox.Show($"Cambios guardados. ({changesCount} actualización(es) aplicada(s)).", "Registros Actualizados", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                PlaySound(SystemSounds.Hand);
+                MessageBox.Show($"Error al guardar cambios en las carpetas locales:\n{ex.Message}", "Error de Guardado", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         #endregion
@@ -1305,6 +2324,8 @@ namespace CoalcavaDropzone
                     bool ok = await AuthService.SignInInteractiveAsync(this.Handle);
                     if (ok)
                     {
+                        sharedGraphClient = null;
+                        sharedCredential = null;
                         UpdateAuthUI();
                         if (txtAppUser != null) { txtAppUser.Text = AuthService.CurrentDisplayName; txtAppUser.ForeColor = Color.Black; }
                         MessageBox.Show($"Bienvenido(a), {AuthService.CurrentDisplayName}.\nSesión iniciada exitosamente.", "Microsoft 365", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -1357,6 +2378,7 @@ namespace CoalcavaDropzone
             }
 
             LoadClientFolders();
+            UpdateRegistrosPathLabel();
             MessageBox.Show("Configuración guardada correctamente.", "Opciones", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
@@ -1393,5 +2415,19 @@ namespace CoalcavaDropzone
         }
 
         #endregion
+    }
+
+    public class AuthServiceCredential : TokenCredential
+    {
+        public override AccessToken GetToken(TokenRequestContext requestContext, CancellationToken cancellationToken)
+        {
+            return GetTokenAsync(requestContext, cancellationToken).GetAwaiter().GetResult();
+        }
+
+        public override async ValueTask<AccessToken> GetTokenAsync(TokenRequestContext requestContext, CancellationToken cancellationToken)
+        {
+            string token = await AuthService.GetAccessTokenAsync(requestContext.Scopes);
+            return new AccessToken(token, DateTimeOffset.UtcNow.AddMinutes(45));
+        }
     }
 }

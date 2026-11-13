@@ -72,6 +72,15 @@
             this.pnlReembolsoDrop = new System.Windows.Forms.Panel();
             this.picDownloadIcon = new System.Windows.Forms.PictureBox();
             this.lblReembolsoDropPrompt = new System.Windows.Forms.Label();
+            this.tabPageRegistros = new System.Windows.Forms.TabPage();
+            this.btnDeleteRegistro = new System.Windows.Forms.Button();
+            this.btnCancelRegistros = new System.Windows.Forms.Button();
+            this.lblRegistrosCurrentPath = new System.Windows.Forms.Label();
+            this.btnRefreshRegistros = new System.Windows.Forms.Button();
+            this.btnSaveRegistros = new System.Windows.Forms.Button();
+            this.txtSearchRegistros = new System.Windows.Forms.TextBox();
+            this.dgvRegistros = new System.Windows.Forms.DataGridView();
+            this.label2 = new System.Windows.Forms.Label();
             this.tabPageOptions = new System.Windows.Forms.TabPage();
             this.lblAuthStatus = new System.Windows.Forms.Label();
             this.btnAuthAction = new System.Windows.Forms.Button();
@@ -92,6 +101,7 @@
             this.btnQuickGrab = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
             this.btnOpenDoc = new System.Windows.Forms.Button();
+            this.btnUseRegistro = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.tabControlMain.SuspendLayout();
             this.tabPageReembolsos.SuspendLayout();
@@ -100,6 +110,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvReembolsoFiles)).BeginInit();
             this.pnlReembolsoDrop.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picDownloadIcon)).BeginInit();
+            this.tabPageRegistros.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvRegistros)).BeginInit();
             this.tabPageOptions.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbDownloadIcon)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picPreview)).BeginInit();
@@ -113,6 +125,7 @@
             // tabControlMain
             // 
             this.tabControlMain.Controls.Add(this.tabPageReembolsos);
+            this.tabControlMain.Controls.Add(this.tabPageRegistros);
             this.tabControlMain.Controls.Add(this.tabPageOptions);
             this.tabControlMain.Dock = System.Windows.Forms.DockStyle.Left;
             this.tabControlMain.Font = new System.Drawing.Font("Malgun Gothic", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -389,9 +402,9 @@
             this.label9.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.label9.Location = new System.Drawing.Point(479, 8);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(51, 17);
+            this.label9.Size = new System.Drawing.Size(49, 17);
             this.label9.TabIndex = 5;
-            this.label9.Text = "Cliente";
+            this.label9.Text = "Titular";
             // 
             // txtReembolsoClientSearch
             // 
@@ -458,12 +471,13 @@
             // label19
             // 
             this.label19.AutoSize = true;
+            this.label19.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.label19.Font = new System.Drawing.Font("Malgun Gothic", 4.8F, System.Drawing.FontStyle.Bold);
-            this.label19.Location = new System.Drawing.Point(3, 605);
+            this.label19.Location = new System.Drawing.Point(0, 607);
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(40, 11);
             this.label19.TabIndex = 6;
-            this.label19.Text = "ver. 1.0.0";
+            this.label19.Text = "ver. 1.2.0";
             // 
             // dgvReembolsoFiles
             // 
@@ -535,12 +549,108 @@
             // lblReembolsoDropPrompt
             // 
             this.lblReembolsoDropPrompt.AutoSize = true;
-            this.lblReembolsoDropPrompt.Location = new System.Drawing.Point(96, 145);
+            this.lblReembolsoDropPrompt.Location = new System.Drawing.Point(106, 145);
             this.lblReembolsoDropPrompt.Name = "lblReembolsoDropPrompt";
             this.lblReembolsoDropPrompt.Size = new System.Drawing.Size(227, 17);
             this.lblReembolsoDropPrompt.TabIndex = 3;
             this.lblReembolsoDropPrompt.Text = "Arrastra un archivo o haz clic aquí.";
             this.lblReembolsoDropPrompt.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // tabPageRegistros
+            // 
+            this.tabPageRegistros.Controls.Add(this.btnUseRegistro);
+            this.tabPageRegistros.Controls.Add(this.btnDeleteRegistro);
+            this.tabPageRegistros.Controls.Add(this.btnCancelRegistros);
+            this.tabPageRegistros.Controls.Add(this.lblRegistrosCurrentPath);
+            this.tabPageRegistros.Controls.Add(this.btnRefreshRegistros);
+            this.tabPageRegistros.Controls.Add(this.btnSaveRegistros);
+            this.tabPageRegistros.Controls.Add(this.txtSearchRegistros);
+            this.tabPageRegistros.Controls.Add(this.dgvRegistros);
+            this.tabPageRegistros.Controls.Add(this.label2);
+            this.tabPageRegistros.Location = new System.Drawing.Point(4, 24);
+            this.tabPageRegistros.Name = "tabPageRegistros";
+            this.tabPageRegistros.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageRegistros.Size = new System.Drawing.Size(757, 624);
+            this.tabPageRegistros.TabIndex = 3;
+            this.tabPageRegistros.Text = "Registros";
+            this.tabPageRegistros.UseVisualStyleBackColor = true;
+            // 
+            // btnDeleteRegistro
+            // 
+            this.btnDeleteRegistro.Location = new System.Drawing.Point(22, 551);
+            this.btnDeleteRegistro.Name = "btnDeleteRegistro";
+            this.btnDeleteRegistro.Size = new System.Drawing.Size(106, 33);
+            this.btnDeleteRegistro.TabIndex = 9;
+            this.btnDeleteRegistro.Text = "Eliminar";
+            this.btnDeleteRegistro.UseVisualStyleBackColor = true;
+            this.btnDeleteRegistro.Visible = false;
+            // 
+            // btnCancelRegistros
+            // 
+            this.btnCancelRegistros.Location = new System.Drawing.Point(420, 551);
+            this.btnCancelRegistros.Name = "btnCancelRegistros";
+            this.btnCancelRegistros.Size = new System.Drawing.Size(106, 33);
+            this.btnCancelRegistros.TabIndex = 8;
+            this.btnCancelRegistros.Text = "Cancelar";
+            this.btnCancelRegistros.UseVisualStyleBackColor = true;
+            this.btnCancelRegistros.Visible = false;
+            // 
+            // lblRegistrosCurrentPath
+            // 
+            this.lblRegistrosCurrentPath.AutoEllipsis = true;
+            this.lblRegistrosCurrentPath.AutoSize = true;
+            this.lblRegistrosCurrentPath.Font = new System.Drawing.Font("Malgun Gothic", 4.8F, System.Drawing.FontStyle.Bold);
+            this.lblRegistrosCurrentPath.Location = new System.Drawing.Point(-2, 613);
+            this.lblRegistrosCurrentPath.Name = "lblRegistrosCurrentPath";
+            this.lblRegistrosCurrentPath.Size = new System.Drawing.Size(63, 11);
+            this.lblRegistrosCurrentPath.TabIndex = 7;
+            this.lblRegistrosCurrentPath.Text = "Registro Actual";
+            // 
+            // btnRefreshRegistros
+            // 
+            this.btnRefreshRegistros.Location = new System.Drawing.Point(636, 73);
+            this.btnRefreshRegistros.Name = "btnRefreshRegistros";
+            this.btnRefreshRegistros.Size = new System.Drawing.Size(106, 25);
+            this.btnRefreshRegistros.TabIndex = 6;
+            this.btnRefreshRegistros.Text = "Refrescar";
+            this.btnRefreshRegistros.UseVisualStyleBackColor = true;
+            // 
+            // btnSaveRegistros
+            // 
+            this.btnSaveRegistros.Location = new System.Drawing.Point(532, 551);
+            this.btnSaveRegistros.Name = "btnSaveRegistros";
+            this.btnSaveRegistros.Size = new System.Drawing.Size(106, 33);
+            this.btnSaveRegistros.TabIndex = 5;
+            this.btnSaveRegistros.Text = "Editar";
+            this.btnSaveRegistros.UseVisualStyleBackColor = true;
+            // 
+            // txtSearchRegistros
+            // 
+            this.txtSearchRegistros.Location = new System.Drawing.Point(22, 73);
+            this.txtSearchRegistros.Name = "txtSearchRegistros";
+            this.txtSearchRegistros.Size = new System.Drawing.Size(513, 25);
+            this.txtSearchRegistros.TabIndex = 4;
+            // 
+            // dgvRegistros
+            // 
+            this.dgvRegistros.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvRegistros.Location = new System.Drawing.Point(22, 101);
+            this.dgvRegistros.Name = "dgvRegistros";
+            this.dgvRegistros.RowHeadersWidth = 51;
+            this.dgvRegistros.RowTemplate.Height = 24;
+            this.dgvRegistros.Size = new System.Drawing.Size(720, 444);
+            this.dgvRegistros.TabIndex = 3;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Nirmala UI", 20.2F, System.Drawing.FontStyle.Bold);
+            this.label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            this.label2.Location = new System.Drawing.Point(14, 12);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(168, 46);
+            this.label2.TabIndex = 2;
+            this.label2.Text = "Registros";
             // 
             // tabPageOptions
             // 
@@ -743,6 +853,15 @@
             this.btnOpenDoc.Text = "Ver Documento";
             this.btnOpenDoc.UseVisualStyleBackColor = true;
             // 
+            // btnUseRegistro
+            // 
+            this.btnUseRegistro.Location = new System.Drawing.Point(636, 551);
+            this.btnUseRegistro.Name = "btnUseRegistro";
+            this.btnUseRegistro.Size = new System.Drawing.Size(106, 33);
+            this.btnUseRegistro.TabIndex = 10;
+            this.btnUseRegistro.Text = "Usar Registro";
+            this.btnUseRegistro.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -768,6 +887,9 @@
             this.pnlReembolsoDrop.ResumeLayout(false);
             this.pnlReembolsoDrop.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picDownloadIcon)).EndInit();
+            this.tabPageRegistros.ResumeLayout(false);
+            this.tabPageRegistros.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvRegistros)).EndInit();
             this.tabPageOptions.ResumeLayout(false);
             this.tabPageOptions.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbDownloadIcon)).EndInit();
@@ -840,6 +962,16 @@
         private System.Windows.Forms.Button btnOpenDoc;
         private System.Windows.Forms.Button btnAuthAction;
         private System.Windows.Forms.Label lblAuthStatus;
+        private System.Windows.Forms.TabPage tabPageRegistros;
+        private System.Windows.Forms.Button btnRefreshRegistros;
+        private System.Windows.Forms.Button btnSaveRegistros;
+        private System.Windows.Forms.TextBox txtSearchRegistros;
+        private System.Windows.Forms.DataGridView dgvRegistros;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lblRegistrosCurrentPath;
+        private System.Windows.Forms.Button btnDeleteRegistro;
+        private System.Windows.Forms.Button btnCancelRegistros;
+        private System.Windows.Forms.Button btnUseRegistro;
     }
 }
 

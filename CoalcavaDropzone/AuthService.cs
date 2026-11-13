@@ -11,7 +11,14 @@ namespace CoalcavaDropzone
         private const string ClientId = "ce2d41ed-73df-43da-ae41-fbfa9914df9e";
         private const string TenantId = "47d4e187-f644-4ecf-8b7d-e4456388865f";
 
-        private static readonly string[] Scopes = new[] { "User.Read" };
+        // Include Graph scopes upfront so interactive sign-in consents to everything at once
+        private static readonly string[] Scopes = new[]
+        {
+            "User.Read",
+            "Sites.ReadWrite.All",
+            "Tasks.ReadWrite"
+        };
+
         private static readonly IPublicClientApplication _app;
 
         // Local cache path in AppData so the session persists across application restarts
@@ -61,6 +68,39 @@ namespace CoalcavaDropzone
                     }
                 }
             });
+        }
+
+        public static async Task<string> GetAccessTokenAsync(string[] scopes)
+        {
+            var accounts = await _app.GetAccountsAsync();
+            var firstAccount = accounts.FirstOrDefault();
+
+            try
+            {
+                if (firstAccount != null)
+                {
+                    var result = await _app.AcquireTokenSilent(scopes, firstAccount).ExecuteAsync();
+                    if (string.IsNullOrWhiteSpace(CurrentUserEmail))
+                    {
+                        SetSessionData(result);
+                    }
+                    return result.AccessToken;
+                }
+            }
+            catch (MsalUiRequiredException)
+            {
+                // Falls through to interactive acquisition if token expired or incremental consent is needed
+            }
+
+            var interactiveBuilder = _app.AcquireTokenInteractive(scopes);
+            if (firstAccount != null)
+            {
+                interactiveBuilder = interactiveBuilder.WithAccount(firstAccount);
+            }
+
+            var interactiveResult = await interactiveBuilder.ExecuteAsync();
+            SetSessionData(interactiveResult);
+            return interactiveResult.AccessToken;
         }
 
         public static async Task<bool> TrySilentSignInAsync()
