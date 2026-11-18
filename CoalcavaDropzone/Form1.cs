@@ -213,31 +213,30 @@ namespace CoalcavaDropzone
 
         private async Task<ListItem> FindListItemByCaseIdAsync(GraphServiceClient graphClient, string listId, string targetCaseId)
         {
-            var items = await graphClient.Sites[sharePointSiteId].Lists[listId].Items.GetAsync(config =>
+            // Limpiar espacios normales, espacios de no separación (\u00A0) y caracteres invisibles
+            string cleanId = Regex.Replace(targetCaseId ?? string.Empty, @"[\s\u00A0\u200B-\u200D\uFEFF]", "");
+            string escapedId = cleanId.Replace("'", "''");
+
+            // 1. Búsqueda directa en el servidor mediante filtro OData (evita el límite de paginación de 200 ítems)
+            var filteredItems = await graphClient.Sites[sharePointSiteId].Lists[listId].Items.GetAsync(config =>
             {
                 config.QueryParameters.Expand = new[] { "fields" };
+                config.QueryParameters.Filter = $"fields/IDdeCaso eq '{escapedId}'";
+                config.Headers.Add("Prefer", "HonorNonIndexedQueriesWarningMayFailRandomly");
             });
 
-            if (items?.Value != null)
-            {
-                foreach (var item in items.Value)
-                {
-                    if (item.Fields != null && item.Fields.AdditionalData != null)
-                    {
-                        string[] possibleFields = { "IDdeCaso", "ID_x0020_de_x0020_Caso" };
+            var match = filteredItems?.Value?.FirstOrDefault();
+            if (match != null) return match;
 
-                        foreach (var field in possibleFields)
-                        {
-                            if (item.Fields.AdditionalData.TryGetValue(field, out var val) &&
-                                string.Equals(val?.ToString()?.Trim(), targetCaseId.Trim(), StringComparison.OrdinalIgnoreCase))
-                            {
-                                return item;
-                            }
-                        }
-                    }
-                }
-            }
-            return null;
+            // 2. Respaldo para Autorizaciones antiguas que usen No_x002e_Caso
+            var fallbackItems = await graphClient.Sites[sharePointSiteId].Lists[listId].Items.GetAsync(config =>
+            {
+                config.QueryParameters.Expand = new[] { "fields" };
+                config.QueryParameters.Filter = $"fields/No_x002e_Caso eq '{escapedId}'";
+                config.Headers.Add("Prefer", "HonorNonIndexedQueriesWarningMayFailRandomly");
+            });
+
+            return fallbackItems?.Value?.FirstOrDefault();
         }
 
         private async Task CreateToDoReminderTaskAsync(GraphServiceClient graphClient, string taskTitle, string taskBody, DateTime reminderDateTime)
@@ -1143,7 +1142,7 @@ namespace CoalcavaDropzone
             dgvReembolsoFiles.Rows.Clear();
 
             if (lblReembolsoDropPrompt != null)
-                lblReembolsoDropPrompt.Text = "Arrastra todos los archivos PDF del caso aquí";
+                lblReembolsoDropPrompt.Text = "Arrastra un archivo o haz clic aquí";
 
             if (lstReembolsoClientSuggestions != null)
                 lstReembolsoClientSuggestions.Visible = false;

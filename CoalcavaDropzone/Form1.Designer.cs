@@ -73,6 +73,7 @@
             this.picDownloadIcon = new System.Windows.Forms.PictureBox();
             this.lblReembolsoDropPrompt = new System.Windows.Forms.Label();
             this.tabPageRegistros = new System.Windows.Forms.TabPage();
+            this.btnUseRegistro = new System.Windows.Forms.Button();
             this.btnDeleteRegistro = new System.Windows.Forms.Button();
             this.btnCancelRegistros = new System.Windows.Forms.Button();
             this.lblRegistrosCurrentPath = new System.Windows.Forms.Label();
@@ -101,7 +102,6 @@
             this.btnQuickGrab = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
             this.btnOpenDoc = new System.Windows.Forms.Button();
-            this.btnUseRegistro = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.tabControlMain.SuspendLayout();
             this.tabPageReembolsos.SuspendLayout();
@@ -477,7 +477,7 @@
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(40, 11);
             this.label19.TabIndex = 6;
-            this.label19.Text = "ver. 1.2.0";
+            this.label19.Text = "ver. 1.3.0";
             // 
             // dgvReembolsoFiles
             // 
@@ -574,6 +574,15 @@
             this.tabPageRegistros.TabIndex = 3;
             this.tabPageRegistros.Text = "Registros";
             this.tabPageRegistros.UseVisualStyleBackColor = true;
+            // 
+            // btnUseRegistro
+            // 
+            this.btnUseRegistro.Location = new System.Drawing.Point(636, 551);
+            this.btnUseRegistro.Name = "btnUseRegistro";
+            this.btnUseRegistro.Size = new System.Drawing.Size(106, 33);
+            this.btnUseRegistro.TabIndex = 10;
+            this.btnUseRegistro.Text = "Usar Registro";
+            this.btnUseRegistro.UseVisualStyleBackColor = true;
             // 
             // btnDeleteRegistro
             // 
@@ -852,15 +861,6 @@
             this.btnOpenDoc.TabIndex = 5;
             this.btnOpenDoc.Text = "Ver Documento";
             this.btnOpenDoc.UseVisualStyleBackColor = true;
-            // 
-            // btnUseRegistro
-            // 
-            this.btnUseRegistro.Location = new System.Drawing.Point(636, 551);
-            this.btnUseRegistro.Name = "btnUseRegistro";
-            this.btnUseRegistro.Size = new System.Drawing.Size(106, 33);
-            this.btnUseRegistro.TabIndex = 10;
-            this.btnUseRegistro.Text = "Usar Registro";
-            this.btnUseRegistro.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
